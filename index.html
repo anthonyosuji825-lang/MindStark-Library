@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <!-- Favicon & Meta -->
+<link rel="icon" type="image/png" href="logo.png"/>
+<link rel="apple-touch-icon" href="logo.png"/>
+<meta property="og:image" content="https://mindstark-library.netlify.app/logo.png"/>
+<meta property="og:title" content="MindStark Library"/>
+<meta property="og:description" content="70,000+ free books. Read anywhere, anytime."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://mindstark-library.netlify.app"/>
+  <title>MindStark Library</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    /* ── Variables ───────────────────────────────── */
+    :root{
+      --cream:#f5f0e8;--warm:#ede5d5;--brown:#3b2a1a;--gold:#c8963e;
+      --rust:#a0522d;--text:#2c1e0f;--muted:#7a6652;--white:#ffffff;
+      --border:rgba(200,150,62,.18);--shadow:0 4px 32px rgba(59,42,26,.12);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);line-height:1.6}
+
+    /* ── NAVBAR ──────────────────────────────────── */
+    nav{position:sticky;top:0;z-index:200;background:rgba(245,240,232,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 2rem;max-width:1160px;margin:0 auto}
+    .logo{display:flex;flex-direction:column;line-height:1;text-decoration:none;cursor:pointer}
+    .logo-main{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:var(--brown)}
+    .logo-sub{font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+    .nav-links{display:flex;gap:2rem;list-style:none}
+    .nav-links a{text-decoration:none;color:var(--muted);font-size:.9rem;font-weight:500;transition:color .2s}
+    .nav-links a:hover{color:var(--gold)}
+    .nav-cta{background:var(--brown);color:var(--cream)!important;padding:.5rem 1.25rem;border-radius:50px;transition:background .2s!important}
+    .nav-cta:hover{background:var(--gold)!important}
+
+    /* Hamburger */
+    .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:.4rem;background:none;border:none;z-index:300}
+    .hamburger span{display:block;width:24px;height:2px;background:var(--brown);border-radius:2px;transition:all .3s}
+    .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+    .hamburger.open span:nth-child(2){opacity:0}
+    .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+    /* Mobile menu */
+    .mobile-menu{display:none;position:fixed;inset:0;background:var(--cream);z-index:150;flex-direction:column;align-items:center;justify-content:center;gap:2rem;opacity:0;transition:opacity .3s}
+    .mobile-menu.open{display:flex;opacity:1}
+    .mobile-menu a{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--brown);text-decoration:none;transition:color .2s}
+    .mobile-menu a:hover{color:var(--gold)}
+    .mobile-menu .mob-cta{background:var(--brown);color:var(--cream)!important;padding:.75rem 2rem;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:1rem!important;font-weight:500}
+    .mobile-menu .mob-cta:hover{background:var(--gold)!important}
+
+    /* ── HERO ────────────────────────────────────── */
+    .hero{position:relative;min-height:92vh;display:flex;align-items:center;overflow:hidden;background:linear-gradient(135deg,rgba(59,42,26,.06) 0%,transparent 60%),var(--cream)}
+    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 75% 40%,rgba(200,150,62,.13),transparent 55%),radial-gradient(circle at 20% 70%,rgba(160,82,45,.08),transparent 45%);pointer-events:none}
+    .hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;padding:6rem 2rem;max-width:1160px;margin:0 auto;width:100%}
+    .hero-text{position:relative;z-index:1}
+    .hero-eyebrow{display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem}
+    .hero-eyebrow::before{content:'';display:block;width:36px;height:2px;background:var(--gold)}
+    .hero-eyebrow span{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+    .hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,5vw,4.2rem);font-weight:900;line-height:1.1;color:var(--brown);margin-bottom:1.5rem}
+    .hero h1 em{font-style:italic;color:var(--gold)}
+    .hero-desc{font-size:1.05rem;color:var(--muted);max-width:420px;margin-bottom:2.5rem;line-height:1.8}
+    .hero-actions{display:flex;gap:1rem;flex-wrap:wrap}
+    .btn-primary{background:var(--brown);color:var(--cream);padding:.85rem 2rem;border-radius:50px;text-decoration:none;font-size:.95rem;font-weight:500;transition:background .25s,transform .2s;display:inline-block}
+    .btn-primary:hover{background:var(--gold);transform:translateY(-2px)}
+    .btn-secondary{background:transparent;color:var(--brown);padding:.85rem 2rem;border-radius:50px;text-decoration:none;font-size:.95rem;font-weight:500;border:2px solid var(--brown);transition:all .25s;display:inline-block}
+    .btn-secondary:hover{background:var(--brown);color:var(--cream);transform:translateY(-2px)}
+
+    /* Book shelf */
+    .hero-visual{position:relative;display:flex;justify-content:center;align-items:center;z-index:1}
+    .book-shelf{position:relative;width:340px;height:380px}
+    .shelf-base{position:absolute;bottom:0;left:0;right:0;height:14px;background:var(--brown);border-radius:4px;box-shadow:0 8px 24px rgba(59,42,26,.3)}
+    .books{position:absolute;bottom:14px;left:10px;display:flex;align-items:flex-end;gap:5px}
+    .book{border-radius:3px 5px 5px 3px;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;text-orientation:mixed;font-family:'Playfair Display',serif;font-size:.6rem;font-weight:700;color:rgba(255,255,255,.75);letter-spacing:.05em;box-shadow:2px 0 8px rgba(0,0,0,.15);transition:transform .3s ease;cursor:default}
+    .book:hover{transform:translateY(-12px)}
+    .b1{width:38px;height:210px;background:#8b3a2a}
+    .b2{width:30px;height:260px;background:#4a6741}
+    .b3{width:44px;height:190px;background:#2a4a6b}
+    .b4{width:28px;height:280px;background:#7a5c2a}
+    .b5{width:40px;height:220px;background:#5c3a5c}
+    .b6{width:32px;height:170px;background:#a05050}
+    .b7{width:36px;height:250px;background:#3a5c4a}
+    .b8{width:42px;height:200px;background:#5c4a2a}
+    .hero-badge{position:absolute;top:20px;right:-10px;background:var(--gold);color:var(--white);width:90px;height:90px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:.65rem;line-height:1.4;box-shadow:0 8px 24px rgba(200,150,62,.35)}
+    .hero-badge strong{font-size:1.2rem;font-family:'Playfair Display',serif;display:block}
+
+    /* ── STATS ───────────────────────────────────── */
+    .stats{background:var(--brown);padding:2.5rem 2rem}
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);max-width:1160px;margin:0 auto;text-align:center;gap:1rem}
+    .stat-item{padding:1rem}
+    .stat-num{display:block;font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--gold)}
+    .stat-lbl{display:block;font-size:.8rem;color:rgba(245,240,232,.55);letter-spacing:.08em;text-transform:uppercase;margin-top:.3rem}
+
+    /* ── SECTION HEAD ─────────────────────────────── */
+    .section-head{text-align:center;margin-bottom:3rem}
+    .section-label{display:inline-block;font-size:.75rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem}
+    .section-head h2{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3.5vw,2.5rem);font-weight:900;color:var(--brown);margin-bottom:.75rem;line-height:1.2}
+    .section-head p{color:var(--muted);font-size:.95rem;max-width:480px;margin:0 auto}
+
+    /* ── CATEGORIES ──────────────────────────────── */
+    .categories{padding:5rem 2rem}
+    .cat-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:1rem;max-width:1160px;margin:0 auto}
+    .cat-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:1.5rem 1rem;text-align:center;text-decoration:none;color:var(--text);transition:transform .3s,box-shadow .3s,border-color .3s;display:flex;flex-direction:column;align-items:center;gap:.5rem}
+    .cat-card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(59,42,26,.12);border-color:var(--gold)}
+    .cat-icon{font-size:2rem}
+    .cat-card h3{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;color:var(--brown)}
+    .cat-card span{font-size:.75rem;color:var(--muted)}
+
+    /* ── FEATURED BOOKS ───────────────────────────── */
+    .featured{padding:5rem 2rem;background:var(--warm)}
+    .books-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;max-width:1160px;margin:0 auto}
+    .book-card{background:var(--white);border-radius:16px;overflow:hidden;border:1px solid var(--border);transition:transform .3s,box-shadow .3s}
+    .book-card:hover{transform:translateY(-6px);box-shadow:0 20px 48px rgba(59,42,26,.14)}
+    .book-cover{height:200px;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+    .book-cover-inner{width:110px;height:155px;border-radius:3px 8px 8px 3px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.75rem;text-align:center;box-shadow:4px 4px 20px rgba(0,0,0,.2)}
+    .c1{background:linear-gradient(145deg,#8b3a2a,#c05840)}
+    .c2{background:linear-gradient(145deg,#2a4a6b,#3a7abf)}
+    .c3{background:linear-gradient(145deg,#4a6741,#6a9b5e)}
+    .c4{background:linear-gradient(145deg,#5c3a5c,#9b5c9b)}
+    .cover-title{font-family:'Playfair Display',serif;font-size:.6rem;font-weight:700;color:rgba(255,255,255,.9);line-height:1.3;margin-bottom:.4rem}
+    .cover-line{width:20px;height:1px;background:rgba(255,255,255,.4);margin:.25rem auto}
+    .cover-author{font-size:.48rem;color:rgba(255,255,255,.65);letter-spacing:.08em}
+    .book-info{padding:1.1rem}
+    .book-genre{font-size:.68rem;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:.3rem}
+    .book-info h3{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;color:var(--brown);margin-bottom:.2rem;line-height:1.3}
+    .author{font-size:.78rem;color:var(--muted);margin-bottom:.75rem}
+    .book-meta{display:flex;align-items:center;justify-content:space-between}
+    .rating{color:var(--gold);font-size:.85rem}
+    .read-btn{background:var(--brown);color:var(--cream);border:none;padding:.4rem .9rem;border-radius:50px;font-size:.75rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .2s}
+    .read-btn:hover{background:var(--gold)}
+
+    /* ── QUOTE BANNER ────────────────────────────── */
+    .reading-room{background:var(--brown);padding:5rem 2rem;text-align:center;position:relative;overflow:hidden}
+    .reading-room::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(200,150,62,.1),transparent 65%);pointer-events:none}
+    .reading-room blockquote{font-family:'Playfair Display',serif;font-size:clamp(1.2rem,2.5vw,1.7rem);font-style:italic;color:var(--cream);max-width:760px;margin:0 auto 1rem;line-height:1.6;position:relative;z-index:1}
+    .reading-room cite{font-size:.88rem;color:var(--gold);letter-spacing:.1em;position:relative;z-index:1}
+
+    /* ── MEMBERSHIP ──────────────────────────────── */
+    .membership{padding:5rem 2rem}
+    .plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;max-width:1000px;margin:0 auto;align-items:start}
+    .plan-card{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:2rem;transition:transform .3s,box-shadow .3s}
+    .plan-card:hover{transform:translateY(-5px);box-shadow:0 20px 48px rgba(59,42,26,.12)}
+    .featured-plan{background:var(--brown);border-color:var(--gold);transform:scale(1.04)}
+    .featured-plan:hover{transform:scale(1.04) translateY(-5px)}
+    .plan-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--brown);margin-bottom:.5rem}
+    .featured-plan .plan-name{color:var(--cream)}
+    .plan-price{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:900;color:var(--brown);line-height:1}
+    .featured-plan .plan-price{color:var(--gold)}
+    .plan-period{font-size:.82rem;color:var(--muted);margin-bottom:1.5rem}
+    .featured-plan .plan-period{color:rgba(245,240,232,.5)}
+    .plan-features{list-style:none;margin-bottom:1.75rem;display:flex;flex-direction:column;gap:.6rem}
+    .plan-features li{display:flex;align-items:center;gap:.6rem;font-size:.88rem;color:var(--text)}
+    .featured-plan .plan-features li{color:rgba(245,240,232,.85)}
+    .plan-features li::before{content:'✓';color:var(--gold);font-weight:700}
+    .plan-btn{width:100%;padding:.85rem;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:500;cursor:pointer;transition:all .2s;border:2px solid var(--brown);background:transparent;color:var(--brown)}
+    .plan-btn:hover{background:var(--brown);color:var(--cream)}
+    .featured-plan .plan-btn{background:var(--gold);color:var(--white);border-color:var(--gold)}
+    .featured-plan .plan-btn:hover{background:var(--rust);border-color:var(--rust)}
+
+    /* ── FOOTER ──────────────────────────────────── */
+    footer{background:#1e1208;padding:3.5rem 2rem 1.5rem}
+    .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2.5rem;max-width:1160px;margin:0 auto;padding-bottom:2.5rem;border-bottom:1px solid rgba(200,150,62,.1)}
+    .footer-brand .logo{margin-bottom:.75rem}
+    .footer-brand p{color:rgba(245,240,232,.45);font-size:.85rem;line-height:1.7;margin-top:.5rem}
+    .footer-col h4{font-family:'Playfair Display',serif;font-size:.95rem;color:var(--cream);margin-bottom:1rem}
+    .footer-col ul{list-style:none;display:flex;flex-direction:column;gap:.55rem}
+    .footer-col ul li a{color:rgba(245,240,232,.45);text-decoration:none;font-size:.85rem;transition:color .2s}
+    .footer-col ul li a:hover{color:var(--gold)}
+    .footer-bottom{max-width:1160px;margin:1.5rem auto 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+    .footer-bottom span{font-size:.8rem;color:rgba(245,240,232,.3)}
+
+    /* ── TOAST ───────────────────────────────────── */
+    .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);background:var(--brown);color:var(--cream);padding:.75rem 1.5rem;border-radius:50px;font-size:.88rem;font-weight:500;box-shadow:0 8px 24px rgba(59,42,26,.3);transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap}
+    .toast.show{transform:translateX(-50%) translateY(0)}
+
+    /* ── SCROLL ANIMATIONS ───────────────────────── */
+    .reveal{opacity:0;transform:translateY(28px);transition:opacity .6s ease,transform .6s ease}
+    .reveal.visible{opacity:1;transform:translateY(0)}
+
+    /* ── RESPONSIVE ──────────────────────────────── */
+    /* ── RESPONSIVE ──────────────────────────────── */
+@media(max-width:1024px){
+  .cat-grid{grid-template-columns:repeat(3,1fr)}
+  .books-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:768px){
+  .nav-links{display:none}
+  .hamburger{display:flex}
+  .hero-grid{grid-template-columns:1fr;padding:4rem 1.5rem;text-align:center;gap:2rem}
+  .hero-eyebrow{justify-content:center}
+  .hero-desc{margin:0 auto 2rem;font-size:.95rem}
+  .hero-actions{justify-content:center;flex-direction:column;align-items:center;gap:.75rem}
+  .btn-primary,.btn-secondary{width:100%;max-width:280px;text-align:center}
+  .hero-visual{display:none}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:.75rem}
+  .stat-num{font-size:1.6rem}
+  .cat-grid{grid-template-columns:repeat(3,1fr);gap:.75rem}
+  .cat-card{padding:1.1rem .75rem}
+  .cat-icon{font-size:1.6rem}
+  .cat-card h3{font-size:.85rem}
+  .books-grid{grid-template-columns:repeat(2,1fr);gap:1rem}
+  .plans-grid{grid-template-columns:1fr;max-width:420px;margin:0 auto}
+  .featured-plan{transform:none}
+  .featured-plan:hover{transform:translateY(-5px)}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .categories,.featured,.membership{padding:3.5rem 1.5rem}
+  .reading-room{padding:3.5rem 1.5rem}
+  .section-head{margin-bottom:2rem}
+}
+@media(max-width:480px){
+  .nav-inner{padding:.85rem 1.1rem}
+  .hero-grid{padding:2.5rem 1.1rem}
+  .hero h1{font-size:2.2rem}
+  .hero-desc{font-size:.9rem}
+  .cat-grid{grid-template-columns:repeat(2,1fr);gap:.65rem}
+  .cat-card{padding:1rem .65rem;border-radius:12px}
+  .cat-icon{font-size:1.4rem}
+  .cat-card h3{font-size:.82rem}
+  .cat-card span{font-size:.68rem}
+  .books-grid{grid-template-columns:repeat(2,1fr);gap:.75rem}
+  .book-cover{height:160px;padding:1rem}
+  .book-cover-inner{width:90px;height:125px}
+  .book-info{padding:.85rem}
+  .book-info h3{font-size:.85rem}
+  .author{font-size:.72rem}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:.5rem}
+  .stat-num{font-size:1.4rem}
+  .stat-lbl{font-size:.7rem}
+  .stats{padding:2rem 1.1rem}
+  .plan-card{padding:1.5rem 1.25rem}
+  .plan-price{font-size:2.2rem}
+  .footer-grid{grid-template-columns:1fr}
+  .footer-bottom{flex-direction:column;text-align:center}
+  .categories,.featured,.membership{padding:2.5rem 1.1rem}
+  .reading-room{padding:2.5rem 1.1rem}
+  .reading-room blockquote{font-size:1rem}
+}
+@media(max-width:360px){
+  .hero h1{font-size:1.9rem}
+  .cat-grid{grid-template-columns:repeat(2,1fr);gap:.5rem}
+  .books-grid{grid-template-columns:1fr}
+  .btn-primary,.btn-secondary{max-width:100%}
+  .nav-inner{padding:.75rem 1rem}
+}
+
+    /* ── FEATURED BOOKS SLIDER ───────────────────── */
+    .slider-wrap{position:relative;max-width:1160px;margin:0 auto;display:flex;align-items:center;gap:.75rem}
+    .slider-track-outer{flex:1;overflow:hidden;border-radius:16px}
+    .slider-track{display:flex;gap:1.25rem;transition:transform .45s cubic-bezier(.4,0,.2,1);will-change:transform;padding:.5rem .25rem 1rem}
+    .slider-track .book-card{flex:0 0 calc(25% - .95rem);min-width:0;scroll-snap-align:start}
+
+    /* Arrow buttons */
+    .slider-arrow{width:44px;height:44px;border-radius:50%;background:var(--white);border:1.5px solid var(--border);color:var(--brown);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;box-shadow:0 2px 12px rgba(59,42,26,.1);z-index:2}
+    .slider-arrow:hover{background:var(--brown);color:var(--cream);border-color:var(--brown);transform:scale(1.08)}
+    .slider-arrow:disabled{opacity:.3;cursor:default;transform:none}
+
+    /* Dot indicators */
+    .slider-dots{display:flex;justify-content:center;gap:.5rem;margin-top:1.5rem}
+    .slider-dot{width:8px;height:8px;border-radius:50%;background:var(--border);border:none;cursor:pointer;transition:all .2s;padding:0}
+    .slider-dot.active{background:var(--gold);width:22px;border-radius:50px}
+
+    @media(max-width:900px){
+      .slider-track .book-card{flex:0 0 calc(50% - .65rem)}
+    }
+    @media(max-width:560px){
+      .slider-track .book-card{flex:0 0 calc(85% - .5rem)}
+      .slider-arrow{width:36px;height:36px;font-size:.95rem}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ NAVBAR ═══ -->
+  <nav>
+    <div class="nav-inner">
+      <a href="mindstark-library.html" class="logo">
+        <span class="logo-main">MindStark</span>
+        <span class="logo-sub">Library</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="browse.html">Browse</a></li>
+        <li><a href="book.html">My Books</a></li>
+        <li><a href="membership.html">Membership</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="feeds.html">Feeds</a></li>
+        <li><a href="signin.html" class="nav-cta">Sign In</a></li>
+      </ul>
+      <button class="hamburger" id="hamburger" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="browse.html" onclick="closeMobile()">Browse</a>
+    <a href="book.html" onclick="closeMobile()">My Books</a>
+    <a href="membership.html" onclick="closeMobile()">Membership</a>
+    <a href="about.html" onclick="closeMobile()">About</a>
+    <a href="feeds.html" onclick="closeMobile()">Feeds</a>
+    <a href="signin.html" class="mob-cta" onclick="closeMobile()">Sign In</a>
+  </div>
+
+  <!-- ═══ HERO ═══ -->
+  <section class="hero">
+    <div class="hero-grid">
+      <div class="hero-text">
+        <div class="hero-eyebrow">
+          <span>Welcome to MindStark Library</span>
+        </div>
+        <h1>Read More.<br/><em>Think Deeper.</em><br/>Grow Wiser.</h1>
+        <p class="hero-desc">A curated sanctuary for curious minds. Explore thousands of books across every genre — from timeless classics to modern masterpieces.</p>
+        <div class="hero-actions">
+          <a href="browse.html" class="btn-primary">Explore Books</a>
+          <a href="membership.html" class="btn-secondary">Get Membership</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="book-shelf">
+          <div class="books">
+            <div class="book b1"><span>Philosophy</span></div>
+            <div class="book b2"><span>Nature</span></div>
+            <div class="book b3"><span>History</span></div>
+            <div class="book b4"><span>Science</span></div>
+            <div class="book b5"><span>Fiction</span></div>
+            <div class="book b6"><span>Art</span></div>
+            <div class="book b7"><span>Culture</span></div>
+            <div class="book b8"><span>Classic</span></div>
+          </div>
+          <div class="shelf-base"></div>
+          <div class="hero-badge"><strong>10K+</strong>Books<br/>Available</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ STATS ═══ -->
+  <section class="stats">
+    <div class="stats-grid">
+      <div class="stat-item reveal">
+        <span class="stat-num">10,000+</span>
+        <span class="stat-lbl">Books Available</span>
+      </div>
+      <div class="stat-item reveal">
+        <span class="stat-num">52</span>
+        <span class="stat-lbl">Categories</span>
+      </div>
+      <div class="stat-item reveal">
+        <span class="stat-num">8,400+</span>
+        <span class="stat-lbl">Active Members</span>
+      </div>
+      <div class="stat-item reveal">
+        <span class="stat-num">Free</span>
+        <span class="stat-lbl">Basic Access</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ CATEGORIES ═══ -->
+  <section class="categories" id="categories">
+    <div class="section-head reveal">
+      <span class="section-label">Browse by Genre</span>
+      <h2>Find Your Next<br/>Great Read</h2>
+      <p>Explore our curated collection across every subject imaginable.</p>
+    </div>
+    <div class="cat-grid">
+      <a href="browse.html?subject=classics" class="cat-card reveal">
+        <span class="cat-icon">🏛️</span>
+        <h3>Classic Lit</h3>
+        <span>824 titles</span>
+      </a>
+      <a href="browse.html?subject=science" class="cat-card reveal">
+        <span class="cat-icon">🔬</span>
+        <h3>Science</h3>
+        <span>1,240 titles</span>
+      </a>
+      <a href="browse.html?subject=history" class="cat-card reveal">
+        <span class="cat-icon">🌍</span>
+        <h3>History</h3>
+        <span>982 titles</span>
+      </a>
+      <a href="browse.html?subject=philosophy" class="cat-card reveal">
+        <span class="cat-icon">🤔</span>
+        <h3>Philosophy</h3>
+        <span>603 titles</span>
+      </a>
+      <a href="browse.html?subject=science+fiction" class="cat-card reveal">
+        <span class="cat-icon">🚀</span>
+        <h3>Sci-Fi</h3>
+        <span>1,105 titles</span>
+      </a>
+      <a href="browse.html?subject=business" class="cat-card reveal">
+        <span class="cat-icon">💼</span>
+        <h3>Business</h3>
+        <span>748 titles</span>
+      </a>
+    </div>
+  </section>
+
+<!-- ═══ FEATURED BOOKS SLIDER ═══ -->
+  <section class="featured" id="featured">
+    <div class="section-head reveal">
+      <span class="section-label">Staff Picks</span>
+      <h2>Featured Books</h2>
+      <p>Hand-selected titles our librarians love this season — ranked by reader rating.</p>
+    </div>
+
+    <div class="slider-wrap">
+      <button class="slider-arrow slider-prev" id="sliderPrev" aria-label="Previous">&#8592;</button>
+      <div class="slider-track-outer" id="sliderOuter">
+        <div class="slider-track" id="sliderTrack">
+
+          <!-- ★★★★★ 5-star books -->
+          <div class="book-card">
+            <div class="book-cover" style="background:#f5ede0">
+              <div class="book-cover-inner c1">
+                <span class="cover-title">Pride and Prejudice</span>
+                <div class="cover-line"></div>
+                <span class="cover-author">JANE AUSTEN</span>
+              </div>
+            </div>
+            <div class="book-info">
+              <div class="book-genre">Classic Fiction</div>
+              <h3>Pride and Prejudice</h3>
+              <p class="author">Jane Austen</p>
+              <div class="book-meta">
+                <span class="rating">★★★★★</span>
+                <button class="read-btn" data-id="1342" data-title="Pride and Prejudice" data-author="Jane Austen">Read Now</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="book-card">
+            <div class="book-cover" style="background:#e8eef5">
+              <div class="book-cover-inner c2">
+                <span class="cover-title">The Great Gatsby</span>
+                <div class="cover-line"></div>
+                <span class="cover-author">F. SCOTT FITZGERALD</span>
+              </div>
+            </div>
+            <div class="book-info">
+              <div class="book-genre">Classic Fiction</div>
+              <h3>The Great Gatsby</h3>
+              <p class="author">F. Scott Fitzgerald</p>
+              <div class="book-meta">
+                <span class="rating">★★★★★</span>
+                <button class="read-btn" data-id="64317" data-title="The Great Gatsby" data-author="F. Scott Fitzgerald">Read Now</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="book-card">
+            <div class="book-cover" style="background:#edf5ed">
+              <div class="book-cover-inner c3">
+                <span class="cover-title">Frankenstein</span>
+                <div class="cover-line"></div>
+                <span class="cover-author">MARY SHELLEY</span>
+              </div>
+            </div>
+            <div class="book-info">
+              <div class="book-genre">Gothic Fiction</div>
+              <h3>Frankenstein</h3>
+              <p class="author">Mary Shelley</p>
+              <div class="book-meta">
+                <span class="rating">★★★★★</span>
+                <button class="read-btn" data-id="84" data-title="Frankenstein" data-author="Mary Shelley">Read Now</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="book-card">
+            <div class="book-cover" style="background:#f5edf5">
+              <div class="book-cover-inner c4">
+                <span class="cover-title">The Midnight Library</span>
+                <div class="cover-line"></div>
+                <span class="cover-author">MATT HAIG</span>
+              </div>
+            </div>
+            <div class="book-info">
+              <div class="book-genre">Fiction</div>
+              <h3>The Midnight Library</h3>
+              <p class="author">Matt Haig</p>
+              <div class="book-meta">
+                <span class="rating">★★★★★</span>
+                <button class="read-btn" data-id="84" data-title="The Midnight Library" data-author="Matt Haig">Read Now</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ★★★★☆ 4-star books -->
+          <div class="book-card">
+            <div class="book-cover" style="background:#f5ede0">
+              <div class="book-cover-inner" style="background:linear-gradient(145deg,#7a5c2a,#b08a42)">
+                <span class="cover-title">The Adventures of Sherlock Holmes</span>
+                <div class="cover-line"></div>
+                <span class="cover-author">ARTHUR CONAN DOYLE</span>
+              </div>
+            </div>
+            <div class="book-info">
+              <div class="book-genre">Mystery</div>
+              <h3>Sherlock Holmes</h3>
+              <p class="author">Arthur Conan Doyle</p>
+              <div class="book-meta">
+                <span class="rating">★★★★☆</span>
+                <button class="read-btn" data-id="1661" data-title="The Adventures of Sherlock Holmes" data-author="Arthur Conan Doyle">Read Now</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="book-card">
+            <div class="book-cover" style="background:#e8f5f5">
+              <div class="book-cover-inner" style="background:linear-gradient(145deg,#2a5c5c,#3a9b9b)">
+                <span class="cover-title">Alice's Adventures in Wonderland</span>
+                <div class="cover-line"></div>
+                <span class="cover-author">LEWIS CARROLL</span>
+              </div>
+            </div>
+            <div class="book-info">
+              <div class="book-genre">Fantasy</div>
+              <h3>Alice in Wonderland</h3>
+              <p class="author">Lewis Carroll</p>
+              <div class="book-meta">
+                <span class="rating">★★★★☆</span>
+                <button class="read-btn" data-id="11" data-title="Alice's Adventures in Wonderland" data-author="Lewis Carroll">Read Now</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="book-card">
+            <div class="book-cover" style="background:#f5e8e8">
+              <div class="book-cover-inner" style="background:linear-gradient(145deg,#5c2a2a,#9b4040)">
+                <span class="cover-title">Dracula</span>
+                <div class="cover-line"></div>
+                <span class="cover-author">BRAM STOKER</span>
+              </div>
+            </div>
+            <div class="book-info">
+              <div class="book-genre">Horror</div>
+              <h3>Dracula</h3>
+              <p class="author">Bram Stoker</p>
+              <div class="book-meta">
+                <span class="rating">★★★★☆</span>
+                <button class="read-btn" data-id="345" data-title="Dracula" data-author="Bram Stoker">Read Now</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="book-card">
+            <div class="book-cover" style="background:#eef5e8">
+              <div class="book-cover-inner" style="background:linear-gradient(145deg,#3a4a2a,#6a8a42)">
+                <span class="cover-title">The Picture of Dorian Gray</span>
+                <div class="cover-line"></div>
+                <span class="cover-author">OSCAR WILDE</span>
+              </div>
+            </div>
+            <div class="book-info">
+              <div class="book-genre">Philosophical Fiction</div>
+              <h3>Dorian Gray</h3>
+              <p class="author">Oscar Wilde</p>
+              <div class="book-meta">
+                <span class="rating">★★★★☆</span>
+                <button class="read-btn" data-id="174" data-title="The Picture of Dorian Gray" data-author="Oscar Wilde">Read Now</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="book-card">
+            <div class="book-cover" style="background:#f5f2e8">
+              <div class="book-cover-inner" style="background:linear-gradient(145deg,#4a6741,#6a9b5e)">
+                <span class="cover-title">The Jungle Book</span>
+                <div class="cover-line"></div>
+                <span class="cover-author">RUDYARD KIPLING</span>
+              </div>
+            </div>
+            <div class="book-info">
+              <div class="book-genre">Adventure</div>
+              <h3>The Jungle Book</h3>
+              <p class="author">Rudyard Kipling</p>
+              <div class="book-meta">
+                <span class="rating">★★★★☆</span>
+                <button class="read-btn" data-id="35997" data-title="The Jungle Book" data-author="Rudyard Kipling">Read Now</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="book-card">
+            <div class="book-cover" style="background:#e8eef5">
+              <div class="book-cover-inner" style="background:linear-gradient(145deg,#2a4a6b,#3a7abf)">
+                <span class="cover-title">Moby Dick</span>
+                <div class="cover-line"></div>
+                <span class="cover-author">HERMAN MELVILLE</span>
+              </div>
+            </div>
+            <div class="book-info">
+              <div class="book-genre">Adventure</div>
+              <h3>Moby Dick</h3>
+              <p class="author">Herman Melville</p>
+              <div class="book-meta">
+                <span class="rating">★★★★☆</span>
+                <button class="read-btn" data-id="2701" data-title="Moby Dick" data-author="Herman Melville">Read Now</button>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /slider-track -->
+      </div><!-- /slider-track-outer -->
+      <button class="slider-arrow slider-next" id="sliderNext" aria-label="Next">&#8594;</button>
+    </div>
+
+    <!-- Dot indicators -->
+    <div class="slider-dots" id="sliderDots"></div>
+  </section>
+
+  <!-- ═══ QUOTE BANNER ═══ -->
+  <section class="reading-room">
+    <blockquote class="reveal">"A reader lives a thousand lives before he dies. The man who never reads lives only one."</blockquote>
+    <cite class="reveal">— George R.R. Martin</cite>
+  </section>
+
+  <!-- ═══ MEMBERSHIP ═══ -->
+  <section class="membership" id="membership">
+    <div class="section-head reveal">
+      <span class="section-label">Choose Your Plan</span>
+      <h2>Membership Plans</h2>
+      <p>Unlock the full MindStark experience.</p>
+    </div>
+    <div class="plans-grid">
+      <div class="plan-card reveal">
+        <div class="plan-name">Basic</div>
+        <div class="plan-price">Free</div>
+        <div class="plan-period">forever</div>
+        <ul class="plan-features">
+          <li>500 books access</li>
+          <li>2 bookmarks</li>
+          <li>Basic search</li>
+          <li>Web reading only</li>
+        </ul>
+        <button class="plan-btn" onclick="window.location.href='signin.html'">Get Started</button>
+      </div>
+      <div class="plan-card featured-plan reveal">
+        <div class="plan-name">Reader Pro</div>
+        <div class="plan-price">₦2,500</div>
+        <div class="plan-period">per month</div>
+        <ul class="plan-features">
+          <li>Full 10,000+ catalog</li>
+          <li>Unlimited bookmarks</li>
+          <li>Download for offline</li>
+          <li>Priority new arrivals</li>
+        </ul>
+        <button class="plan-btn" onclick="window.location.href='membership.html'">Start Reading</button>
+      </div>
+      <div class="plan-card reveal">
+        <div class="plan-name">Scholar</div>
+        <div class="plan-price">₦5,000</div>
+        <div class="plan-period">per month</div>
+        <ul class="plan-features">
+          <li>Everything in Pro</li>
+          <li>Study groups access</li>
+          <li>Librarian chat support</li>
+          <li>Early access releases</li>
+        </ul>
+        <button class="plan-btn" onclick="window.location.href='membership.html'">Go Scholar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer id="contact">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">
+          <span class="logo-main" style="color:#f5f0e8">MindStark</span>
+          <span class="logo-sub">Library</span>
+        </div>
+        <p>A sanctuary for curious readers. Explore, discover, and grow with thousands of books at your fingertips.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="browse.html">Browse All</a></li>
+          <li><a href="browse.html">New Arrivals</a></li>
+          <li><a href="#featured">Staff Picks</a></li>
+          <li><a href="browse.html">Top Rated</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Library</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="membership.html">Membership</a></li>
+          <li><a href="book.html">My Books</a></li>
+          <li><a href="about.html">Events</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Help</h4>
+        <ul>
+          <li><a href="about.html#contact-form">FAQ</a></li>
+          <li><a href="about.html#contact-form">Contact</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="terms_conditions.html">Terms of Use</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 MindStark Library. All rights reserved.</span>
+      <span>Made with ❤️ for readers everywhere.</span>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    /* ── MOBILE MENU ─────────────────────────────── */
+    const hamburger   = document.getElementById('hamburger');
+    const mobileMenu  = document.getElementById('mobileMenu');
+
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      mobileMenu.classList.toggle('open');
+      document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+    });
+
+    function closeMobile() {
+      hamburger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    /* Close mobile menu on outside click */
+    mobileMenu.addEventListener('click', e => {
+      if (e.target === mobileMenu) closeMobile();
+    });
+
+    /* ── READ NOW BUTTONS ─────────────────────────── */
+    document.querySelectorAll('.book-card .read-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const card   = btn.closest('.book-card');
+        const title  = card.dataset.title;
+        const author = card.dataset.author;
+        const id     = card.dataset.id;
+        const cover  = `https://archive.org/services/img/${id}`;
+
+        sessionStorage.setItem('ms_book', JSON.stringify({ id, title, author, cover }));
+        window.location.href = 'reader.html';
+      });
+    });
+
+    /* ── CATEGORY LINKS — pass subject to browse ──── */
+    /* Browse page reads ?subject= from URL on load   */
+    /* (handled inside browse.html's JS)              */
+
+    /* ── SCROLL REVEAL ───────────────────────────── */
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    /* ── NAV SHADOW ON SCROLL ────────────────────── */
+    window.addEventListener('scroll', () => {
+      document.querySelector('nav').style.boxShadow =
+        window.scrollY > 10 ? '0 4px 24px rgba(59,42,26,.1)' : 'none';
+    });
+
+    /* ── TOAST ───────────────────────────────────── */
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+    /* ── FEATURED BOOKS SLIDER ───────────────────── */
+    (function() {
+      const track    = document.getElementById('sliderTrack');
+      const outer    = document.getElementById('sliderOuter');
+      const prevBtn  = document.getElementById('sliderPrev');
+      const nextBtn  = document.getElementById('sliderNext');
+      const dotsWrap = document.getElementById('sliderDots');
+
+      if (!track) return;
+
+      const cards      = track.querySelectorAll('.book-card');
+      let currentIndex = 0;
+
+      /* How many cards visible at once */
+      function visibleCount() {
+        const w = outer.offsetWidth;
+        if (w < 560) return 1;
+        if (w < 900) return 2;
+        return 4;
+      }
+
+      function totalPages() {
+        return Math.ceil(cards.length / visibleCount());
+      }
+
+      /* Build dots */
+      function buildDots() {
+        dotsWrap.innerHTML = '';
+        for (let i = 0; i < totalPages(); i++) {
+          const dot = document.createElement('button');
+          dot.className = 'slider-dot' + (i === 0 ? ' active' : '');
+          dot.setAttribute('aria-label', `Page ${i + 1}`);
+          dot.addEventListener('click', () => goTo(i));
+          dotsWrap.appendChild(dot);
+        }
+      }
+
+      function goTo(page) {
+        currentIndex = Math.max(0, Math.min(page, totalPages() - 1));
+        const cardWidth  = cards[0].offsetWidth + 20; /* gap = 1.25rem ≈ 20px */
+        const offset     = currentIndex * visibleCount() * cardWidth;
+        track.style.transform = `translateX(-${offset}px)`;
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex >= totalPages() - 1;
+        dotsWrap.querySelectorAll('.slider-dot').forEach((d, i) => d.classList.toggle('active', i === currentIndex));
+      }
+
+      prevBtn.addEventListener('click', () => goTo(currentIndex - 1));
+      nextBtn.addEventListener('click', () => goTo(currentIndex + 1));
+
+      /* Touch / swipe support */
+      let touchStartX = 0;
+      outer.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, {passive:true});
+      outer.addEventListener('touchend', e => {
+        const diff = touchStartX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 50) goTo(diff > 0 ? currentIndex + 1 : currentIndex - 1);
+      });
+
+      buildDots();
+      goTo(0);
+      window.addEventListener('resize', () => { buildDots(); goTo(0); });
+
+      /* Auto-play — slides every 4 seconds */
+setInterval(() => {
+  const next = currentIndex >= totalPages() - 1 ? 0 : currentIndex + 1;
+  goTo(next);
+}, 4000);
+
+      /* Read Now buttons — fetch from Gutenberg by ID */
+      track.querySelectorAll('.read-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const card   = btn.closest('.book-card');
+          const id     = btn.dataset.id;
+          const title  = btn.dataset.title;
+          const author = btn.dataset.author;
+          sessionStorage.setItem('ms_book', JSON.stringify({
+            id, title, author, cover: '',
+            readUrl: `https://www.gutenberg.org/files/${id}/${id}-h/${id}-h.htm`
+          }));
+          window.location.href = 'reader.html';
+        });
+      });
+    })();
+  </script>
+   <script src="nav.js"></script>
+   <script src="terms.js"></script>
+   <script src="supabase.js"></script>
+</body>
+</html>

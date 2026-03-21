@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <!-- Favicon & Meta -->
+<link rel="icon" type="image/png" href="logo.png"/>
+<link rel="apple-touch-icon" href="logo.png"/>
+<meta property="og:image" content="https://mindstark-library.netlify.app/logo.png"/>
+<meta property="og:title" content="MindStark Library"/>
+<meta property="og:description" content="70,000+ free books. Read anywhere, anytime."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://mindstark-library.netlify.app"/>
+  <title>About — MindStark Library</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --cream:#f5f0e8;--warm:#ede5d5;--brown:#3b2a1a;--gold:#c8963e;
+      --rust:#a0522d;--text:#2c1e0f;--muted:#7a6652;--white:#ffffff;
+      --border:rgba(200,150,62,.18);--shadow:0 4px 32px rgba(59,42,26,.10);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);line-height:1.6}
+
+    /* ── NAV ─────────────────────────────────── */
+    nav{position:sticky;top:0;z-index:100;background:rgba(245,240,232,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 2rem;max-width:1280px;margin:0 auto}
+    .logo{display:flex;flex-direction:column;line-height:1;text-decoration:none}
+    .logo-main{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:var(--brown)}
+    .logo-sub{font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+    .nav-links{display:flex;gap:2rem;list-style:none}
+    .nav-links a{text-decoration:none;color:var(--muted);font-size:.9rem;font-weight:500;transition:color .2s}
+    .nav-links a:hover,.nav-links a.active{color:var(--gold)}
+    .nav-cta{background:var(--brown);color:var(--cream)!important;padding:.5rem 1.25rem;border-radius:50px;transition:background .2s!important}
+    .nav-cta:hover{background:var(--gold)!important}
+
+    /* ── PAGE HEADER ─────────────────────────── */
+    .page-header{background:var(--brown);padding:4.5rem 2rem;position:relative;overflow:hidden;text-align:center}
+    .page-header::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 80%,rgba(200,150,62,.12),transparent 55%),radial-gradient(circle at 80% 20%,rgba(200,150,62,.10),transparent 55%);pointer-events:none}
+    .page-header-inner{max-width:680px;margin:0 auto;position:relative;z-index:1}
+    .breadcrumb{font-size:.78rem;color:rgba(245,240,232,.5);margin-bottom:1rem}
+    .breadcrumb a{color:var(--gold);text-decoration:none}
+    .label{display:inline-block;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);background:rgba(200,150,62,.12);border:1px solid rgba(200,150,62,.25);padding:.35rem 1rem;border-radius:50px;margin-bottom:1.25rem}
+    .page-header h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3rem);font-weight:900;color:var(--cream);line-height:1.15;margin-bottom:1rem}
+    .page-header h1 em{color:var(--gold);font-style:italic}
+    .page-header p{color:rgba(245,240,232,.65);font-size:1rem;max-width:520px;margin:0 auto}
+
+    /* ── MISSION ─────────────────────────────── */
+    .mission-section{padding:5rem 2rem;max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+    .mission-text .label{display:inline-block;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem}
+    .mission-text h2{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3.5vw,2.5rem);font-weight:900;color:var(--brown);line-height:1.2;margin-bottom:1.25rem}
+    .mission-text h2 em{color:var(--gold);font-style:italic}
+    .mission-text p{color:var(--muted);font-size:.95rem;line-height:1.85;margin-bottom:1rem}
+    .mission-visual{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    .mission-stat{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:1.5rem;text-align:center;transition:transform .3s,box-shadow .3s}
+    .mission-stat:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+    .mission-stat .num{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--gold);display:block;line-height:1}
+    .mission-stat .lbl{font-size:.78rem;color:var(--muted);margin-top:.35rem;display:block}
+    .mission-stat .icon{font-size:1.5rem;margin-bottom:.5rem;display:block}
+
+    /* ── STORY ───────────────────────────────── */
+    .story-section{background:var(--brown);padding:5rem 2rem;position:relative;overflow:hidden}
+    .story-section::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 50%,rgba(200,150,62,.1),transparent 60%);pointer-events:none}
+    .story-inner{max-width:780px;margin:0 auto;position:relative;z-index:1;text-align:center}
+    .story-inner .label{display:inline-block;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);background:rgba(200,150,62,.12);border:1px solid rgba(200,150,62,.2);padding:.35rem 1rem;border-radius:50px;margin-bottom:1.25rem}
+    .story-inner h2{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3.5vw,2.5rem);font-weight:900;color:var(--cream);line-height:1.2;margin-bottom:2rem}
+    .story-timeline{display:flex;flex-direction:column;gap:0;text-align:left;margin-top:1rem}
+    .timeline-item{display:grid;grid-template-columns:80px 1fr;gap:1.5rem;padding:1.5rem 0;border-bottom:1px solid rgba(245,240,232,.08);position:relative}
+    .timeline-item:last-child{border-bottom:none}
+    .timeline-year{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--gold);padding-top:.2rem;flex-shrink:0}
+    .timeline-content h4{font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:500;color:var(--cream);margin-bottom:.35rem}
+    .timeline-content p{font-size:.85rem;color:rgba(245,240,232,.55);line-height:1.7}
+
+    /* ── VALUES ──────────────────────────────── */
+    .values-section{padding:5rem 2rem;max-width:1100px;margin:0 auto}
+    .section-head{text-align:center;margin-bottom:3.5rem}
+    .section-head .label{display:inline-block;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem}
+    .section-head h2{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3vw,2.2rem);font-weight:900;color:var(--brown);margin-bottom:.75rem}
+    .section-head p{color:var(--muted);font-size:.95rem;max-width:480px;margin:0 auto}
+    .values-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+    .value-card{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:2rem;transition:transform .3s,box-shadow .3s}
+    .value-card:hover{transform:translateY(-5px);box-shadow:0 16px 40px rgba(59,42,26,.1)}
+    .value-icon{font-size:2.2rem;margin-bottom:1rem;display:block}
+    .value-card h3{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:var(--brown);margin-bottom:.6rem}
+    .value-card p{font-size:.88rem;color:var(--muted);line-height:1.75}
+
+    /* ── TEAM ────────────────────────────────── */
+    .team-section{background:var(--warm);padding:5rem 2rem;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+    .team-inner{max-width:1100px;margin:0 auto}
+    .team-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;margin-top:3.5rem}
+    .team-card{background:var(--white);border:1px solid var(--border);border-radius:18px;overflow:hidden;text-align:center;transition:transform .3s,box-shadow .3s}
+    .team-card:hover{transform:translateY(-5px);box-shadow:0 16px 40px rgba(59,42,26,.1)}
+    .team-avatar{height:140px;display:flex;align-items:center;justify-content:center;font-size:3.5rem;position:relative}
+    .team-avatar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(to top,var(--white),transparent)}
+    .avatar-bg-0{background:linear-gradient(145deg,#f5ede0,#e8d5b8)}
+    .avatar-bg-1{background:linear-gradient(145deg,#e8eef5,#c8d8ec)}
+    .avatar-bg-2{background:linear-gradient(145deg,#edf5ed,#c4dfc4)}
+    .avatar-bg-3{background:linear-gradient(145deg,#f5edf5,#dfc4df)}
+    .team-info{padding:1.25rem 1rem 1.5rem}
+    .team-name{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--brown);margin-bottom:.2rem}
+    .team-role{font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:.6rem}
+    .team-bio{font-size:.8rem;color:var(--muted);line-height:1.6}
+    .team-note{text-align:center;margin-top:2.5rem;font-size:.88rem;color:var(--muted);font-style:italic}
+    .team-note a{color:var(--gold);text-decoration:none}
+    .team-note a:hover{text-decoration:underline}
+
+    /* ── CONTACT ─────────────────────────────── */
+    .contact-section{padding:5rem 2rem;max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start}
+    .contact-info .label{display:inline-block;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem}
+    .contact-info h2{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3vw,2.2rem);font-weight:900;color:var(--brown);line-height:1.2;margin-bottom:1rem}
+    .contact-info p{color:var(--muted);font-size:.92rem;line-height:1.8;margin-bottom:2rem}
+    .contact-detail{display:flex;align-items:flex-start;gap:.85rem;margin-bottom:1.25rem}
+    .contact-detail .icon{width:40px;height:40px;border-radius:10px;background:rgba(200,150,62,.1);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+    .contact-detail .info{display:flex;flex-direction:column}
+    .contact-detail .info strong{font-size:.85rem;color:var(--brown);font-weight:500}
+    .contact-detail .info span{font-size:.82rem;color:var(--muted);margin-top:.1rem}
+
+    /* Contact form */
+    .contact-form{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:2rem;box-shadow:var(--shadow)}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+    .form-group{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem}
+    .form-group label{font-size:.8rem;font-weight:500;color:var(--brown);letter-spacing:.04em}
+    .form-group input,.form-group textarea,.form-group select{
+      padding:.75rem 1rem;border:1.5px solid var(--border);border-radius:10px;
+      font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--text);
+      background:var(--cream);outline:none;transition:border-color .2s,box-shadow .2s;
+      width:100%;
+    }
+    .form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(200,150,62,.12);background:var(--white)}
+    .form-group textarea{resize:vertical;min-height:110px}
+    .submit-btn{width:100%;padding:.9rem;background:var(--brown);color:var(--cream);border:none;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:500;cursor:pointer;transition:background .2s,transform .2s}
+    .submit-btn:hover{background:var(--gold);transform:translateY(-1px)}
+    .submit-success{display:none;text-align:center;padding:1.5rem;color:var(--brown)}
+    .submit-success .s-icon{font-size:2.5rem;display:block;margin-bottom:.75rem}
+    .submit-success h4{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--brown);margin-bottom:.4rem}
+    .submit-success p{font-size:.88rem;color:var(--muted)}
+
+    /* ── CTA BANNER ──────────────────────────── */
+    .cta-banner{background:var(--brown);padding:4rem 2rem;text-align:center;position:relative;overflow:hidden}
+    .cta-banner::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(200,150,62,.12),transparent 65%);pointer-events:none}
+    .cta-inner{max-width:580px;margin:0 auto;position:relative;z-index:1}
+    .cta-inner h2{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,2.5rem);font-weight:900;color:var(--cream);line-height:1.2;margin-bottom:1rem}
+    .cta-inner h2 em{color:var(--gold);font-style:italic}
+    .cta-inner p{color:rgba(245,240,232,.6);margin-bottom:2rem;font-size:.95rem}
+    .cta-actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+    .btn-gold{background:var(--gold);color:var(--white);padding:.85rem 2rem;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:500;text-decoration:none;transition:background .2s,transform .2s;display:inline-block;border:none;cursor:pointer}
+    .btn-gold:hover{background:var(--rust);transform:translateY(-2px)}
+    .btn-ghost{background:transparent;color:rgba(245,240,232,.7);padding:.85rem 2rem;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:500;text-decoration:none;border:1.5px solid rgba(245,240,232,.2);transition:all .2s;display:inline-block}
+    .btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+
+    /* ── FOOTER ──────────────────────────────── */
+    footer{background:#1e1208;padding:3rem 2rem 1.5rem}
+    .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2rem;max-width:1280px;margin:0 auto;padding-bottom:2rem;border-bottom:1px solid rgba(200,150,62,.1)}
+    .footer-brand p{color:rgba(245,240,232,.45);font-size:.85rem;margin-top:.75rem;line-height:1.7}
+    .footer-logo-main{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:900;color:var(--cream)}
+    .footer-logo-sub{font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block}
+    .footer-col h4{font-family:'Playfair Display',serif;font-size:.95rem;color:var(--cream);margin-bottom:1rem}
+    .footer-col ul{list-style:none;display:flex;flex-direction:column;gap:.5rem}
+    .footer-col ul li a{color:rgba(245,240,232,.45);text-decoration:none;font-size:.85rem;transition:color .2s}
+    .footer-col ul li a:hover{color:var(--gold)}
+    .footer-bottom{max-width:1280px;margin:1.5rem auto 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+    .footer-bottom span{font-size:.8rem;color:rgba(245,240,232,.3)}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);background:var(--brown);color:var(--cream);padding:.75rem 1.5rem;border-radius:50px;font-size:.88rem;font-weight:500;box-shadow:0 8px 24px rgba(59,42,26,.3);transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap}
+    .toast.show{transform:translateX(-50%) translateY(0)}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+    @media(max-width:900px){
+      .nav-links{display:none}
+      .mission-section{grid-template-columns:1fr;gap:2.5rem}
+      .values-grid{grid-template-columns:1fr 1fr}
+      .team-grid{grid-template-columns:1fr 1fr}
+      .contact-section{grid-template-columns:1fr;gap:2.5rem}
+      .footer-grid{grid-template-columns:1fr 1fr}
+    }
+    @media(max-width:560px){
+      .values-grid{grid-template-columns:1fr}
+      .team-grid{grid-template-columns:1fr 1fr}
+      .form-row{grid-template-columns:1fr}
+      .footer-grid{grid-template-columns:1fr}
+      .mission-visual{grid-template-columns:1fr 1fr}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <a href="mindstark-library.html" class="logo">
+        <span class="logo-main">MindStark</span>
+        <span class="logo-sub">Library</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="browse.html">Browse</a></li>
+        <li><a href="book.html">My Books</a></li>
+        <li><a href="membership.html">Membership</a></li>
+        <li><a href="about.html" class="active">About</a></li>
+        <li><a href="feeds.html">Feeds</a></li>
+        <li><a href="signin.html" class="nav-cta">Sign In</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div class="page-header-inner">
+      <div class="breadcrumb"><a href="index.html">Home</a> › About</div>
+      <div class="label">Our Story</div>
+      <h1>Built for<br/><em>Curious Minds.</em></h1>
+      <p>MindStark is more than a library — it's a sanctuary for readers who believe that great books change lives.</p>
+    </div>
+  </div>
+
+  <!-- MISSION -->
+  <section class="mission-section">
+    <div class="mission-text" style="animation:fadeUp .6s ease both">
+      <span class="label">Our Mission</span>
+      <h2>Knowledge Should Be <em>Free</em> for Everyone</h2>
+      <p>We started MindStark with a simple belief — that access to great books shouldn't be a privilege. Too many curious minds are locked out of the world's greatest ideas simply because of cost or geography.</p>
+      <p>MindStark tears down those walls. We bring together public domain classics, open-access titles, and curated modern works into one beautiful, easy-to-use platform — free for anyone with a curious mind.</p>
+      <p>Whether you're a student, a lifelong learner, a researcher, or just someone who loves getting lost in a good story — MindStark was built for you.</p>
+    </div>
+    <div class="mission-visual" style="animation:fadeUp .6s ease .15s both">
+      <div class="mission-stat">
+        <span class="icon">📚</span>
+        <span class="num">10K+</span>
+        <span class="lbl">Books Available</span>
+      </div>
+      <div class="mission-stat">
+        <span class="icon">🌍</span>
+        <span class="num">52</span>
+        <span class="lbl">Genres & Categories</span>
+      </div>
+      <div class="mission-stat">
+        <span class="icon">👥</span>
+        <span class="num">8,400+</span>
+        <span class="lbl">Active Members</span>
+      </div>
+      <div class="mission-stat">
+        <span class="icon">🆓</span>
+        <span class="num">Free</span>
+        <span class="lbl">Basic Access Always</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- STORY / TIMELINE -->
+  <section class="story-section">
+    <div class="story-inner">
+      <div class="label">How We Got Here</div>
+      <h2>The MindStark Story</h2>
+      <div class="story-timeline">
+        <div class="timeline-item">
+          <div class="timeline-year">2022</div>
+          <div class="timeline-content">
+            <h4>The Idea Is Born</h4>
+            <p>Frustrated by paywalls and cluttered reading platforms, our founder set out to build the library he always wished existed — beautiful, free, and built for real readers.</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2023</div>
+          <div class="timeline-content">
+            <h4>First 1,000 Books</h4>
+            <p>MindStark launched its first catalog of 1,000 curated public domain titles. Within three months, over 500 readers had joined the platform.</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2024</div>
+          <div class="timeline-content">
+            <h4>Membership & Growth</h4>
+            <p>We introduced Reader Pro and Scholar membership plans, expanding the catalog to 10,000+ books and welcoming our 5,000th member.</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2026</div>
+          <div class="timeline-content">
+            <h4>Today & Beyond</h4>
+            <p>With 8,400+ active members across the globe, MindStark continues to grow — adding new books, features, and community tools every month.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VALUES -->
+  <section class="values-section">
+    <div class="section-head">
+      <span class="label">What We Stand For</span>
+      <h2>Our Core Values</h2>
+      <p>Everything we build at MindStark is guided by these principles.</p>
+    </div>
+    <div class="values-grid">
+      <div class="value-card" style="animation:fadeUp .5s ease .1s both">
+        <span class="value-icon">📖</span>
+        <h3>Open Access</h3>
+        <p>We believe knowledge belongs to everyone. That's why we'll always offer a meaningful free tier — no credit card, no expiry, no strings attached.</p>
+      </div>
+      <div class="value-card" style="animation:fadeUp .5s ease .2s both">
+        <span class="value-icon">✨</span>
+        <h3>Beautiful Experience</h3>
+        <p>Reading is a pleasure, and your reading platform should be too. We obsess over design, speed, and usability so you can focus on the words that matter.</p>
+      </div>
+      <div class="value-card" style="animation:fadeUp .5s ease .3s both">
+        <span class="value-icon">🌍</span>
+        <h3>Global Community</h3>
+        <p>Books connect us across cultures, languages, and generations. MindStark is for every curious mind — wherever in the world they happen to be reading.</p>
+      </div>
+      <div class="value-card" style="animation:fadeUp .5s ease .4s both">
+        <span class="value-icon">🔒</span>
+        <h3>Privacy First</h3>
+        <p>Your reading habits are personal. We never sell your data, never show ads, and never track you beyond what's needed to improve your experience.</p>
+      </div>
+      <div class="value-card" style="animation:fadeUp .5s ease .5s both">
+        <span class="value-icon">🚀</span>
+        <h3>Always Improving</h3>
+        <p>MindStark is never "done." We ship updates constantly, listen closely to our community, and always ask — how can we make reading better?</p>
+      </div>
+      <div class="value-card" style="animation:fadeUp .5s ease .6s both">
+        <span class="value-icon">💛</span>
+        <h3>Reader-Centric</h3>
+        <p>Every feature we build starts with one question: does this make reading more enjoyable? If the answer isn't a clear yes, we go back to the drawing board.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEAM -->
+  <section class="team-section">
+    <div class="team-inner">
+      <div class="section-head">
+        <span class="label">The People Behind MindStark</span>
+        <h2>Meet the Team</h2>
+        <p>A small, passionate team of readers, builders, and book lovers.</p>
+      </div>
+      <div class="team-grid">
+        <div class="team-card" style="animation:fadeUp .5s ease .1s both">
+          <div class="team-avatar avatar-bg-0">👨‍💼</div>
+          <div class="team-info">
+            <div class="team-name">Anthony C. C. Osuji</div>
+            <div class="team-role">Founder & CEO</div>
+            <div class="team-bio">Lifelong reader, amateur philosopher. Believes every person deserves access to great ideas.</div>
+          </div>
+        </div>
+        <div class="team-card" style="animation:fadeUp .5s ease .2s both">
+          <div class="team-avatar avatar-bg-1">👩‍🎨</div>
+          <div class="team-info">
+            <div class="team-name">Valeria Ken-Sylvester</div>
+            <div class="team-role">Head of Design</div>
+            <div class="team-bio">Obsessed with beautiful typography and reading experiences that feel like home.</div>
+          </div>
+        </div>
+        <div class="team-card" style="animation:fadeUp .5s ease .3s both">
+          <div class="team-avatar avatar-bg-2">👨‍💻</div>
+          <div class="team-info">
+            <div class="team-name">Anthony C. C. Osuji</div>
+            <div class="team-role">Lead Engineer</div>
+            <div class="team-bio">Full-stack builder who reads a book a week and writes clean code the rest of the time.</div>
+          </div>
+        </div>
+        <div class="team-card" style="animation:fadeUp .5s ease .4s both">
+          <div class="team-avatar avatar-bg-3">👩‍📚</div>
+          <div class="team-info">
+            <div class="team-name">Darlington Nwokorie</div>
+            <div class="team-role">Head Librarian</div>
+            <div class="team-bio">Curates every Staff Pick. Former literature professor with a gift for finding hidden gems.</div>
+          </div>
+        </div>
+      </div>
+      <p class="team-note">Want to join us? We're always looking for passionate people. <a href="#contact-form">Say hello →</a></p>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact-section" id="contact-form">
+    <div class="contact-info" style="animation:fadeUp .5s ease both">
+      <span class="label">Get in Touch</span>
+      <h2>We'd Love to Hear From You</h2>
+      <p>Have a question, suggestion, or just want to say hello? Our team reads every message and aims to reply within 24 hours.</p>
+
+      <div class="contact-detail">
+        <div class="icon">📧</div>
+        <div class="info">
+          <strong>Email Us</strong>
+          <span>hello@mindstarklibrary.com</span>
+        </div>
+      </div>
+      <div class="contact-detail">
+        <div class="icon">💬</div>
+        <div class="info">
+          <strong>Live Chat</strong>
+          <span>Available for Scholar members</span>
+        </div>
+      </div>
+      <div class="contact-detail">
+        <div class="icon">⏰</div>
+        <div class="info">
+          <strong>Response Time</strong>
+          <span>Within 24 hours, Mon – Fri</span>
+        </div>
+      </div>
+      <div class="contact-detail">
+        <div class="icon">🌍</div>
+        <div class="info">
+          <strong>Community</strong>
+          <span>Join our reader community forums</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-form" style="animation:fadeUp .5s ease .15s both">
+      <div id="formWrap">
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" id="fname" placeholder="Your first name"/>
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" id="lname" placeholder="Your last name"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="email" placeholder="your@email.com"/>
+        </div>
+        <div class="form-group">
+          <label>Subject</label>
+          <select id="subject">
+            <option value="">Select a topic…</option>
+            <option>General Enquiry</option>
+            <option>Membership & Billing</option>
+            <option>Book Request</option>
+            <option>Technical Issue</option>
+            <option>Partnership</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Message</label>
+          <textarea id="message" placeholder="Tell us what's on your mind…"></textarea>
+        </div>
+        <button class="submit-btn" id="submitBtn">Send Message →</button>
+      </div>
+      <div class="submit-success" id="successMsg">
+        <span class="s-icon">📬</span>
+        <h4>Message Sent!</h4>
+        <p>Thanks for reaching out. We'll get back to you within 24 hours.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <div class="cta-banner">
+    <div class="cta-inner">
+      <h2>Ready to Start<br/><em>Reading?</em></h2>
+      <p>Join 8,400+ members already discovering great books on MindStark.</p>
+      <div class="cta-actions">
+        <a href="browse.html" class="btn-gold">Browse Books</a>
+        <a href="membership.html" class="btn-ghost">View Plans</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div>
+          <span class="footer-logo-main">MindStark</span>
+          <span class="footer-logo-sub">Library</span>
+        </div>
+        <p>A sanctuary for curious readers. Explore, discover, and grow with thousands of books at your fingertips.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="browse.html">Browse All</a></li>
+          <li><a href="#">New Arrivals</a></li>
+          <li><a href="#">Staff Picks</a></li>
+          <li><a href="#">Top Rated</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Library</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="membership.html">Membership</a></li>
+          <li><a href="#">Reading Rooms</a></li>
+          <li><a href="#">Events</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Help</h4>
+        <ul>
+          <li><a href="#">FAQ</a></li>
+          <li><a href="about.html#contact-form">Contact</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Use</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 MindStark Library. All rights reserved.</span>
+      <span>Made with ❤️ for readers everywhere.</span>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    /* ── CONTACT FORM ────────────────────────── */
+    document.getElementById('submitBtn').addEventListener('click', () => {
+      const fname   = document.getElementById('fname').value.trim();
+      const email   = document.getElementById('email').value.trim();
+      const subject = document.getElementById('subject').value;
+      const message = document.getElementById('message').value.trim();
+
+      if (!fname || !email || !subject || !message) {
+        showToast('Please fill in all required fields.');
+        return;
+      }
+      if (!email.includes('@')) {
+        showToast('Please enter a valid email address.');
+        return;
+      }
+
+      /* TODO: send to your backend/email service here */
+      document.getElementById('formWrap').style.display   = 'none';
+      document.getElementById('successMsg').style.display = 'block';
+    });
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+  </script>
+   <script src="nav.js"></script>
+   <script src="terms.js"></script>
+   <script src="supabase.js"></script>
+</body>
+</html>
