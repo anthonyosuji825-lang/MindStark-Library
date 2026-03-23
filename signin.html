@@ -526,11 +526,16 @@ if (redirectDest) {
 }
 
       /* If came from OAuth redirect, respect redirect param */
-if (hash.includes('access_token') || params.get('code')) {
-  const dest = params.get('redirect') || 'browse.html';
-  setTimeout(() => window.location.href = dest, 800);
-}
-    }
+const dest = params.get('redirect') || 'browse.html';
+const { data: { session } } = await window._sb.auth.getSession();
+const accessToken = session?.access_token || '';
+const refreshToken = session?.refresh_token || '';
+const separator = dest.includes('?') ? '&' : '?';
+const finalDest = accessToken
+  ? `${dest}${separator}access_token=${accessToken}&refresh_token=${refreshToken}`
+  : dest;
+setTimeout(() => window.location.href = finalDest, 800);
+ }
   });
 
   /* ── EMAIL SIGN IN ──────────────────── */
