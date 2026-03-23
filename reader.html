@@ -808,27 +808,50 @@
     playTTSChunk();
   }
 
+  let ttsWordTimer = null;
+
   function playTTSChunk() {
     if (ttsIndex >= ttsChunks.length) { stopTTS(); return; }
     window.speechSynthesis.cancel();
+    clearInterval(ttsWordTimer);
 
     ttsUtterance       = new SpeechSynthesisUtterance(ttsChunks[ttsIndex]);
     ttsUtterance.rate  = parseFloat(document.getElementById('ttsSpeed').value) || 1;
     ttsUtterance.pitch = 1;
     ttsUtterance.lang  = 'en-US';
 
-    /* Word boundary — highlight each word as it's spoken */
+    /* Desktop — use onboundary if supported */
+    let boundarySupported = false;
     ttsUtterance.onboundary = function(event) {
       if (event.name !== 'word') return;
-      /* Find which word span we're on globally */
+      boundarySupported = true;
+      clearInterval(ttsWordTimer);
       const spokenSoFar = ttsChunks.slice(0, ttsIndex).join(' ').split(/\s+/).filter(Boolean).length;
       const chunkWords  = ttsChunks[ttsIndex].slice(0, event.charIndex).split(/\s+/).filter(Boolean).length;
       const globalIdx   = spokenSoFar + chunkWords;
       if (globalIdx < ttsWordSpans.length) highlightWord(globalIdx);
     };
 
-    ttsUtterance.onend   = () => { ttsIndex++; if (ttsPlaying) playTTSChunk(); };
-    ttsUtterance.onerror = () => { ttsIndex++; if (ttsPlaying) playTTSChunk(); };
+    /* Mobile fallback — timer based highlighting */
+    ttsUtterance.onstart = function() {
+      setTimeout(() => {
+        if (!boundarySupported && ttsPlaying) {
+          const rate        = parseFloat(document.getElementById('ttsSpeed').value) || 1;
+          const msPerWord   = (60 / (150 * rate)) * 1000;
+          const chunkStart  = ttsChunks.slice(0, ttsIndex).join(' ').split(/\s+/).filter(Boolean).length;
+          let wordOffset    = 0;
+          ttsWordTimer = setInterval(() => {
+            if (!ttsPlaying) { clearInterval(ttsWordTimer); return; }
+            const globalIdx = chunkStart + wordOffset;
+            if (globalIdx < ttsWordSpans.length) { highlightWord(globalIdx); wordOffset++; }
+            else { clearInterval(ttsWordTimer); }
+          }, msPerWord);
+        }
+      }, 300);
+    };
+
+    ttsUtterance.onend   = () => { clearInterval(ttsWordTimer); ttsIndex++; if (ttsPlaying) playTTSChunk(); };
+    ttsUtterance.onerror = () => { clearInterval(ttsWordTimer); ttsIndex++; if (ttsPlaying) playTTSChunk(); };
 
     window.speechSynthesis.speak(ttsUtterance);
     ttsPlaying = true;
@@ -853,6 +876,7 @@
 
   function stopTTS() {
     window.speechSynthesis.cancel();
+    clearInterval(ttsWordTimer);
     ttsPlaying   = false;
     ttsChunks    = [];
     ttsIndex     = 0;

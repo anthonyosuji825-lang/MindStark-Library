@@ -286,7 +286,7 @@
         <div class="ai-avatar">📚</div>
         <h3>You're already in!</h3>
         <p id="alreadyInMsg">Welcome back! You're signed in and ready to read.</p>
-        <a href="browse.html" class="go-btn">Continue Reading →</a>
+        <a id="continueBtn" href="browse.html" class="go-btn">Continue Reading →</a>
         <span class="signout-link" onclick="msSignOut()">Sign out of this account</span>
       </div>
 
@@ -472,7 +472,7 @@
     const { error } = await window._sb.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/signin.html`,
+        redirectTo: `${window.location.origin}/signin.html${window.location.search}`,
         queryParams: { access_type: 'offline', prompt: 'select_account' }
       }
     });
@@ -518,10 +518,18 @@
       document.getElementById('alreadyInMsg').textContent =
         `Welcome back, ${profile?.full_name || user.email}!`;
 
-      /* If came from OAuth redirect, go to browse */
-      if (hash.includes('access_token') || params.get('code')) {
-        setTimeout(() => window.location.href = 'browse.html', 800);
-      }
+      /* Update continue button to respect redirect param */
+const redirectDest = new URLSearchParams(window.location.search).get('redirect');
+if (redirectDest) {
+  document.getElementById('continueBtn').href = redirectDest;
+  document.getElementById('continueBtn').textContent = 'Continue to CONNECT →';
+}
+
+      /* If came from OAuth redirect, respect redirect param */
+if (hash.includes('access_token') || params.get('code')) {
+  const dest = params.get('redirect') || 'browse.html';
+  setTimeout(() => window.location.href = dest, 800);
+}
     }
   });
 
