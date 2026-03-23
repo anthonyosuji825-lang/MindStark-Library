@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="icon" type="image/png" href="logo.png"/>
   <link rel="apple-touch-icon" href="logo.png"/>
-  <meta property="og:image" content="https://mindstark-library.netlify.app/logo.png"/>
+  <meta property="og:image" content="https://mind-stark-library.vercel.app/logo.png"/>
   <meta property="og:title" content="Sign In — MindStark Library"/>
   <meta property="og:description" content="Join MindStark Library. 70,000+ free books."/>
   <title>Sign In — MindStark Library</title>
@@ -207,7 +207,7 @@
 <!-- NAV -->
 <nav>
   <div class="nav-inner">
-    <a href="mindstark-library.html" class="logo">
+    <a href="index.html" class="logo">
       <span class="logo-main">MindStark</span>
       <span class="logo-sub">Library</span>
     </a>
@@ -597,7 +597,7 @@
     }
     await waitSB();
     const { error } = await window._sb.auth.resetPasswordForEmail(email, {
-      redirectTo: 'https://mindstark-library.netlify.app/signin.html'
+      redirectTo: 'https://mind-stark-library.vercel.app/signin.html'
     });
     if (error) { showAlert(friendly(error.message), 'error'); return; }
     showAlert('📬 Password reset email sent! Check your inbox.', 'success');

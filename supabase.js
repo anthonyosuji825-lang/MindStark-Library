@@ -56,13 +56,7 @@ async function msUpsertProfile(profile) {
 }
 
 /* Sign out */
-async function msSignOut() {
-  if (!window._sb) return;
-  await window._sb.auth.signOut();
-  sessionStorage.removeItem('ms_current_user');
-  sessionStorage.removeItem('ms_membership');
-  window.location.href = 'mindstark-library.html';
-}
+window.location.href = 'index.html';
 
 /* Check if user has active membership */
 function msHasMembership(profile) {
