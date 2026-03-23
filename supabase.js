@@ -14,6 +14,12 @@
 const SUPABASE_URL  = 'https://wgcpuohwyarhjlndmnlj.supabase.co';
 const SUPABASE_ANON = 'sb_publishable_aCM0iO7qCRXWSnnzzynAlA_mHRquGLQ';
 
+/* Prevent redirect loops */
+if (window.location.hostname.includes('vercel.app') && 
+    window.location.href.includes('mind-stark-library-bpjl')) {
+  window.location.replace('https://mind-stark-library.vercel.app' + window.location.pathname);
+}
+
 /* ── Load Supabase SDK from CDN ──────────────────────────────── */
 (function loadSupabase() {
   const script = document.createElement('script');
@@ -56,7 +62,12 @@ async function msUpsertProfile(profile) {
 }
 
 /* Sign out */
-window.location.href = 'index.html';
+async function msSignOut() {
+  if (window._sb) await window._sb.auth.signOut();
+  sessionStorage.removeItem('ms_current_user');
+  sessionStorage.removeItem('ms_membership');
+  window.location.href = 'index.html';
+}
 
 /* Check if user has active membership */
 function msHasMembership(profile) {
