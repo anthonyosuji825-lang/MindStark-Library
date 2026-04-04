@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <!-- Favicon & Meta -->
-<link rel="icon" type="image/png" href="logo.png"/>
-<link rel="apple-touch-icon" href="logo.png"/>
-<meta property="og:image" content="https://mind-stark-library.vercel.app/logo.png"/>
-<meta property="og:title" content="MindStark Library"/>
-<meta property="og:description" content="70,000+ free books. Read anywhere, anytime."/>
-<meta property="og:type" content="website"/>
-<meta property="og:url" content="https://mind-stark-library.vercel.app"/>
+  <link rel="icon" type="image/png" href="logo.png"/>
+  <link rel="apple-touch-icon" href="logo.png"/>
+  <meta property="og:image" content="https://mind-stark-library.vercel.app/logo.png"/>
+  <meta property="og:title" content="MindStark Library"/>
+  <meta property="og:description" content="70,000+ free books. Read anywhere, anytime."/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://mind-stark-library.vercel.app"/>
   <title>Browse Books — MindStark Library</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
@@ -85,6 +84,12 @@
     .genre-btn{display:flex;align-items:center;width:100%;padding:.45rem .6rem;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--text);cursor:pointer;border-radius:8px;transition:all .2s;text-align:left;margin-bottom:.2rem;gap:.5rem}
     .genre-btn:hover{background:var(--warm);color:var(--gold)}
     .genre-btn.active{background:rgba(200,150,62,.12);color:var(--gold);font-weight:500}
+
+    /* ── MindStark Originals sidebar button ── */
+    .genre-btn.originals-btn{color:var(--gold);border:1px solid rgba(200,150,62,.25);background:rgba(200,150,62,.05);margin-bottom:.6rem}
+    .genre-btn.originals-btn:hover{background:rgba(200,150,62,.14)}
+    .genre-btn.originals-btn.active{background:rgba(200,150,62,.18);font-weight:600}
+
     .mybooks-link{display:flex;align-items:center;gap:.5rem;width:100%;padding:.5rem .6rem;border:1.5px solid var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--muted);cursor:pointer;border-radius:8px;transition:all .2s;text-align:left;margin-top:1.5rem;text-decoration:none}
     .mybooks-link:hover{background:rgba(200,150,62,.08);border-color:var(--gold);color:var(--gold)}
     .mybooks-count{margin-left:auto;background:var(--gold);color:var(--white);font-size:.68rem;font-weight:600;padding:.1rem .45rem;border-radius:50px;min-width:20px;text-align:center}
@@ -103,6 +108,14 @@
     .books-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:1.5rem}
     .book-card{background:var(--white);border-radius:14px;overflow:hidden;border:1px solid var(--border);transition:transform .3s,box-shadow .3s;animation:fadeUp .4s ease both;position:relative}
     .book-card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(59,42,26,.13)}
+
+    /* MindStark Original card highlight */
+    .book-card.ms-original{border-color:rgba(200,150,62,.45);box-shadow:0 2px 12px rgba(200,150,62,.1)}
+    .book-card.ms-original:hover{box-shadow:0 16px 40px rgba(200,150,62,.2)}
+
+    /* MindStark Original badge on card */
+    .ms-badge{position:absolute;top:.55rem;left:.55rem;z-index:4;background:var(--gold);color:var(--white);font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.2rem .55rem;border-radius:50px;pointer-events:none;box-shadow:0 2px 6px rgba(59,42,26,.25)}
+
     .bm-btn{position:absolute;top:.65rem;right:.65rem;z-index:3;width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,.92);color:var(--muted);font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(59,42,26,.15);transition:all .2s}
     .bm-btn:hover,.bm-btn.saved{background:var(--gold);color:var(--white);transform:scale(1.12)}
     .book-cover{height:195px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
@@ -138,6 +151,15 @@
     .bg-0{background:#f5ede0}.bg-1{background:#e8eef5}.bg-2{background:#edf5ed}.bg-3{background:#f5edf5}
     .bg-4{background:#f5f2e8}.bg-5{background:#e8f5f5}.bg-6{background:#f5e8e8}.bg-7{background:#eef5e8}
 
+    /* MindStark Original fallback cover — always gold */
+    .ms-cover-fallback{background:linear-gradient(145deg,#c8963e,#a0522d)}
+
+    /* ORIGINALS SECTION BANNER */
+    .originals-banner{background:linear-gradient(135deg,var(--brown),#5c3a1a);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1.75rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+    .originals-banner h2{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:900;color:var(--cream)}
+    .originals-banner p{font-size:.8rem;color:rgba(245,240,232,.6);margin-top:.2rem}
+    .originals-banner-badge{background:var(--gold);color:var(--brown);font-size:.7rem;font-weight:700;letter-spacing:.08em;padding:.3rem .8rem;border-radius:50px;white-space:nowrap;flex-shrink:0}
+
     /* EMPTY STATE */
     .empty-state{text-align:center;padding:4rem 2rem;display:none;flex-direction:column;align-items:center;gap:.75rem}
     .empty-icon{font-size:3.5rem}
@@ -160,38 +182,38 @@
     footer a{color:var(--gold);text-decoration:none}
 
     /* RESPONSIVE */
-@media(max-width:1024px){.browse-layout{grid-template-columns:210px 1fr}}
-@media(max-width:860px){
-  .nav-links{display:none}.hamburger{display:flex}
-  .browse-layout{grid-template-columns:1fr;padding:1.25rem}
-  .sidebar{position:static;margin-bottom:1.5rem}
-  .sort-bar-inner{flex-direction:column;align-items:flex-start;gap:.75rem}
-  .page-header-inner{flex-direction:column;align-items:flex-start}
-  .page-header{padding:2rem 1.25rem}
-  .search-bar-wrap{padding:1rem 1.25rem}
-  .sort-bar{padding:.75rem 1.25rem}
-}
-@media(max-width:560px){
-  .books-grid{grid-template-columns:repeat(2,1fr);gap:.75rem}
-  .search-bar-inner{flex-direction:column}
-  .search-btn{width:100%}
-  .book-cover{height:160px}
-  .book-info{padding:.75rem}
-  .book-info h3{font-size:.85rem}
-  .book-author{font-size:.72rem}
-  .read-btn{font-size:.72rem;padding:.35rem .7rem}
-  .gutenberg-badge{display:none}
-  .sort-controls{flex-wrap:wrap;gap:.5rem}
-}
-@media(max-width:400px){
-  .books-grid{grid-template-columns:repeat(2,1fr);gap:.5rem}
-  .browse-layout{padding:1rem}
-  .book-cover{height:140px}
-  .book-info{padding:.6rem}
-  .book-info h3{font-size:.8rem}
-  .pag-btn{padding:.45rem 1rem;font-size:.82rem}
-  .nav-inner{padding:.85rem 1rem}
-}
+    @media(max-width:1024px){.browse-layout{grid-template-columns:210px 1fr}}
+    @media(max-width:860px){
+      .nav-links{display:none}.hamburger{display:flex}
+      .browse-layout{grid-template-columns:1fr;padding:1.25rem}
+      .sidebar{position:static;margin-bottom:1.5rem}
+      .sort-bar-inner{flex-direction:column;align-items:flex-start;gap:.75rem}
+      .page-header-inner{flex-direction:column;align-items:flex-start}
+      .page-header{padding:2rem 1.25rem}
+      .search-bar-wrap{padding:1rem 1.25rem}
+      .sort-bar{padding:.75rem 1.25rem}
+    }
+    @media(max-width:560px){
+      .books-grid{grid-template-columns:repeat(2,1fr);gap:.75rem}
+      .search-bar-inner{flex-direction:column}
+      .search-btn{width:100%}
+      .book-cover{height:160px}
+      .book-info{padding:.75rem}
+      .book-info h3{font-size:.85rem}
+      .book-author{font-size:.72rem}
+      .read-btn{font-size:.72rem;padding:.35rem .7rem}
+      .gutenberg-badge{display:none}
+      .sort-controls{flex-wrap:wrap;gap:.5rem}
+    }
+    @media(max-width:400px){
+      .books-grid{grid-template-columns:repeat(2,1fr);gap:.5rem}
+      .browse-layout{padding:1rem}
+      .book-cover{height:140px}
+      .book-info{padding:.6rem}
+      .book-info h3{font-size:.8rem}
+      .pag-btn{padding:.45rem 1rem;font-size:.82rem}
+      .nav-inner{padding:.85rem 1rem}
+    }
   </style>
 </head>
 <body>
@@ -233,7 +255,7 @@
       <div>
         <div class="breadcrumb"><a href="index.html">Home</a> › Browse</div>
         <h1>Browse the Collection</h1>
-        <p>70,000+ free public domain books from Project Gutenberg — no signup, no cost, read them all right here.</p>
+        <p>70,000+ free public domain books plus exclusive MindStark Originals — no signup, no cost, read them all right here.</p>
       </div>
       <div class="gutenberg-badge">📚 Powered by Project Gutenberg</div>
     </div>
@@ -273,6 +295,10 @@
   <div class="browse-layout">
     <aside class="sidebar">
       <div class="sidebar-title">Genre / Subject</div>
+
+      <!-- MindStark Originals — always first -->
+      <button class="genre-btn originals-btn" data-filter="originals">⭐ MindStark Originals</button>
+
       <button class="genre-btn active" data-topic="">📚 All Books</button>
       <button class="genre-btn" data-topic="fiction">📖 Fiction</button>
       <button class="genre-btn" data-topic="science">🔬 Science</button>
@@ -285,6 +311,7 @@
       <button class="genre-btn" data-topic="biography">📜 Biography</button>
       <button class="genre-btn" data-topic="children">🧒 Children</button>
       <button class="genre-btn" data-topic="drama">🎬 Drama</button>
+
       <a href="mybooks.html" class="mybooks-link">🔖 My Books <span class="mybooks-count" id="sidebarBmCount">0</span></a>
       <button class="clear-btn" id="clearBtn">✕ Reset Filters</button>
     </aside>
@@ -316,30 +343,26 @@
     <a href="https://gutendex.com" target="_blank">Gutendex API</a>
   </footer>
 
+  <!-- Load your own books BEFORE the main script -->
+  <script src="my-books.js"></script>
+
   <script>
     /* ═══════════════════════════════════════════
        GUTENDEX API — Project Gutenberg wrapper
-       Docs: https://gutendex.com
-       Endpoint: https://gutendex.com/books/
-       Key params:
-         ?search=    title or author keyword
-         &topic=     genre/subject filter
-         &sort=      popular | ascending | descending
-         &languages= en
-       Returns 32 books per page with next/previous URLs
     ═══════════════════════════════════════════ */
     const API  = 'https://gutendex.com/books/';
     const PALS = ['pal-0','pal-1','pal-2','pal-3','pal-4','pal-5','pal-6','pal-7'];
     const BGS  = ['bg-0','bg-1','bg-2','bg-3','bg-4','bg-5','bg-6','bg-7'];
 
-    let searchTerm = '';
-    let topic      = '';
-    let sort       = 'popular';
-    let page       = 1;
-    let nextUrl    = null;
-    let prevUrl    = null;
-    let totalCount = 0;
-    let bookmarks  = {};
+    let searchTerm   = '';
+    let topic        = '';
+    let sort         = 'popular';
+    let page         = 1;
+    let nextUrl      = null;
+    let prevUrl      = null;
+    let totalCount   = 0;
+    let bookmarks    = {};
+    let showOriginals = false;   /* true when "MindStark Originals" filter is active */
 
     /* Load saved bookmarks */
     try {
@@ -360,14 +383,44 @@
 
     updateBmCount();
 
-    /* ── Read ?subject= param passed from homepage ── */
+    /* ── Read ?subject= param from homepage ── */
     const urlParams    = new URLSearchParams(window.location.search);
     const paramSubject = urlParams.get('subject');
     if (paramSubject) {
       topic = paramSubject;
-      document.querySelectorAll('.genre-btn').forEach(b => {
+      document.querySelectorAll('.genre-btn[data-topic]').forEach(b => {
         b.classList.toggle('active', b.dataset.topic === topic);
       });
+    }
+
+    /* ════════════════════════════════════════════
+       FILTER MY_BOOKS by search term or topic
+    ════════════════════════════════════════════ */
+    function filterMyBooks() {
+      /* Safety: MY_BOOKS may not exist if my-books.js failed to load */
+      const all = (typeof MY_BOOKS !== 'undefined') ? MY_BOOKS : [];
+      if (!all.length) return [];
+
+      let results = [...all];
+
+      /* Search filter */
+      if (searchTerm) {
+        const q = searchTerm.toLowerCase();
+        results = results.filter(b =>
+          b.title.toLowerCase().includes(q) ||
+          (b.authors?.[0]?.name || '').toLowerCase().includes(q)
+        );
+      }
+
+      /* Topic/genre filter — match against subjects array */
+      if (topic) {
+        const t = topic.toLowerCase();
+        results = results.filter(b =>
+          (b.subjects || []).some(s => s.toLowerCase().includes(t))
+        );
+      }
+
+      return results;
     }
 
     /* ════════════════════════════════════════════
@@ -379,6 +432,16 @@
       $empty.style.display   = 'none';
       $pag.style.display     = 'none';
       $grid.innerHTML        = '';
+
+      /* ── Show ONLY MindStark Originals ── */
+      if (showOriginals) {
+        const originals = filterMyBooks();
+        $loading.style.display = 'none';
+        totalCount = originals.length;
+        nextUrl = null; prevUrl = null;
+        renderBooks(originals, true);
+        return;
+      }
 
       let fetchUrl = url;
       if (!fetchUrl) {
@@ -397,7 +460,19 @@
         nextUrl    = data.next   || null;
         prevUrl    = data.previous || null;
 
-        renderBooks(data.results || []);
+        let results = data.results || [];
+
+        /* Inject MindStark Originals on first page, unfiltered browse only */
+        if (!url && !searchTerm && !topic) {
+          const myFiltered = filterMyBooks();
+          results = [...myFiltered, ...results];
+        } else if (!url && (searchTerm || topic)) {
+          /* Also inject originals that match the current search/topic */
+          const myFiltered = filterMyBooks();
+          if (myFiltered.length) results = [...myFiltered, ...results];
+        }
+
+        renderBooks(results);
       } catch(err) {
         $loading.style.display = 'none';
         $empty.style.display   = 'flex';
@@ -408,7 +483,7 @@
     /* ════════════════════════════════════════════
        RENDER BOOKS
     ════════════════════════════════════════════ */
-    function renderBooks(books) {
+    function renderBooks(books, originalsOnly = false) {
       $loading.style.display = 'none';
 
       if (!books.length) {
@@ -419,9 +494,24 @@
 
       $grid.style.display = '';
 
+      /* Originals banner — shown when viewing originals only */
+      if (originalsOnly) {
+        const banner = document.createElement('div');
+        banner.className = 'originals-banner';
+        banner.style.gridColumn = '1 / -1';
+        banner.innerHTML = `
+          <div>
+            <h2>⭐ MindStark Originals</h2>
+            <p>Books written and published exclusively on MindStark Library.</p>
+          </div>
+          <div class="originals-banner-badge">Exclusive Content</div>`;
+        $grid.appendChild(banner);
+      }
+
       books.forEach((book, i) => {
-        const id     = String(book.id);
-        const title  = book.title || 'Untitled';
+        const id         = String(book.id);
+        const title      = book.title || 'Untitled';
+        const isMindStark = !!book._mindstark;
 
         /* Gutenberg author names come as "Lastname, Firstname" — flip */
         const rawAuthor   = book.authors?.[0]?.name || 'Unknown Author';
@@ -429,14 +519,14 @@
           ? rawAuthor.split(',').reverse().map(s => s.trim()).join(' ')
           : rawAuthor;
 
-        const subjects = book.subjects || [];
-        const genre    = (subjects[0] || '').split('--')[0].trim().slice(0, 28) || 'Classic';
+        const subjects  = book.subjects || [];
+        const genre     = (subjects[0] || '').split('--')[0].trim().slice(0, 28) || 'Classic';
         const downloads = book.download_count || 0;
 
-        /* Pick best cover image */
+        /* Cover image */
         const coverUrl = book.formats?.['image/jpeg'] || '';
 
-        /* Pick best readable format (prefer HTML, fall back to epub/txt) */
+        /* Best readable format */
         const readUrl = book.formats?.['text/html']
                      || book.formats?.['application/epub+zip']
                      || book.formats?.['text/plain; charset=us-ascii']
@@ -447,65 +537,76 @@
         const p       = i % 8;
 
         const card = document.createElement('div');
-        card.className = 'book-card';
+        card.className = 'book-card' + (isMindStark ? ' ms-original' : '');
         card.style.animationDelay = `${Math.min(i, 14) * 0.04}s`;
 
-        /* Cover HTML — image with fallback */
+        /* Cover HTML */
         const coverHTML = coverUrl
           ? `<img src="${esc(coverUrl)}" alt="${esc(title)}" loading="lazy"
                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
           : '';
         const fallbackDisplay = coverUrl ? 'none' : 'flex';
-        const fallbackHTML = `<div class="book-cover-fallback ${PALS[p]}" style="display:${fallbackDisplay};flex-direction:column;align-items:center;justify-content:center">
+
+        /* MindStark Originals always use gold fallback cover */
+        const fallbackClass = isMindStark
+          ? 'book-cover-fallback ms-cover-fallback'
+          : `book-cover-fallback ${PALS[p]}`;
+
+        const fallbackHTML = `<div class="${fallbackClass}" style="display:${fallbackDisplay};flex-direction:column;align-items:center;justify-content:center">
           <span class="cover-title">${esc(title.slice(0, 36))}</span>
           <div class="cover-line"></div>
           <span class="cover-author">${esc(authorClean.toUpperCase().slice(0, 22))}</span>
         </div>`;
 
+        /* Downloads display — MindStark books show "MindStark" instead of a number */
+        const downloadsHTML = isMindStark
+          ? `<span class="book-downloads" style="color:var(--gold);font-weight:500">★ Original</span>`
+          : `<span class="book-downloads">📥 ${downloads.toLocaleString()}</span>`;
+
         card.innerHTML = `
+          ${isMindStark ? '<div class="ms-badge">★ MindStark</div>' : ''}
           <button class="bm-btn ${isSaved ? 'saved' : ''}" title="${isSaved ? 'Remove bookmark' : 'Add to My Books'}">🔖</button>
-          <div class="book-cover ${BGS[p]}">${coverHTML}${fallbackHTML}</div>
+          <div class="book-cover ${isMindStark ? 'bg-4' : BGS[p]}">${coverHTML}${fallbackHTML}</div>
           <div class="book-info">
             <div class="book-genre">${esc(genre)}</div>
             <h3 title="${esc(title)}">${esc(title)}</h3>
             <p class="book-author">${esc(authorClean)}</p>
             <div class="book-footer">
-              <span class="book-downloads">📥 ${downloads.toLocaleString()}</span>
+              ${downloadsHTML}
               <button class="read-btn">Read</button>
             </div>
           </div>`;
 
         /* Bookmark button */
-       card.querySelector('.bm-btn').addEventListener('click', function(e) {
-  e.stopPropagation();
+        card.querySelector('.bm-btn').addEventListener('click', function(e) {
+          e.stopPropagation();
 
-  /* Check if signed in */
-  let currentUser = null;
-  try { currentUser = JSON.parse(sessionStorage.getItem('ms_current_user') || 'null'); } catch(e) {}
-  if (!currentUser || currentUser.guest) {
-    showToast('📖 Sign in to save bookmarks');
-    setTimeout(() => window.location.href = 'signin.html', 1500);
-    return;
-  }
+          let currentUser = null;
+          try { currentUser = JSON.parse(sessionStorage.getItem('ms_current_user') || 'null'); } catch(e) {}
+          if (!currentUser || currentUser.guest) {
+            showToast('📖 Sign in to save bookmarks');
+            setTimeout(() => window.location.href = 'signin.html', 1500);
+            return;
+          }
 
-  if (bookmarks[id]) {
-  delete bookmarks[id];
-  this.classList.remove('saved');
-  this.title = 'Add to My Books';
-  showToast('Bookmark removed');
-  deleteBookmarkFromSupabase(id);
-} else {
-    bookmarks[id] = {
-    id, title, author: authorClean, cover: coverUrl,
-    genre, readUrl, status: 'unread', progress: 0, addedAt: Date.now()
-  };
-    this.classList.add('saved');
-    this.title = 'Remove bookmark';
-    showToast('🔖 Added to My Books!');
-  }
-  syncBookmarks();
-  updateBmCount();
-});
+          if (bookmarks[id]) {
+            delete bookmarks[id];
+            this.classList.remove('saved');
+            this.title = 'Add to My Books';
+            showToast('Bookmark removed');
+            deleteBookmarkFromSupabase(id);
+          } else {
+            bookmarks[id] = {
+              id, title, author: authorClean, cover: coverUrl,
+              genre, readUrl, status: 'unread', progress: 0, addedAt: Date.now()
+            };
+            this.classList.add('saved');
+            this.title = 'Remove bookmark';
+            showToast('🔖 Added to My Books!');
+          }
+          syncBookmarks();
+          updateBmCount();
+        });
 
         /* Read button */
         card.querySelector('.read-btn').addEventListener('click', () => {
@@ -518,54 +619,57 @@
         $grid.appendChild(card);
       });
 
-      /* Update count & pagination */
-      const label = searchTerm
-        ? `"<em>${esc(searchTerm)}</em>"`
-        : topic ? `"<em>${esc(topic)}</em>"` : 'all genres';
-      $count.innerHTML = `<strong>${totalCount.toLocaleString()}</strong> books in ${label} · Page <strong>${page}</strong>`;
+      /* Count & pagination */
+      const myCount    = (typeof MY_BOOKS !== 'undefined') ? MY_BOOKS.length : 0;
+      const totalLabel = originalsOnly
+        ? `<strong>${myCount}</strong> MindStark <em>Original</em> books`
+        : searchTerm
+          ? `Results for "<em>${esc(searchTerm)}</em>" · Page <strong>${page}</strong>`
+          : topic
+            ? `<strong>${totalCount.toLocaleString()}</strong> books in "<em>${esc(topic)}</em>" · Page <strong>${page}</strong>`
+            : `<strong>${totalCount.toLocaleString()}</strong> books · Page <strong>${page}</strong>`;
+
+      $count.innerHTML = totalLabel;
       $pagInfo.textContent = `Page ${page}`;
       $prev.disabled = !prevUrl;
       $next.disabled = !nextUrl;
-      $pag.style.display = (nextUrl || prevUrl) ? 'flex' : 'none';
+      $pag.style.display = (!originalsOnly && (nextUrl || prevUrl)) ? 'flex' : 'none';
     }
 
-    /* ── Sync bookmarks to sessionStorage ─────── */
+    /* ── Supabase sync helpers (unchanged from original) ── */
     function syncBookmarks() {
-  /* Always save to sessionStorage as fallback */
-  sessionStorage.setItem('ms_bookmarks_data', JSON.stringify(Object.values(bookmarks)));
-  sessionStorage.setItem('ms_bookmarks_sync', JSON.stringify(bookmarks));
-  /* Save to Supabase if signed in */
-  saveBookmarksToSupabase();
-}
+      sessionStorage.setItem('ms_bookmarks_data', JSON.stringify(Object.values(bookmarks)));
+      sessionStorage.setItem('ms_bookmarks_sync', JSON.stringify(bookmarks));
+      saveBookmarksToSupabase();
+    }
 
-async function saveBookmarksToSupabase() {
-  if (!window._sb) return;
-  const { data: { user } } = await window._sb.auth.getUser();
-  if (!user) return;
-  const booksArray = Object.values(bookmarks);
-  /* Upsert each bookmark */
-  for (const book of booksArray) {
-    await window._sb.from('bookmarks').upsert({
-      user_id:  user.id,
-      book_id:  String(book.id),
-      title:    book.title,
-      author:   book.author,
-      cover:    book.cover   || '',
-      genre:    book.genre   || 'Classic',
-      added_at: book.addedAt ? new Date(book.addedAt).toISOString() : new Date().toISOString(),
-    }, { onConflict: 'user_id,book_id' });
-  }
-}
+    async function saveBookmarksToSupabase() {
+      if (!window._sb) return;
+      const { data: { user } } = await window._sb.auth.getUser();
+      if (!user) return;
+      const booksArray = Object.values(bookmarks);
+      for (const book of booksArray) {
+        await window._sb.from('bookmarks').upsert({
+          user_id:  user.id,
+          book_id:  String(book.id),
+          title:    book.title,
+          author:   book.author,
+          cover:    book.cover   || '',
+          genre:    book.genre   || 'Classic',
+          added_at: book.addedAt ? new Date(book.addedAt).toISOString() : new Date().toISOString(),
+        }, { onConflict: 'user_id,book_id' });
+      }
+    }
 
-async function deleteBookmarkFromSupabase(bookId) {
-  if (!window._sb) return;
-  const { data: { user } } = await window._sb.auth.getUser();
-  if (!user) return;
-  await window._sb.from('bookmarks')
-    .delete()
-    .eq('user_id', user.id)
-    .eq('book_id', String(bookId));
-}
+    async function deleteBookmarkFromSupabase(bookId) {
+      if (!window._sb) return;
+      const { data: { user } } = await window._sb.auth.getUser();
+      if (!user) return;
+      await window._sb.from('bookmarks')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('book_id', String(bookId));
+    }
 
     function updateBmCount() {
       document.getElementById('sidebarBmCount').textContent = Object.keys(bookmarks).length;
@@ -582,11 +686,12 @@ async function deleteBookmarkFromSupabase(bookId) {
       setTimeout(() => t.classList.remove('show'), 3000);
     }
 
-    /* ── SEARCH ───────────────────────────────── */
+    /* ── SEARCH ── */
     function doSearch() {
-      searchTerm = $search.value.trim();
-      topic      = '';
-      page       = 1;
+      searchTerm    = $search.value.trim();
+      topic         = '';
+      showOriginals = false;
+      page          = 1;
       document.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('active'));
       document.querySelector('[data-topic=""]').classList.add('active');
       fetchBooks();
@@ -594,25 +699,38 @@ async function deleteBookmarkFromSupabase(bookId) {
     document.getElementById('searchBtn').addEventListener('click', doSearch);
     $search.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
 
-    /* ── SORT ─────────────────────────────────── */
+    /* ── SORT ── */
     document.getElementById('sortSelect').addEventListener('change', function() {
       sort = this.value; page = 1; fetchBooks();
     });
 
-    /* ── GENRE BUTTONS ────────────────────────── */
-    document.querySelectorAll('.genre-btn').forEach(btn => {
+    /* ── GENRE BUTTONS (topic-based) ── */
+    document.querySelectorAll('.genre-btn[data-topic]').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        topic      = btn.dataset.topic;
-        searchTerm = '';
-        page       = 1;
+        topic         = btn.dataset.topic;
+        searchTerm    = '';
+        showOriginals = false;
+        page          = 1;
         $search.value = '';
         fetchBooks();
       });
     });
 
-    /* ── VIEW TOGGLE ──────────────────────────── */
+    /* ── MINDSTARK ORIGINALS FILTER ── */
+    document.querySelector('.originals-btn').addEventListener('click', function() {
+      document.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      showOriginals = true;
+      searchTerm    = '';
+      topic         = '';
+      page          = 1;
+      $search.value = '';
+      fetchBooks();
+    });
+
+    /* ── VIEW TOGGLE ── */
     document.getElementById('gridBtn').addEventListener('click', () => {
       $grid.classList.remove('list-view');
       document.getElementById('gridBtn').classList.add('active');
@@ -624,7 +742,7 @@ async function deleteBookmarkFromSupabase(bookId) {
       document.getElementById('gridBtn').classList.remove('active');
     });
 
-    /* ── PAGINATION ───────────────────────────── */
+    /* ── PAGINATION ── */
     $prev.addEventListener('click', () => {
       if (prevUrl) { page--; fetchBooks(prevUrl); window.scrollTo({ top: 0, behavior: 'smooth' }); }
     });
@@ -632,9 +750,13 @@ async function deleteBookmarkFromSupabase(bookId) {
       if (nextUrl) { page++; fetchBooks(nextUrl); window.scrollTo({ top: 0, behavior: 'smooth' }); }
     });
 
-    /* ── RESET ────────────────────────────────── */
+    /* ── RESET ── */
     document.getElementById('clearBtn').addEventListener('click', () => {
-      searchTerm = ''; topic = ''; sort = 'popular'; page = 1;
+      searchTerm    = '';
+      topic         = '';
+      showOriginals = false;
+      sort          = 'popular';
+      page          = 1;
       $search.value = '';
       document.getElementById('sortSelect').value = 'popular';
       document.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('active'));
@@ -642,7 +764,7 @@ async function deleteBookmarkFromSupabase(bookId) {
       fetchBooks();
     });
 
-    /* ── MOBILE MENU ──────────────────────────── */
+    /* ── MOBILE MENU ── */
     const hamburger  = document.getElementById('hamburger');
     const mobileMenu = document.getElementById('mobileMenu');
     hamburger.addEventListener('click', () => {
@@ -656,38 +778,38 @@ async function deleteBookmarkFromSupabase(bookId) {
       document.body.style.overflow = '';
     }
 
-/* Load bookmarks from Supabase on page load */
-async function loadBookmarksFromSupabase() {
-  if (!window._sb) return;
-  const { data: { user } } = await window._sb.auth.getUser();
-  if (!user) return;
-  const { data } = await window._sb.from('bookmarks')
-    .select('*')
-    .eq('user_id', user.id);
-  if (!data || !data.length) return;
-  data.forEach(b => {
-    bookmarks[b.book_id] = {
-      id:      b.book_id,
-      title:   b.title,
-      author:  b.author,
-      cover:   b.cover  || '',
-      genre:   b.genre  || 'Classic',
-      status:  b.status || 'unread',
-      progress: b.progress || 0,
-      addedAt: new Date(b.added_at).getTime(),
-    };
-  });
-  sessionStorage.setItem('ms_bookmarks_data', JSON.stringify(Object.values(bookmarks)));
-  updateBmCount();
-}
+    /* ── Load bookmarks from Supabase on ready ── */
+    async function loadBookmarksFromSupabase() {
+      if (!window._sb) return;
+      const { data: { user } } = await window._sb.auth.getUser();
+      if (!user) return;
+      const { data } = await window._sb.from('bookmarks')
+        .select('*')
+        .eq('user_id', user.id);
+      if (!data || !data.length) return;
+      data.forEach(b => {
+        bookmarks[b.book_id] = {
+          id:       b.book_id,
+          title:    b.title,
+          author:   b.author,
+          cover:    b.cover  || '',
+          genre:    b.genre  || 'Classic',
+          status:   b.status || 'unread',
+          progress: b.progress || 0,
+          addedAt:  new Date(b.added_at).getTime(),
+        };
+      });
+      sessionStorage.setItem('ms_bookmarks_data', JSON.stringify(Object.values(bookmarks)));
+      updateBmCount();
+    }
 
-document.addEventListener('supabase:ready', loadBookmarksFromSupabase);
+    document.addEventListener('supabase:ready', loadBookmarksFromSupabase);
 
-    /* ── INIT ─────────────────────────────────── */
+    /* ── INIT ── */
     fetchBooks();
   </script>
-   <script src="nav.js"></script>
-   <script src="terms.js"></script>
-   <script src="supabase.js"></script>
+  <script src="nav.js"></script>
+  <script src="terms.js"></script>
+  <script src="supabase.js"></script>
 </body>
 </html>

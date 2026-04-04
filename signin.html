@@ -207,7 +207,7 @@
 <!-- NAV -->
 <nav>
   <div class="nav-inner">
-    <a href="index.html" class="logo">
+    <a href="mindstark-library.html" class="logo">
       <span class="logo-main">MindStark</span>
       <span class="logo-sub">Library</span>
     </a>
@@ -286,7 +286,7 @@
         <div class="ai-avatar">📚</div>
         <h3>You're already in!</h3>
         <p id="alreadyInMsg">Welcome back! You're signed in and ready to read.</p>
-        <a id="continueBtn" href="browse.html" class="go-btn">Continue Reading →</a>
+        <a href="browse.html" class="go-btn">Continue Reading →</a>
         <span class="signout-link" onclick="msSignOut()">Sign out of this account</span>
       </div>
 
@@ -472,7 +472,7 @@
     const { error } = await window._sb.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/signin.html${window.location.search}`,
+        redirectTo: `${window.location.origin}/signin.html`,
         queryParams: { access_type: 'offline', prompt: 'select_account' }
       }
     });
@@ -518,24 +518,11 @@
       document.getElementById('alreadyInMsg').textContent =
         `Welcome back, ${profile?.full_name || user.email}!`;
 
-      /* Update continue button to respect redirect param */
-const redirectDest = new URLSearchParams(window.location.search).get('redirect');
-if (redirectDest) {
-  document.getElementById('continueBtn').href = redirectDest;
-  document.getElementById('continueBtn').textContent = 'Continue to CONNECT →';
-}
-
-      /* If came from OAuth redirect, respect redirect param */
-const dest = params.get('redirect') || 'browse.html';
-const { data: { session } } = await window._sb.auth.getSession();
-const accessToken = session?.access_token || '';
-const refreshToken = session?.refresh_token || '';
-const separator = dest.includes('?') ? '&' : '?';
-const finalDest = accessToken
-  ? `${dest}${separator}access_token=${accessToken}&refresh_token=${refreshToken}`
-  : dest;
-setTimeout(() => window.location.href = finalDest, 800);
- }
+      /* If came from OAuth redirect, go to browse */
+      if (hash.includes('access_token') || params.get('code')) {
+        setTimeout(() => window.location.href = 'browse.html', 800);
+      }
+    }
   });
 
   /* ── EMAIL SIGN IN ──────────────────── */
