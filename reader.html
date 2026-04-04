@@ -427,8 +427,6 @@
 <script>
   /* ════════════════════════════════════════════
      MindStark Reader v5
-     + TTS Karaoke word highlighting
-     + Auto-hide controls after 1 minute
   ════════════════════════════════════════════ */
 
   /* ── STATE ──────────────────────────────── */
@@ -448,8 +446,8 @@
   let ttsPlaying    = false;
   let ttsChunks     = [];
   let ttsIndex      = 0;
-  let ttsWordSpans  = [];   /* all wrapped word spans */
-  let ttsWordIndex  = 0;    /* current word being spoken */
+  let ttsWordSpans  = [];
+  let ttsWordIndex  = 0;
 
   /* Music */
   let musicTracks  = [];
@@ -471,25 +469,38 @@
     url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
   ];
 
+  /* ── The two hostnames your site runs on ── */
+  const OWN_HOSTS = [
+    'mind-stark-library.vercel.app',
+    '127.0.0.1',
+    'localhost'
+  ];
+
+  function isOwnBook(url) {
+    try {
+      const host = new URL(url).hostname;
+      return OWN_HOSTS.some(h => host === h || host.endsWith('.' + h));
+    } catch(e) {
+      /* Relative URL — definitely ours */
+      return true;
+    }
+  }
+
   /* ════════════════════════════════════════════
      AUTO-HIDE CONTROLS AFTER 1 MINUTE
   ════════════════════════════════════════════ */
   let hideTimer = null;
-  const HIDE_DELAY = 60000; /* 1 minute */
+  const HIDE_DELAY = 60000;
 
   function resetHideTimer() {
-    /* Show controls */
     document.getElementById('readerNav').classList.remove('faded');
     document.getElementById('controlsBar').classList.remove('faded');
     document.getElementById('ttsBar').classList.remove('faded');
     document.getElementById('musicBar').classList.remove('faded');
-
-    /* Reset timer */
     clearTimeout(hideTimer);
     hideTimer = setTimeout(() => {
       document.getElementById('readerNav').classList.add('faded');
       document.getElementById('controlsBar').classList.add('faded');
-      /* Only fade TTS/music bars if they are visible */
       if (document.getElementById('ttsBar').classList.contains('show'))
         document.getElementById('ttsBar').classList.add('faded');
       if (document.getElementById('musicBar').classList.contains('show'))
@@ -497,7 +508,6 @@
     }, HIDE_DELAY);
   }
 
-  /* Listen for any user activity */
   ['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(evt => {
     document.addEventListener(evt, resetHideTimer, {passive:true});
   });
@@ -545,7 +555,7 @@
   /* ── INIT ───────────────────────────────── */
   window.addEventListener('DOMContentLoaded', () => {
     checkProStatus();
-    resetHideTimer(); /* start auto-hide timer */
+    resetHideTimer();
 
     const raw = sessionStorage.getItem('ms_book') || sessionStorage.getItem('currentBook');
     sessionStorage.removeItem('ms_book');
@@ -605,11 +615,17 @@
     }
   });
 
-  /* ── LOAD BOOK ──────────────────────────── */
+  /* ════════════════════════════════════════════
+     LOAD BOOK
+     — MindStark Original books (same domain):
+       fetch directly, no proxy needed.
+     — Gutenberg books:
+       route through CORS proxies as before.
+  ════════════════════════════════════════════ */
   async function loadBook(url) {
     setLoadProgress(10);
-    setLoadSub('Connecting to Project Gutenberg…');
 
+    /* ── EPUB/ZIP — never renderable ── */
     if (url.includes('.epub') || url.includes('.zip')) {
       setTimeout(() => showError(
         'This book is only available as EPUB. Click below to open it on Gutenberg.',
@@ -617,6 +633,29 @@
       ), 800);
       return;
     }
+
+    /* ── MindStark Original — fetch directly ── */
+    if (isOwnBook(url)) {
+      setLoadSub('Loading your book…');
+      setLoadProgress(40);
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const html = await res.text();
+        setLoadProgress(90);
+        setLoadSub('Rendering…');
+        renderBook(html);
+      } catch(e) {
+        showError(
+          'Could not load this book. Make sure the file has been uploaded to your Vercel project.',
+          null
+        );
+      }
+      return;
+    }
+
+    /* ── Gutenberg book — use CORS proxies ── */
+    setLoadSub('Connecting to Project Gutenberg…');
 
     let html = null;
     for (let i = 0; i < PROXIES.length; i++) {
@@ -731,28 +770,21 @@
   /* ════════════════════════════════════════════
      TTS — KARAOKE WORD HIGHLIGHTING
   ════════════════════════════════════════════ */
-
-  /* Wrap every word in bookContent in a span */
   function wrapWordsForKaraoke() {
     const content = document.getElementById('bookContent');
     ttsWordSpans  = [];
-
-    /* Walk text nodes and wrap each word */
-    const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT, null);
-    const nodes  = [];
+    const walker  = document.createTreeWalker(content, NodeFilter.SHOW_TEXT, null);
+    const nodes   = [];
     let node;
     while ((node = walker.nextNode())) {
-      /* Skip nodes inside mark/script/style */
       const parent = node.parentElement;
       if (parent && ['SCRIPT','STYLE','MARK'].includes(parent.tagName)) continue;
       nodes.push(node);
     }
-
     nodes.forEach(textNode => {
       const text  = textNode.textContent;
       const words = text.split(/(\s+)/);
       if (words.length <= 1) return;
-
       const frag = document.createDocumentFragment();
       words.forEach(part => {
         if (/^\s+$/.test(part) || part === '') {
@@ -778,8 +810,6 @@
     if (idx < 0 || idx >= ttsWordSpans.length) return;
     const span = ttsWordSpans[idx];
     span.classList.add('tts-active');
-
-    /* Auto-scroll to keep highlighted word visible */
     const scroll = document.getElementById('bookScroll');
     const rect   = span.getBoundingClientRect();
     const scrollRect = scroll.getBoundingClientRect();
@@ -792,17 +822,11 @@
     if (!('speechSynthesis' in window)) { showToast('❌ Text-to-speech not supported in this browser'); return; }
     const content = document.getElementById('bookContent');
     if (!content || !content.textContent.trim()) { showToast('❌ No text to read'); return; }
-
-    /* Wrap words if not already done */
     if (ttsWordSpans.length === 0) wrapWordsForKaraoke();
-
     ttsWordIndex = 0;
     ttsIndex     = 0;
-
-    /* Build full text from word spans */
     const fullText = ttsWordSpans.map(s => s.textContent).join(' ');
     ttsChunks = fullText.match(/.{1,800}(\s|$)/g) || [fullText];
-
     document.getElementById('ttsBar').classList.add('show');
     document.getElementById('ttsBtn').classList.add('active');
     playTTSChunk();
@@ -814,13 +838,10 @@
     if (ttsIndex >= ttsChunks.length) { stopTTS(); return; }
     window.speechSynthesis.cancel();
     clearInterval(ttsWordTimer);
-
     ttsUtterance       = new SpeechSynthesisUtterance(ttsChunks[ttsIndex]);
     ttsUtterance.rate  = parseFloat(document.getElementById('ttsSpeed').value) || 1;
     ttsUtterance.pitch = 1;
     ttsUtterance.lang  = 'en-US';
-
-    /* Desktop — use onboundary if supported */
     let boundarySupported = false;
     ttsUtterance.onboundary = function(event) {
       if (event.name !== 'word') return;
@@ -831,15 +852,13 @@
       const globalIdx   = spokenSoFar + chunkWords;
       if (globalIdx < ttsWordSpans.length) highlightWord(globalIdx);
     };
-
-    /* Mobile fallback — timer based highlighting */
     ttsUtterance.onstart = function() {
       setTimeout(() => {
         if (!boundarySupported && ttsPlaying) {
-          const rate        = parseFloat(document.getElementById('ttsSpeed').value) || 1;
-          const msPerWord   = (60 / (150 * rate)) * 1000;
-          const chunkStart  = ttsChunks.slice(0, ttsIndex).join(' ').split(/\s+/).filter(Boolean).length;
-          let wordOffset    = 0;
+          const rate      = parseFloat(document.getElementById('ttsSpeed').value) || 1;
+          const msPerWord = (60 / (150 * rate)) * 1000;
+          const chunkStart = ttsChunks.slice(0, ttsIndex).join(' ').split(/\s+/).filter(Boolean).length;
+          let wordOffset   = 0;
           ttsWordTimer = setInterval(() => {
             if (!ttsPlaying) { clearInterval(ttsWordTimer); return; }
             const globalIdx = chunkStart + wordOffset;
@@ -849,10 +868,8 @@
         }
       }, 300);
     };
-
     ttsUtterance.onend   = () => { clearInterval(ttsWordTimer); ttsIndex++; if (ttsPlaying) playTTSChunk(); };
     ttsUtterance.onerror = () => { clearInterval(ttsWordTimer); ttsIndex++; if (ttsPlaying) playTTSChunk(); };
-
     window.speechSynthesis.speak(ttsUtterance);
     ttsPlaying = true;
     document.getElementById('ttsPlayBtn').textContent = '⏸';
@@ -993,7 +1010,7 @@
     try {
       const range = pendingSelection.range;
       const mark  = document.createElement('mark');
-      mark.className  = `ms-highlight ${colorClass}`;
+      mark.className    = `ms-highlight ${colorClass}`;
       mark.dataset.hlId = Date.now();
       range.surroundContents(mark);
       const hl = {id:mark.dataset.hlId,text:pendingSelection.text,color:colorClass,note:'',bookId:bookData?.id,date:new Date().toISOString()};
@@ -1053,9 +1070,9 @@
     saveHighlights(); renderNotes();
   }
 
-  function saveHighlights()  { try { sessionStorage.setItem('ms_highlights', JSON.stringify(highlights)); } catch(e){} }
-  function loadHighlights()  { try { highlights = JSON.parse(sessionStorage.getItem('ms_highlights')||'[]'); } catch(e){} }
-  function restoreHighlights(){ renderNotes(); }
+  function saveHighlights()    { try { sessionStorage.setItem('ms_highlights', JSON.stringify(highlights)); } catch(e){} }
+  function loadHighlights()    { try { highlights = JSON.parse(sessionStorage.getItem('ms_highlights')||'[]'); } catch(e){} }
+  function restoreHighlights() { renderNotes(); }
 
   document.addEventListener('mousedown', e => {
     if (!e.target.closest('#hlTooltip') && !e.target.closest('#bookContent')) hideTooltip();
@@ -1117,10 +1134,10 @@
     if (!track) return;
     if (musicAudio) { musicAudio.pause(); musicAudio = null; }
     musicAudio = new Audio(track.audio);
-    musicAudio.volume   = parseFloat(document.getElementById('musicVol').value) || 0.4;
-    musicAudio.onended  = () => nextTrack();
+    musicAudio.volume    = parseFloat(document.getElementById('musicVol').value) || 0.4;
+    musicAudio.onended   = () => nextTrack();
     musicAudio.oncanplay = () => { musicAudio.play(); musicPlaying = true; updateMusicUI(); };
-    musicAudio.onerror  = () => nextTrack();
+    musicAudio.onerror   = () => nextTrack();
     document.getElementById('musicTitle').textContent  = track.name        || 'Unknown Track';
     document.getElementById('musicArtist').textContent = track.artist_name || '';
   }
@@ -1173,7 +1190,6 @@
     btn.classList.toggle('playing', musicPlaying);
   }
 
-  /* Stop everything on navigate away */
   window.addEventListener('beforeunload', () => {
     if (ttsPlaying) window.speechSynthesis.cancel();
     if (musicAudio) musicAudio.pause();
