@@ -23,13 +23,13 @@ const MY_BOOKS = [
     id:             "ms-001",
     title:          "Margaret",
     authors:        [{ name: "Onaraku Valeria" }],
-    subjects:       ["Fiction -- Nigerian Literature -- Literary Fiction"],
+    subjects:       ["Suspence -- Psychological Drama -- Emotional"],
     download_count: 0,
     _mindstark:     true,   /* marks this as a MindStark Original */
 
     formats: {
       /* Replace this URL with the real hosted URL of your book's HTML file */
-      "text/html":   "Document1.htm",
+      "text/html":   "my-books/margaret.htm",
 
       /* Replace with your cover image URL — delete this line to use auto fallback */
       "image/jpeg":  "image1.png"
@@ -39,15 +39,15 @@ const MY_BOOKS = [
   /* ── EXAMPLE BOOK 2 ─────────────────────────── */
   {
     id:             "ms-002",
-    title:          "A Thousand Harmattan Nights",
-    authors:        [{ name: "Your Name" }],
-    subjects:       ["Romance -- African Fiction -- Short Stories"],
+    title:          "Survival's Rage - Book One",
+    authors:        [{ name: "Anthony C. C. Osuji" }],
+    subjects:       ["Thriller -- Action -- Psychological Drama"],
     download_count: 0,
     _mindstark:     true,
 
     formats: {
-      "text/html":  "https://mind-stark-library.vercel.app/books/ms-002.html",
-      "image/jpeg": "https://mind-stark-library.vercel.app/covers/ms-002.jpg"
+      "text/html":  "my-books/Survival's Rage.htm",
+      "image/jpeg": "image2.png"
     }
   },
 
