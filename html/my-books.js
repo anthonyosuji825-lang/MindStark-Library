@@ -29,7 +29,7 @@ const MY_BOOKS = [
 
     formats: {
       /* Replace this URL with the real hosted URL of your book's HTML file */
-      "text/html":   "Document1.htm",
+      "text/html":   "my-books/margaret.htm",
 
       /* Replace with your cover image URL — delete this line to use auto fallback */
       "image/jpeg":  "image1.png"

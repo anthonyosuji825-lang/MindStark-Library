@@ -369,7 +369,7 @@
         </div>
         <div class="dd-section">Library</div>
         <a href="browse.html" class="dd-item"><span class="dd-icon">📚</span> Browse Books</a>
-        <a href="mybooks.html" class="dd-item"><span class="dd-icon">🔖</span> My Books ${bmCount>0?`<span class="dd-badge">${bmCount}</span>`:''}</a>
+        <a href="book.html" class="dd-item"><span class="dd-icon">🔖</span> My Books ${bmCount>0?`<span class="dd-badge">${bmCount}</span>`:''}</a>
         <div class="dd-section">Account</div>
         <a href="profile.html" class="dd-item"><span class="dd-icon">👤</span> My Profile</a>
         <a href="membership.html" class="dd-item"><span class="dd-icon">💳</span> Membership</a>
@@ -433,7 +433,7 @@
     const links = `
       <span class="ms-section">Explore</span>
       <a href="browse.html" class="ms-mob-link"><span class="ms-mob-link-icon">📚</span> Browse Books</a>
-      <a href="mybooks.html" class="ms-mob-link"><span class="ms-mob-link-icon">🔖</span> My Books ${bmCount>0?`<span class="ms-mob-link-badge">${bmCount}</span>`:''}</a>
+      <a href="book.html" class="ms-mob-link"><span class="ms-mob-link-icon">🔖</span> My Books ${bmCount>0?`<span class="ms-mob-link-badge">${bmCount}</span>`:''}</a>
       <a href="membership.html" class="ms-mob-link"><span class="ms-mob-link-icon">💎</span> Membership</a>
       <a href="feeds.html" class="ms-mob-link"><span class="ms-mob-link-icon">📰</span> Feeds</a>
       <a href="about.html" class="ms-mob-link"><span class="ms-mob-link-icon">ℹ️</span> About</a>`;
