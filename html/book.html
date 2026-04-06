@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <!-- Favicon & Meta -->
+<link rel="icon" type="image/png" href="logo.png"/>
+<link rel="apple-touch-icon" href="logo.png"/>
+<meta property="og:image" content="https://mind-stark-library.vercel.app/logo.png"/>
+<meta property="og:title" content="MindStark Library"/>
+<meta property="og:description" content="70,000+ free books. Read anywhere, anytime."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://mind-stark-library.vercel.app"/>
+  <title>My Books — MindStark Library</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--cream:#f5f0e8;--warm:#ede5d5;--brown:#3b2a1a;--gold:#c8963e;--rust:#a0522d;--text:#2c1e0f;--muted:#7a6652;--white:#ffffff;--border:rgba(200,150,62,.18)}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);line-height:1.6;min-height:100vh}
+
+    /* ── NAV ─────────────────────────────────── */
+    nav{position:sticky;top:0;z-index:100;background:rgba(245,240,232,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 2rem;max-width:1280px;margin:0 auto}
+    .logo{display:flex;flex-direction:column;line-height:1;text-decoration:none}
+    .logo-main{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:var(--brown)}
+    .logo-sub{font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+    .nav-links{display:flex;gap:2rem;list-style:none}
+    .nav-links a{text-decoration:none;color:var(--muted);font-size:.9rem;font-weight:500;transition:color .2s}
+    .nav-links a:hover,.nav-links a.active{color:var(--gold)}
+    .nav-cta{background:var(--brown);color:var(--cream)!important;padding:.5rem 1.25rem;border-radius:50px;transition:background .2s!important}
+    .nav-cta:hover{background:var(--gold)!important}
+
+    /* ── PAGE HEADER ─────────────────────────── */
+    .page-header{background:var(--brown);padding:3rem 2rem;position:relative;overflow:hidden}
+    .page-header::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 50%,rgba(200,150,62,.15),transparent 60%);pointer-events:none}
+    .page-header-inner{max-width:1280px;margin:0 auto;position:relative;z-index:1;display:flex;align-items:flex-end;justify-content:space-between;gap:1.5rem;flex-wrap:wrap}
+    .breadcrumb{font-size:.78rem;color:rgba(245,240,232,.5);margin-bottom:.75rem}
+    .breadcrumb a{color:var(--gold);text-decoration:none}
+    .page-header h1{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:900;color:var(--cream);margin-bottom:.5rem}
+    .page-header p{color:rgba(245,240,232,.6);font-size:.95rem}
+    .header-stat{flex-shrink:0;text-align:center;background:rgba(245,240,232,.08);border:1px solid rgba(245,240,232,.14);border-radius:14px;padding:.85rem 1.5rem}
+    .header-stat .num{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--gold);display:block;line-height:1}
+    .header-stat .lbl{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,240,232,.5);margin-top:.2rem;display:block}
+
+    /* ── TOOLBAR ─────────────────────────────── */
+    .toolbar{background:var(--warm);border-bottom:1px solid var(--border);padding:1rem 2rem}
+    .toolbar-inner{max-width:1280px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+    .tab-group{display:flex;gap:.4rem}
+    .tab-btn{padding:.4rem 1.1rem;border:1.5px solid var(--border);border-radius:50px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;color:var(--muted);cursor:pointer;transition:all .2s;font-weight:500}
+    .tab-btn:hover{border-color:var(--gold);color:var(--gold)}
+    .tab-btn.active{background:var(--brown);border-color:var(--brown);color:var(--cream)}
+    .toolbar-right{display:flex;gap:.5rem;align-items:center}
+    .view-toggle{display:flex;gap:.4rem}
+    .view-btn{width:34px;height:34px;border:1.5px solid var(--border);border-radius:8px;background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--muted);transition:all .2s}
+    .view-btn.active,.view-btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(200,150,62,.06)}
+    .clear-all-btn{padding:.4rem 1rem;border:1.5px solid rgba(160,82,45,.25);border-radius:50px;background:transparent;font-family:'DM Sans',sans-serif;font-size:.82rem;color:var(--rust);cursor:pointer;transition:all .2s}
+    .clear-all-btn:hover{background:var(--rust);color:var(--white);border-color:var(--rust)}
+
+    /* ── MAIN ────────────────────────────────── */
+    .main{max-width:1280px;margin:0 auto;padding:2rem}
+
+    /* ── BOOKS GRID ──────────────────────────── */
+    .books-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:1.5rem}
+    .book-card{background:var(--white);border-radius:14px;overflow:hidden;border:1px solid var(--border);transition:transform .3s,box-shadow .3s;animation:fadeUp .5s ease both;position:relative}
+    .book-card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(59,42,26,.13)}
+
+    /* Remove button — mirrors the bm-btn from browse */
+    .rm-btn{position:absolute;top:.65rem;right:.65rem;z-index:3;width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,.92);color:var(--muted);font-size:.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(59,42,26,.15);transition:all .2s}
+    .rm-btn:hover{background:var(--rust);color:var(--white);transform:scale(1.1)}
+
+    /* Status badge */
+    .status-badge{position:absolute;top:.65rem;left:.65rem;z-index:3;font-size:.62rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:.2rem .55rem;border-radius:50px}
+    .status-unread{background:rgba(59,42,26,.75);color:var(--cream)}
+    .status-reading{background:rgba(200,150,62,.9);color:var(--white)}
+    .status-finished{background:rgba(74,103,65,.85);color:var(--white)}
+
+    .book-cover{height:185px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .book-cover img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+    .book-card:hover .book-cover img{transform:scale(1.04)}
+    .book-cover-fallback{width:105px;height:148px;border-radius:3px 7px 7px 3px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.75rem;text-align:center;box-shadow:3px 3px 16px rgba(0,0,0,.25)}
+    .cover-title{font-family:'Playfair Display',serif;font-size:.58rem;font-weight:700;color:rgba(255,255,255,.9);line-height:1.3;margin-bottom:.3rem}
+    .cover-line{width:20px;height:1px;background:rgba(255,255,255,.4);margin:.25rem auto}
+    .cover-author{font-size:.5rem;color:rgba(255,255,255,.65);letter-spacing:.05em}
+
+    .book-info{padding:1rem}
+    .book-genre{font-size:.68rem;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:.3rem}
+    .book-info h3{font-family:'Playfair Display',serif;font-size:.93rem;font-weight:700;color:var(--brown);margin-bottom:.2rem;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .book-author{font-size:.78rem;color:var(--muted);margin-bottom:.5rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    /* Progress bar */
+    .progress-wrap{margin-bottom:.65rem}
+    .progress-label{display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted);margin-bottom:.25rem}
+    .progress-bar{height:4px;background:var(--warm);border-radius:2px;overflow:hidden}
+    .progress-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .4s}
+
+    .book-footer{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+    .saved-date{font-size:.68rem;color:var(--muted)}
+
+    /* Status dropdown */
+    .status-select{font-size:.72rem;padding:.22rem .5rem;border:1.5px solid var(--border);border-radius:50px;background:var(--white);font-family:'DM Sans',sans-serif;color:var(--brown);outline:none;cursor:pointer;transition:border-color .2s}
+    .status-select:focus{border-color:var(--gold)}
+
+    .read-btn{background:var(--brown);color:var(--cream);border:none;padding:.4rem .9rem;border-radius:50px;font-size:.75rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .2s;flex-shrink:0}
+    .read-btn:hover{background:var(--gold)}
+
+    /* LIST VIEW */
+    .books-grid.list-view{grid-template-columns:1fr;gap:1rem}
+    .books-grid.list-view .book-card{display:flex}
+    .books-grid.list-view .book-cover{width:115px;min-width:115px;height:auto;border-radius:14px 0 0 14px}
+    .books-grid.list-view .book-info{flex:1;display:flex;flex-direction:column;justify-content:center;padding:1.25rem 1.5rem}
+    .books-grid.list-view .book-info h3{font-size:1.05rem;white-space:normal}
+
+    /* COVER PALETTES */
+    .pal-0{background:linear-gradient(145deg,#8b3a2a,#c0583a)}.pal-1{background:linear-gradient(145deg,#2a4a6b,#3a7abf)}.pal-2{background:linear-gradient(145deg,#4a6741,#6a9b5e)}.pal-3{background:linear-gradient(145deg,#5c3a5c,#9b5c9b)}.pal-4{background:linear-gradient(145deg,#7a5c2a,#b08a42)}.pal-5{background:linear-gradient(145deg,#2a5c5c,#3a9b9b)}.pal-6{background:linear-gradient(145deg,#5c2a2a,#9b4040)}.pal-7{background:linear-gradient(145deg,#3a4a2a,#6a8a42)}
+    .bg-0{background:#f5ede0}.bg-1{background:#e8eef5}.bg-2{background:#edf5ed}.bg-3{background:#f5edf5}.bg-4{background:#f5f2e8}.bg-5{background:#e8f5f5}.bg-6{background:#f5e8e8}.bg-7{background:#eef5e8}
+
+    /* EMPTY STATE */
+    .empty-state{display:none;flex-direction:column;align-items:center;text-align:center;padding:5rem 2rem;gap:1.25rem}
+    .empty-icon{font-size:4rem}
+    .empty-state h2{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--brown)}
+    .empty-state p{color:var(--muted);max-width:380px;font-size:.92rem;line-height:1.7}
+    .browse-link{display:inline-flex;align-items:center;gap:.5rem;background:var(--brown);color:var(--cream);padding:.75rem 1.75rem;border-radius:50px;text-decoration:none;font-size:.9rem;font-weight:500;transition:background .2s;margin-top:.25rem}
+    .browse-link:hover{background:var(--gold)}
+
+    /* CONFIRM MODAL */
+    .modal-overlay{position:fixed;inset:0;background:rgba(30,18,8,.55);backdrop-filter:blur(5px);z-index:500;display:none;align-items:center;justify-content:center;padding:1rem}
+    .modal-overlay.show{display:flex}
+    .modal{background:var(--white);border-radius:20px;padding:2rem;max-width:360px;width:100%;text-align:center;box-shadow:0 24px 64px rgba(30,18,8,.25);animation:popIn .25s cubic-bezier(.34,1.56,.64,1)}
+    @keyframes popIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+    .modal-icon{font-size:2.5rem;margin-bottom:.75rem}
+    .modal h3{font-family:'Playfair Display',serif;font-size:1.25rem;color:var(--brown);margin-bottom:.5rem}
+    .modal p{color:var(--muted);font-size:.88rem;margin-bottom:1.5rem;line-height:1.6}
+    .modal-btns{display:flex;gap:.75rem;justify-content:center}
+    .btn-cancel{padding:.6rem 1.4rem;border:1.5px solid var(--border);border-radius:50px;background:transparent;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--muted);cursor:pointer;transition:all .2s}
+    .btn-cancel:hover{color:var(--text);border-color:var(--muted)}
+    .btn-danger{padding:.6rem 1.4rem;border:none;border-radius:50px;background:var(--rust);color:var(--white);font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;cursor:pointer;transition:background .2s}
+    .btn-danger:hover{background:#8b3a22}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);background:var(--brown);color:var(--cream);padding:.75rem 1.5rem;border-radius:50px;font-size:.88rem;font-weight:500;box-shadow:0 8px 24px rgba(59,42,26,.3);transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap}
+    .toast.show{transform:translateX(-50%) translateY(0)}
+
+    footer{background:#1e1208;color:rgba(245,240,232,.5);text-align:center;padding:2rem;font-size:.82rem;margin-top:3rem}
+    footer a{color:var(--gold);text-decoration:none}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @media(max-width:900px){
+  .nav-links{display:none}
+  .main{padding:1.5rem 1rem}
+  .page-header-inner{flex-direction:column;align-items:flex-start}
+  .page-header{padding:2rem 1.25rem}
+  .page-header h1{font-size:1.8rem}
+  .toolbar{padding:.75rem 1.25rem}
+}
+@media(max-width:560px){
+  .books-grid{grid-template-columns:repeat(2,1fr);gap:.75rem}
+  .toolbar-inner{flex-direction:column;align-items:flex-start;gap:.75rem}
+  .header-stat{display:none}
+  .tab-group{flex-wrap:wrap;gap:.35rem}
+  .tab-btn{font-size:.78rem;padding:.35rem .85rem}
+  .book-cover{height:155px}
+  .book-info{padding:.75rem}
+  .book-info h3{font-size:.85rem}
+  .book-author{font-size:.72rem}
+  .read-btn{font-size:.72rem;padding:.35rem .7rem}
+  .status-select{font-size:.68rem;padding:.2rem .4rem}
+  .progress-label{font-size:.65rem}
+  .toolbar-right{width:100%;justify-content:space-between}
+  .main{padding:1rem}
+}
+@media(max-width:400px){
+  .books-grid{grid-template-columns:repeat(2,1fr);gap:.5rem}
+  .book-cover{height:135px}
+  .book-info{padding:.6rem}
+  .book-info h3{font-size:.8rem}
+  .tab-btn{font-size:.74rem;padding:.3rem .75rem}
+  .rm-btn{width:26px;height:26px;font-size:.7rem}
+  .status-badge{font-size:.56rem;padding:.15rem .4rem}
+}
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-main">MindStark</span>
+        <span class="logo-sub">Library</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="browse.html">Browse</a></li>
+        <li><a href="book.html" class="active">My Books</a></li>
+        <li><a href="membership.html">Membership</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="feeds.html">Feeds</a></li>
+        <li><a href="signin.html" class="nav-cta">Sign In</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div class="page-header-inner">
+      <div>
+        <div class="breadcrumb"><a href="index.html">Home</a> › My Books</div>
+        <h1>My Books</h1>
+        <p>Your personal reading collection — all your bookmarked books in one place.</p>
+      </div>
+      <div class="header-stat">
+        <span class="num" id="headerCount">0</span>
+        <span class="lbl">Saved Books</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="toolbar-inner">
+      <div class="tab-group">
+        <button class="tab-btn active" data-filter="all">All</button>
+        <button class="tab-btn" data-filter="unread">Unread</button>
+        <button class="tab-btn" data-filter="reading">Reading</button>
+        <button class="tab-btn" data-filter="finished">Finished</button>
+      </div>
+      <div class="toolbar-right">
+        <button class="clear-all-btn" id="clearAllBtn">🗑 Clear All</button>
+        <div class="view-toggle">
+          <button class="view-btn active" id="gridBtn">⊞</button>
+          <button class="view-btn" id="listBtn">☰</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="books-grid" id="booksGrid"></div>
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">📚</div>
+      <h2>No books here yet</h2>
+      <p id="emptyMsg">Head over to Browse, find something you love, and hit the 🔖 bookmark button to save it here.</p>
+      <a href="browse.html" class="browse-link">📖 Browse Books</a>
+    </div>
+  </div>
+
+  <!-- CONFIRM MODAL -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-icon">🗑️</div>
+      <h3>Clear all books?</h3>
+      <p>This will remove all <strong id="modalCount">0</strong> saved books. This cannot be undone.</p>
+      <div class="modal-btns">
+        <button class="btn-cancel" id="modalCancel">Cancel</button>
+        <button class="btn-danger" id="modalConfirm">Yes, Clear All</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <footer>© 2026 <a href="index.html">MindStark Library</a> · Books from <a href="https://archive.org" target="_blank">Internet Archive</a></footer>
+
+  <script>
+    /* ══════════════════════════════════════════
+       STORE
+       bookmarks object is shared via sessionStorage
+       so it stays in sync with browse.html.
+       TODO: replace with backend API calls.
+    ══════════════════════════════════════════ */
+    const PALS=['pal-0','pal-1','pal-2','pal-3','pal-4','pal-5','pal-6','pal-7'];
+    const BGS  =['bg-0','bg-1','bg-2','bg-3','bg-4','bg-5','bg-6','bg-7'];
+    const STATUS_LABELS={unread:'Unread',reading:'Reading',finished:'Finished ✓'};
+
+function getBooks(){return JSON.parse(sessionStorage.getItem('ms_bookmarks_data')||'[]');}
+
+function saveBooks(arr){
+  sessionStorage.setItem('ms_bookmarks_data',JSON.stringify(arr));
+  saveMyBooksToSupabase(arr);
+}
+
+async function saveMyBooksToSupabase(arr) {
+  if (!window._sb) return;
+  const { data: { user } } = await window._sb.auth.getUser();
+  if (!user) return;
+  for (const book of arr) {
+    await window._sb.from('bookmarks').upsert({
+      user_id:   user.id,
+      book_id:   String(book.id),
+      title:     book.title,
+      author:    book.author,
+      cover:     book.cover    || '',
+      genre:     book.genre    || 'Classic',
+      added_at:  book.addedAt ? new Date(book.addedAt).toISOString() : new Date().toISOString(),
+    }, { onConflict: 'user_id,book_id' });
+  }
+}
+    let filter='all';
+
+    const $grid    = document.getElementById('booksGrid');
+    const $empty   = document.getElementById('emptyState');
+    const $emptyMsg= document.getElementById('emptyMsg');
+    const $hCount  = document.getElementById('headerCount');
+    const $modal   = document.getElementById('modalOverlay');
+    const $mCount  = document.getElementById('modalCount');
+    const $toast   = document.getElementById('toast');
+
+    /* ── RENDER ────────────────────────────────── */
+    function render(){
+      let books = getBooks();
+
+      // apply filter
+      if(filter!=='all') books=books.filter(b=>b.status===filter);
+
+      $hCount.textContent = getBooks().length;
+      $grid.innerHTML='';
+
+      if(!books.length){
+        $grid.style.display='none';
+        $empty.style.display='flex';
+        $emptyMsg.textContent = filter==='all'
+          ? 'Head over to Browse, find something you love, and hit the 🔖 bookmark button to save it here.'
+          : `No books marked as "${STATUS_LABELS[filter]}" yet.`;
+        return;
+      }
+
+      $grid.style.display='';
+      $empty.style.display='none';
+
+      books.forEach((book,i)=>{
+        const p    = i%8;
+        const card = document.createElement('div');
+        card.className='book-card';
+        card.style.animationDelay=`${i*.04}s`;
+
+        const coverHTML = book.cover
+          ? `<img src="${esc(book.cover)}" alt="${esc(book.title)}" loading="lazy"
+               onerror="this.parentElement.innerHTML='${fbk(book.title,book.author,p).replace(/'/g,"&#39;")}'"/>`
+          : fbk(book.title,book.author,p);
+
+        const pct   = book.progress||0;
+        const dated = book.addedAt
+          ? new Date(book.addedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})
+          : '';
+
+        card.innerHTML=`
+          <button class="rm-btn" title="Remove from My Books">✕</button>
+          <span class="status-badge status-${book.status||'unread'}">${STATUS_LABELS[book.status||'unread']}</span>
+          <div class="book-cover ${BGS[p]}">${coverHTML}</div>
+          <div class="book-info">
+            <div class="book-genre">${esc(book.genre||'Classic')}</div>
+            <h3 title="${esc(book.title)}">${esc(book.title)}</h3>
+            <p class="book-author">${esc(book.author)}</p>
+            <div class="progress-wrap">
+              <div class="progress-label"><span>Progress</span><span>${pct}%</span></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+            </div>
+            <div class="book-footer">
+              <select class="status-select" title="Reading status">
+                <option value="unread" ${book.status==='unread'||!book.status?'selected':''}>Unread</option>
+                <option value="reading" ${book.status==='reading'?'selected':''}>Reading</option>
+                <option value="finished" ${book.status==='finished'?'selected':''}>Finished</option>
+              </select>
+              <button class="read-btn">Read</button>
+            </div>
+          </div>`;
+
+        /* Remove */
+        card.querySelector('.rm-btn').addEventListener('click',e=>{
+          e.stopPropagation();
+          let all=getBooks();
+          all=all.filter(b=>b.id!==book.id);
+          saveBooks(all);
+          card.style.transition='opacity .3s,transform .3s';
+          card.style.opacity='0';card.style.transform='scale(.95)';
+          setTimeout(render,300);
+          showToast('📕 Removed from My Books');
+        });
+
+        /* Status change */
+        card.querySelector('.status-select').addEventListener('change',function(){
+          let all=getBooks();
+          const idx=all.findIndex(b=>b.id===book.id);
+          if(idx>-1){all[idx].status=this.value;saveBooks(all);}
+          render();
+          showToast(`Status updated to "${STATUS_LABELS[this.value]}"`);
+        });
+
+        /* Read */
+      card.querySelector('.read-btn').addEventListener('click',()=>{
+      const readUrl = book.readUrl || `https://www.gutenberg.org/ebooks/${book.id}`;
+      sessionStorage.setItem('ms_book',JSON.stringify({id:book.id,title:book.title,author:book.author,cover:book.cover,readUrl:readUrl}));
+          // Mark as reading if still unread
+          let all=getBooks();
+          const idx=all.findIndex(b=>b.id===book.id);
+          if(idx>-1&&all[idx].status==='unread'){all[idx].status='reading';saveBooks(all);}
+          window.location.href='reader.html';
+        });
+
+        $grid.appendChild(card);
+      });
+    }
+
+    /* ── HELPERS ──────────────────────────────── */
+    function fbk(title,author,p){
+      return `<div class="book-cover-fallback ${PALS[p]}">
+        <span class="cover-title">${esc(title.slice(0,36))}</span>
+        <div class="cover-line"></div>
+        <span class="cover-author">${esc(String(author).toUpperCase().slice(0,20))}</span>
+      </div>`;
+    }
+    function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+    function showToast(msg){$toast.textContent=msg;$toast.classList.add('show');setTimeout(()=>$toast.classList.remove('show'),3000);}
+
+    /* ── FILTER TABS ──────────────────────────── */
+    document.querySelectorAll('.tab-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        filter=btn.dataset.filter;
+        render();
+      });
+    });
+
+    /* ── VIEW TOGGLE ──────────────────────────── */
+    document.getElementById('gridBtn').addEventListener('click',()=>{$grid.classList.remove('list-view');document.getElementById('gridBtn').classList.add('active');document.getElementById('listBtn').classList.remove('active');});
+    document.getElementById('listBtn').addEventListener('click',()=>{$grid.classList.add('list-view');document.getElementById('listBtn').classList.add('active');document.getElementById('gridBtn').classList.remove('active');});
+
+    /* ── CLEAR ALL ────────────────────────────── */
+    document.getElementById('clearAllBtn').addEventListener('click',()=>{
+      const books=getBooks();
+      if(!books.length){showToast('No books to clear');return;}
+      $mCount.textContent=books.length;
+      $modal.classList.add('show');
+    });
+    document.getElementById('modalCancel').addEventListener('click',()=>$modal.classList.remove('show'));
+    document.getElementById('modalConfirm').addEventListener('click',()=>{
+      saveBooks([]);
+      $modal.classList.remove('show');
+      render();
+      showToast('🗑 All books cleared');
+    });
+    $modal.addEventListener('click',e=>{if(e.target===$modal)$modal.classList.remove('show');});
+
+    /* ══════════════════════════════════════════
+       SYNC WITH BROWSE PAGE
+       Browse page uses a `bookmarks` object in memory.
+       We bridge them via sessionStorage so My Books
+       shows whatever was bookmarked this session.
+       When backend is ready, replace this with an API fetch.
+    ══════════════════════════════════════════ */
+
+    /* Load from Supabase first, then render */
+async function loadFromSupabase() {
+  if (!window._sb) { syncFromBrowse(); render(); return; }
+  const { data: { user } } = await window._sb.auth.getUser();
+  if (!user) { syncFromBrowse(); render(); return; }
+
+  const { data } = await window._sb.from('bookmarks')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('added_at', { ascending: false });
+
+  if (data && data.length) {
+    const books = data.map(b => ({
+      id:       b.book_id,
+      title:    b.title,
+      author:   b.author,
+      cover:    b.cover    || '',
+      genre:    b.genre    || 'Classic',
+      status:   b.status   || 'unread',
+      progress: b.progress || 0,
+      addedAt:  new Date(b.added_at).getTime(),
+    }));
+    saveBooks(books);
+  }
+  render();
+}
+
+document.addEventListener('supabase:ready', loadFromSupabase);
+
+    function syncFromBrowse(){
+      // If browse page saved anything to ms_bookmarks_sync, merge it in
+      const incoming=JSON.parse(sessionStorage.getItem('ms_bookmarks_sync')||'null');
+      if(!incoming) return;
+      const existing=getBooks();
+      const ids=existing.map(b=>b.id);
+      Object.values(incoming).forEach(b=>{
+        if(!ids.includes(b.id)) existing.push({...b,status:b.status||'unread',progress:b.progress||0});
+      });
+      saveBooks(existing);
+      sessionStorage.removeItem('ms_bookmarks_sync');
+    }
+
+    syncFromBrowse();
+    render();
+  </script>
+   <script src="nav.js"></script>
+   <script src="terms.js"></script>
+   <script src="supabase.js"></script>
+</body>
+</html>
