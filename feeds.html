@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><!-- Favicon & Meta -->
+<link rel="icon" type="image/png" href="logo.png"/>
+<link rel="apple-touch-icon" href="logo.png"/>
+<meta property="og:image" content="https://mind-stark-library.vercel.app/logo.png"/>
+<meta property="og:title" content="MindStark Library"/>
+<meta property="og:description" content="70,000+ free books. Read anywhere, anytime."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://mind-stark-library.vercel.app"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>News — MindStark Library</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --cream:#f5f0e8;--warm:#ede5d5;--brown:#3b2a1a;--gold:#c8963e;
+      --rust:#a0522d;--text:#2c1e0f;--muted:#7a6652;--white:#ffffff;
+      --border:rgba(200,150,62,.18);--shadow:0 4px 32px rgba(59,42,26,.10);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);line-height:1.6}
+
+    /* ── NAV ─────────────────────────────────── */
+    nav{position:sticky;top:0;z-index:200;background:rgba(245,240,232,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 2rem;max-width:1280px;margin:0 auto}
+    .logo{display:flex;flex-direction:column;line-height:1;text-decoration:none}
+    .logo-main{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:var(--brown)}
+    .logo-sub{font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+    .nav-links{display:flex;gap:2rem;list-style:none}
+    .nav-links a{text-decoration:none;color:var(--muted);font-size:.9rem;font-weight:500;transition:color .2s}
+    .nav-links a:hover,.nav-links a.active{color:var(--gold)}
+    .nav-cta{background:var(--brown);color:var(--cream)!important;padding:.5rem 1.25rem;border-radius:50px;transition:background .2s!important}
+    .nav-cta:hover{background:var(--gold)!important}
+    .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:.4rem;background:none;border:none;z-index:300}
+    .hamburger span{display:block;width:24px;height:2px;background:var(--brown);border-radius:2px;transition:all .3s}
+    .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+    .hamburger.open span:nth-child(2){opacity:0}
+    .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+    .mobile-menu{display:none;position:fixed;inset:0;background:var(--cream);z-index:150;flex-direction:column;align-items:center;justify-content:center;gap:2rem}
+    .mobile-menu.open{display:flex}
+    .mobile-menu a{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--brown);text-decoration:none;transition:color .2s}
+    .mobile-menu a:hover{color:var(--gold)}
+    .mobile-menu .mob-cta{background:var(--brown);color:var(--cream)!important;padding:.75rem 2rem;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:1rem!important}
+
+    /* ── PAGE HEADER ─────────────────────────── */
+    .page-header{background:var(--brown);padding:4rem 2rem;position:relative;overflow:hidden;text-align:center}
+    .page-header::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 80%,rgba(200,150,62,.12),transparent 55%),radial-gradient(circle at 80% 20%,rgba(200,150,62,.10),transparent 55%);pointer-events:none}
+    .page-header-inner{max-width:700px;margin:0 auto;position:relative;z-index:1}
+    .breadcrumb{font-size:.78rem;color:rgba(245,240,232,.5);margin-bottom:1rem}
+    .breadcrumb a{color:var(--gold);text-decoration:none}
+    .page-label{display:inline-block;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);background:rgba(200,150,62,.12);border:1px solid rgba(200,150,62,.25);padding:.35rem 1rem;border-radius:50px;margin-bottom:1.25rem}
+    .page-header h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3rem);font-weight:900;color:var(--cream);line-height:1.15;margin-bottom:.75rem}
+    .page-header h1 em{color:var(--gold);font-style:italic}
+    .page-header p{color:rgba(245,240,232,.65);font-size:.95rem;max-width:480px;margin:0 auto}
+
+    /* ── API KEY BANNER ──────────────────────── */
+    .api-banner{background:rgba(200,150,62,.12);border:1.5px dashed var(--gold);border-radius:12px;padding:1rem 1.5rem;margin:1.5rem auto 0;max-width:580px;display:flex;align-items:flex-start;gap:.75rem;font-size:.82rem;color:rgba(245,240,232,.85);text-align:left;line-height:1.6}
+    .api-banner .api-icon{font-size:1.3rem;flex-shrink:0;margin-top:.1rem}
+    .api-banner a{color:var(--gold);font-weight:500}
+    .api-banner code{background:rgba(200,150,62,.2);padding:.1rem .4rem;border-radius:4px;font-size:.78rem;font-family:monospace}
+    .api-banner.hidden{display:none}
+
+    /* ── FILTER BAR ──────────────────────────── */
+    .filter-bar{background:var(--warm);border-bottom:1px solid var(--border);padding:1rem 2rem;position:sticky;top:64px;z-index:90}
+    .filter-inner{max-width:1280px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+    .category-tabs{display:flex;gap:.4rem;flex-wrap:wrap}
+    .cat-tab{padding:.4rem 1.1rem;border:1.5px solid var(--border);border-radius:50px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;color:var(--muted);cursor:pointer;transition:all .2s;font-weight:500}
+    .cat-tab:hover{border-color:var(--gold);color:var(--gold)}
+    .cat-tab.active{background:var(--brown);border-color:var(--brown);color:var(--cream)}
+    .filter-right{display:flex;gap:.75rem;align-items:center}
+    .sort-select{padding:.42rem 1rem;border:1.5px solid var(--border);border-radius:50px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;color:var(--brown);outline:none;cursor:pointer}
+    .sort-select:focus{border-color:var(--gold)}
+    .refresh-btn{padding:.42rem 1rem;border:1.5px solid var(--border);border-radius:50px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;color:var(--muted);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.4rem}
+    .refresh-btn:hover{border-color:var(--gold);color:var(--gold)}
+    .r-icon{display:inline-block;transition:transform .3s}
+    .refresh-btn.spinning .r-icon{animation:spin .7s linear infinite}
+
+    /* ── MAIN LAYOUT ─────────────────────────── */
+    .main-layout{max-width:1280px;margin:0 auto;padding:2rem;display:grid;grid-template-columns:1fr 300px;gap:2rem;align-items:start}
+
+    /* ── LOADING ─────────────────────────────── */
+    .loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5rem 2rem;gap:1.25rem}
+    .spinner{width:48px;height:48px;border:4px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+    .loading-state p{color:var(--muted);font-size:.9rem}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ── FEATURED ARTICLE ────────────────────── */
+    .featured-article{background:var(--white);border-radius:20px;overflow:hidden;border:1px solid var(--border);margin-bottom:1.5rem;display:grid;grid-template-columns:1fr 1fr;transition:box-shadow .3s}
+    .featured-article:hover{box-shadow:0 16px 40px rgba(59,42,26,.12)}
+    .featured-img{height:280px;overflow:hidden;position:relative;background:var(--warm)}
+    .featured-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s;display:block}
+    .featured-article:hover .featured-img img{transform:scale(1.04)}
+    .img-fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:4rem}
+    .featured-body{padding:2rem;display:flex;flex-direction:column;justify-content:space-between}
+    .featured-tag{font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:.75rem}
+    .featured-body h2{font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:700;color:var(--brown);line-height:1.3;margin-bottom:.75rem}
+    .featured-body .desc{font-size:.88rem;color:var(--muted);line-height:1.75;margin-bottom:1.25rem;flex:1}
+    .article-meta{display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap}
+    .article-source{font-size:.75rem;color:var(--muted);display:flex;align-items:center;gap:.4rem}
+    .source-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;display:inline-block}
+    .read-link{background:var(--brown);color:var(--cream);padding:.45rem 1.1rem;border-radius:50px;font-size:.78rem;font-weight:500;text-decoration:none;transition:background .2s;white-space:nowrap}
+    .read-link:hover{background:var(--gold)}
+
+    /* ── ARTICLES GRID ───────────────────────── */
+    .articles-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.25rem}
+    .article-card{background:var(--white);border-radius:14px;overflow:hidden;border:1px solid var(--border);transition:transform .3s,box-shadow .3s;display:flex;flex-direction:column;animation:fadeUp .4s ease both}
+    .article-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(59,42,26,.1)}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    .card-img{height:150px;overflow:hidden;background:var(--warm)}
+    .card-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s;display:block}
+    .article-card:hover .card-img img{transform:scale(1.05)}
+    .card-img-fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2.5rem}
+    .card-body{padding:1rem;flex:1;display:flex;flex-direction:column}
+    .card-tag{font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:.4rem}
+    .card-body h3{font-family:'Playfair Display',serif;font-size:.92rem;font-weight:700;color:var(--brown);line-height:1.35;margin-bottom:.5rem;flex:1}
+    .card-desc{font-size:.78rem;color:var(--muted);line-height:1.6;margin-bottom:.75rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .card-footer{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-top:auto;padding-top:.5rem;border-top:1px solid var(--border)}
+    .card-source{font-size:.68rem;color:var(--muted)}
+    .card-link{font-size:.72rem;color:var(--gold);font-weight:500;text-decoration:none;transition:color .2s;white-space:nowrap}
+    .card-link:hover{color:var(--rust)}
+
+    /* Fallback bg colours */
+    .fb0{background:linear-gradient(145deg,#f5ede0,#e8d5b8)}
+    .fb1{background:linear-gradient(145deg,#e8eef5,#c8d8ec)}
+    .fb2{background:linear-gradient(145deg,#edf5ed,#c4dfc4)}
+    .fb3{background:linear-gradient(145deg,#f5edf5,#dfc4df)}
+    .fb4{background:linear-gradient(145deg,#f5f2e8,#e8ddb8)}
+    .fb5{background:linear-gradient(145deg,#e8f5f5,#b8dfe0)}
+
+    /* ── SIDEBAR ─────────────────────────────── */
+    .sidebar{display:flex;flex-direction:column;gap:1.25rem;position:sticky;top:130px}
+    .sidebar-widget{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+    .widget-head{padding:.9rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .widget-head h3{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;color:var(--brown)}
+    .widget-head span{font-size:.7rem;color:var(--muted)}
+    .trending-list{list-style:none}
+    .trend-item{display:flex;align-items:flex-start;gap:.75rem;padding:.85rem 1.25rem;border-bottom:1px solid var(--border);text-decoration:none;transition:background .2s;cursor:pointer}
+    .trend-item:last-child{border-bottom:none}
+    .trend-item:hover{background:var(--warm)}
+    .trend-num{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:900;color:var(--gold);flex-shrink:0;line-height:1.2;min-width:20px}
+    .trend-text{font-size:.78rem;color:var(--brown);line-height:1.4;font-weight:500}
+    .trend-src{font-size:.65rem;color:var(--muted);margin-top:.2rem}
+
+    /* Newsletter */
+    .newsletter-widget{background:var(--brown);border-radius:16px;padding:1.5rem;text-align:center}
+    .newsletter-widget h3{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--cream);margin-bottom:.5rem}
+    .newsletter-widget p{font-size:.78rem;color:rgba(245,240,232,.6);margin-bottom:1rem;line-height:1.6}
+    .nl-input{width:100%;padding:.7rem 1rem;border:1.5px solid rgba(245,240,232,.15);border-radius:50px;background:rgba(245,240,232,.08);font-family:'DM Sans',sans-serif;font-size:.85rem;color:var(--cream);outline:none;margin-bottom:.65rem}
+    .nl-input::placeholder{color:rgba(245,240,232,.35)}
+    .nl-input:focus{border-color:var(--gold)}
+    .nl-btn{width:100%;padding:.7rem;background:var(--gold);color:var(--white);border:none;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;transition:background .2s}
+    .nl-btn:hover{background:var(--rust)}
+
+    /* Quick links */
+    .quick-link{display:flex;align-items:flex-start;gap:.75rem;padding:.85rem 1.25rem;border-bottom:1px solid var(--border);text-decoration:none;transition:background .2s}
+    .quick-link:last-child{border-bottom:none}
+    .quick-link:hover{background:var(--warm)}
+    .ql-arrow{font-family:'Playfair Display',serif;font-size:1rem;font-weight:900;color:var(--gold);flex-shrink:0}
+    .ql-text{font-size:.78rem;color:var(--brown);font-weight:500;line-height:1.4}
+    .ql-sub{font-size:.65rem;color:var(--muted);margin-top:.15rem}
+
+    /* ── EMPTY STATE ─────────────────────────── */
+    .empty-state{display:none;flex-direction:column;align-items:center;text-align:center;padding:4rem 2rem;gap:1rem}
+    .empty-icon{font-size:3.5rem}
+    .empty-state h3{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--brown)}
+    .empty-state p{color:var(--muted);font-size:.88rem;max-width:380px;line-height:1.7}
+    .retry-btn{background:var(--brown);color:var(--cream);border:none;padding:.7rem 1.75rem;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:.88rem;cursor:pointer;transition:background .2s;margin-top:.5rem}
+    .retry-btn:hover{background:var(--gold)}
+
+    /* ── LOAD MORE ───────────────────────────── */
+    .load-more-wrap{text-align:center;margin-top:2rem;padding-bottom:1rem}
+    .load-more-btn{background:var(--white);border:2px solid var(--brown);color:var(--brown);padding:.75rem 2rem;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer;transition:all .2s}
+    .load-more-btn:hover{background:var(--brown);color:var(--cream)}
+    .load-more-btn:disabled{opacity:.4;cursor:default;transform:none}
+
+    /* ── TOAST ───────────────────────────────── */
+    .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);background:var(--brown);color:var(--cream);padding:.75rem 1.5rem;border-radius:50px;font-size:.88rem;font-weight:500;box-shadow:0 8px 24px rgba(59,42,26,.3);transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap}
+    .toast.show{transform:translateX(-50%) translateY(0)}
+
+    /* ── FOOTER ──────────────────────────────── */
+    footer{background:#1e1208;padding:3rem 2rem 1.5rem;margin-top:3rem}
+    .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2rem;max-width:1280px;margin:0 auto;padding-bottom:2rem;border-bottom:1px solid rgba(200,150,62,.1)}
+    .footer-brand p{color:rgba(245,240,232,.45);font-size:.85rem;margin-top:.75rem;line-height:1.7}
+    .footer-logo-main{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:900;color:var(--cream)}
+    .footer-logo-sub{font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block}
+    .footer-col h4{font-family:'Playfair Display',serif;font-size:.95rem;color:var(--cream);margin-bottom:1rem}
+    .footer-col ul{list-style:none;display:flex;flex-direction:column;gap:.5rem}
+    .footer-col ul li a{color:rgba(245,240,232,.45);text-decoration:none;font-size:.85rem;transition:color .2s}
+    .footer-col ul li a:hover{color:var(--gold)}
+    .footer-bottom{max-width:1280px;margin:1.5rem auto 0;display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+    .footer-bottom span{font-size:.8rem;color:rgba(245,240,232,.3)}
+
+    /* ── RESPONSIVE ──────────────────────────── */
+    @media(max-width:1024px){
+      .main-layout{grid-template-columns:1fr}
+      .sidebar{position:static;display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+      .newsletter-widget{grid-column:1/-1}
+    }
+    @media(max-width:768px){
+      .nav-links{display:none}
+      .hamburger{display:flex}
+      .featured-article{grid-template-columns:1fr}
+      .featured-img{height:200px}
+      .articles-grid{grid-template-columns:1fr}
+      .filter-inner{flex-direction:column;align-items:flex-start}
+      .footer-grid{grid-template-columns:1fr 1fr}
+      .sidebar{grid-template-columns:1fr}
+    }
+    @media(max-width:480px){
+      .footer-grid{grid-template-columns:1fr}
+      .cat-tab{font-size:.75rem;padding:.35rem .85rem}
+      .main-layout{padding:1.25rem}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-main">MindStark</span>
+        <span class="logo-sub">Library</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="browse.html">Browse</a></li>
+        <li><a href="book.html">My Books</a></li>
+        <li><a href="membership.html">Membership</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="feeds.html" class="active">Feeds</a></li>
+        <li><a href="signin.html" class="nav-cta">Sign In</a></li>
+      </ul>
+      <button class="hamburger" id="hamburger" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="browse.html" onclick="closeMobile()">Browse</a>
+    <a href="book.html" onclick="closeMobile()">My Books</a>
+    <a href="news.html" onclick="closeMobile()">News</a>
+    <a href="membership.html" onclick="closeMobile()">Membership</a>
+    <a href="about.html" onclick="closeMobile()">About</a>
+    <a href="feeds.html" onclick="closeMobile()">Feeds</a>
+    <a href="signin.html" class="mob-cta" onclick="closeMobile()">Sign In</a>
+  </div>
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div class="page-header-inner">
+      <div class="breadcrumb"><a href="index.html">Home</a> › News</div>
+      <div class="page-label">Live Updates</div>
+      <h1>The Reader's<br/><em>Newsroom</em></h1>
+      <p>Live news on books, literature, authors, and the world of reading — updated in real time.</p>
+
+      <!-- Shows only when API key is missing -->
+      <div class="api-banner" id="apiBanner">
+        <span class="api-icon">🔑</span>
+        <div>
+          <strong>One step to activate live news:</strong><br/>
+          1. Sign up free at <a href="https://gnews.io" target="_blank">gnews.io</a> with any email<br/>
+          2. Copy your API key from the dashboard<br/>
+          3. Open <code>news.html</code> and replace <code>YOUR_GNEWS_KEY_HERE</code> with your key<br/>
+          Meanwhile, preview articles are shown below.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <div class="filter-inner">
+      <div class="category-tabs">
+        <button class="cat-tab active" data-q="books reading literature">📚 Books & Reading</button>
+        <button class="cat-tab" data-q="authors writers publishing">✍️ Authors</button>
+        <button class="cat-tab" data-q="science technology">🔬 Science & Tech</button>
+        <button class="cat-tab" data-q="world news">🌍 World News</button>
+        <button class="cat-tab" data-q="education learning">🎓 Education</button>
+      </div>
+      <div class="filter-right">
+        <select class="sort-select" id="sortSelect">
+          <option value="publishedAt">Latest First</option>
+          <option value="relevance">Most Relevant</option>
+        </select>
+        <button class="refresh-btn" id="refreshBtn">
+          <span class="r-icon">↻</span> Refresh
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-layout">
+    <div class="news-area" id="newsArea">
+      <div class="loading-state" id="loadingState">
+        <div class="spinner"></div>
+        <p>Fetching the latest news…</p>
+      </div>
+      <div id="featuredWrap"></div>
+      <div class="articles-grid" id="articlesGrid"></div>
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">📰</div>
+        <h3 id="emptyTitle">Couldn't load news</h3>
+        <p id="emptyMsg">Please check your API key or internet connection and try again.</p>
+        <button class="retry-btn" onclick="fetchNews()">Try Again</button>
+      </div>
+      <div class="load-more-wrap" id="loadMoreWrap" style="display:none">
+        <button class="load-more-btn" id="loadMoreBtn" onclick="loadMore()">Load More Articles</button>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-widget">
+        <div class="widget-head">
+          <h3>🔥 Trending</h3>
+          <span>Top stories</span>
+        </div>
+        <ul class="trending-list" id="trendingList">
+          <li style="padding:1.5rem;text-align:center;color:var(--muted);font-size:.82rem">Loading…</li>
+        </ul>
+      </div>
+
+      <div class="newsletter-widget">
+        <h3>📬 Weekly Digest</h3>
+        <p>The best book news and reading picks, every week in your inbox.</p>
+        <input type="email" class="nl-input" id="nlEmail" placeholder="your@email.com"/>
+        <button class="nl-btn" onclick="subscribeNewsletter()">Subscribe Free</button>
+      </div>
+
+      <div class="sidebar-widget">
+        <div class="widget-head"><h3>🔗 Quick Links</h3></div>
+        <a href="browse.html" class="quick-link">
+          <span class="ql-arrow">→</span>
+          <div><div class="ql-text">Browse 10,000+ Books</div><div class="ql-sub">MindStark Library</div></div>
+        </a>
+        <a href="membership.html" class="quick-link">
+          <span class="ql-arrow">→</span>
+          <div><div class="ql-text">Get Reader Pro Plan</div><div class="ql-sub">Membership</div></div>
+        </a>
+        <a href="book.html" class="quick-link">
+          <span class="ql-arrow">→</span>
+          <div><div class="ql-text">My Saved Books</div><div class="ql-sub">My Books</div></div>
+        </a>
+      </div>
+    </aside>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div><span class="footer-logo-main">MindStark</span><span class="footer-logo-sub">Library</span></div>
+        <p>A sanctuary for curious readers. Explore, discover, and grow with thousands of books at your fingertips.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="browse.html">Browse All</a></li>
+          <li><a href="feeds.html">Feeds</a></li>
+          <li><a href="book.html">My Books</a></li>
+          <li><a href="membership.html">Membership</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Library</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="membership.html">Plans</a></li>
+          <li><a href="book.html">Reading Rooms</a></li>
+          <li><a href="about.html">Events</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Help</h4>
+        <ul>
+          <li><a href="about.html#contact-form">FAQ</a></li>
+          <li><a href="about.html#contact-form">Contact</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Use</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 MindStark Library. All rights reserved.</span>
+      <span>Made with ❤️ for readers everywhere.</span>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    /* ════════════════════════════════════════════
+       🔑 STEP 1: I pasted my GNews API key here
+          Get it free at https://gnews.io
+    ════════════════════════════════════════════ */
+    const API_KEY = '93be56655e2c43c0ce68660704c9c028';
+
+    /* ── GNews API config ─────────────────────
+       GNews endpoint:
+       https://gnews.io/api/v4/search
+         ?q=       search query
+         &lang=    en
+         &max=     number of articles (max 10 on free plan)
+         &sortby=  publishedAt | relevance
+         &apikey=  YOUR KEY
+    ════════════════════════════════════════════ */
+    const GNEWS_BASE = 'https://gnews.io/api/v4/search';
+    const MAX        = 10; // free plan max per request
+
+    const EMOJIS  = ['📚','✍️','📖','🌍','🎓','📰','💡','🔬'];
+    const FB_COLS = ['fb0','fb1','fb2','fb3','fb4','fb5'];
+
+    let currentQ    = 'books reading literature';
+    let currentSort = 'publishedAt';
+    let allArticles = [];
+    let page        = 1;
+    const PER_PAGE  = 6; // how many to show per "Load More" click
+
+    /* ── DOM ──────────────────────────────────── */
+    const $loading  = document.getElementById('loadingState');
+    const $featured = document.getElementById('featuredWrap');
+    const $grid     = document.getElementById('articlesGrid');
+    const $empty    = document.getElementById('emptyState');
+    const $lmWrap   = document.getElementById('loadMoreWrap');
+    const $lmBtn    = document.getElementById('loadMoreBtn');
+    const $trending = document.getElementById('trendingList');
+    const $banner   = document.getElementById('apiBanner');
+
+    if (API_KEY !== '93be56655e2c43c0ce68660704c9c0ERE') $banner.classList.add('hidden');
+
+    /* ── FETCH ────────────────────────────────── */
+    async function fetchNews() {
+      page = 1;
+      allArticles = [];
+      showLoading();
+
+      if (API_KEY === '93be56655e2c43c0ce68660704c9c0') {
+        // Show mock data until key is added
+        setTimeout(showMockData, 800);
+        return;
+      }
+const direct = `${GNEWS_BASE}?q=${encodeURIComponent(currentQ)}&lang=en&max=${MAX}&sortby=${currentSort}&apikey=${API_KEY}`;
+
+/* Try multiple proxies in order until one works */
+const proxies = [
+  `https://corsproxy.io/?${encodeURIComponent(direct)}`,
+  `https://api.allorigins.win/raw?url=${encodeURIComponent(direct)}`,
+  `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(direct)}`,
+];
+
+let data = null;
+for (const url of proxies) {
+  try {
+    const res  = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    const text = await res.text();
+    data = JSON.parse(text);
+    if (data.articles) break;
+  } catch(e) { continue; }
+}
+
+if (!data) throw new Error('Could not reach news service. Please try again.');
+
+try {
+
+        if (data.errors) throw new Error(data.errors.join(', '));
+
+        allArticles = (data.articles || []).filter(a => a.title);
+        if (!allArticles.length) throw new Error('No articles found for this topic.');
+
+        renderPage();
+        renderTrending();
+      } catch (err) {
+        showError(err.message);
+      }
+    }
+
+    /* ── RENDER PAGE ──────────────────────────── */
+    function renderPage() {
+      $loading.style.display = 'none';
+      $empty.style.display   = 'none';
+      $grid.innerHTML        = '';
+
+      const visible = allArticles.slice(0, page * PER_PAGE);
+
+      // Featured — always the first article
+      if (visible.length > 0) {
+        $featured.innerHTML = buildFeatured(visible[0], 0);
+      }
+
+      // Grid — rest
+      visible.slice(1).forEach((a, i) => {
+        const card = document.createElement('div');
+        card.className = 'article-card';
+        card.style.animationDelay = `${i * 0.06}s`;
+        card.innerHTML = buildCard(a, i);
+        $grid.appendChild(card);
+      });
+
+      // Load more
+      $lmWrap.style.display = allArticles.length > page * PER_PAGE ? '' : 'none';
+      $lmBtn.disabled       = false;
+      $lmBtn.textContent    = 'Load More Articles';
+    }
+
+    /* ── LOAD MORE ────────────────────────────── */
+    function loadMore() {
+      page++;
+      $lmBtn.disabled    = true;
+      $lmBtn.textContent = 'Loading…';
+      renderPage();
+    }
+
+    /* ── BUILD FEATURED ───────────────────────── */
+    function buildFeatured(a, i) {
+      const src = a.source?.name || 'News';
+      const img = a.image
+        ? `<img src="${esc(a.image)}" alt="${esc(a.title)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        : '';
+      const fallback = `<div class="img-fallback ${FB_COLS[i%6]}" style="${a.image?'display:none':'display:flex'}">${EMOJIS[i%8]}</div>`;
+
+      return `<div class="featured-article">
+        <div class="featured-img">${img}${fallback}</div>
+        <div class="featured-body">
+          <div>
+            <div class="featured-tag">⭐ Featured · ${esc(src)}</div>
+            <h2>${esc(a.title)}</h2>
+            <p class="desc">${esc(a.description || 'Click to read the full story.')}</p>
+          </div>
+          <div class="article-meta">
+            <div class="article-source">
+              <span class="source-dot"></span>
+              ${esc(src)} · ${formatDate(a.publishedAt)}
+            </div>
+            <a href="${esc(a.url)}" target="_blank" rel="noopener" class="read-link">Read Article →</a>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    /* ── BUILD CARD ───────────────────────────── */
+    function buildCard(a, i) {
+      const src = a.source?.name || 'News';
+      const img = a.image
+        ? `<img src="${esc(a.image)}" alt="${esc(a.title)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        : '';
+      const fallback = `<div class="card-img-fallback ${FB_COLS[i%6]}" style="${a.image?'display:none':'display:flex'}">${EMOJIS[i%8]}</div>`;
+
+      return `
+        <div class="card-img">${img}${fallback}</div>
+        <div class="card-body">
+          <div class="card-tag">${esc(src)}</div>
+          <h3>${esc(a.title)}</h3>
+          <p class="card-desc">${esc(a.description || '')}</p>
+          <div class="card-footer">
+            <span class="card-source">${formatDate(a.publishedAt)}</span>
+            <a href="${esc(a.url)}" target="_blank" rel="noopener" class="card-link">Read →</a>
+          </div>
+        </div>`;
+    }
+
+    /* ── TRENDING SIDEBAR ─────────────────────── */
+    function renderTrending() {
+      const top = allArticles.slice(0, 5);
+      if (!top.length) return;
+      $trending.innerHTML = top.map((a, i) => `
+        <li>
+          <a href="${esc(a.url)}" target="_blank" rel="noopener" class="trend-item">
+            <span class="trend-num">${i + 1}</span>
+            <div>
+              <div class="trend-text">${esc(a.title.length > 65 ? a.title.slice(0,65)+'…' : a.title)}</div>
+              <div class="trend-src">${esc(a.source?.name||'')} · ${formatDate(a.publishedAt)}</div>
+            </div>
+          </a>
+        </li>`).join('');
+    }
+
+    /* ── MOCK DATA ────────────────────────────── */
+    function showMockData() {
+      allArticles = [
+        {title:'The 100 Best Books of the 21st Century — Critics Have Spoken',description:'Literary critics from around the world have voted on the greatest novels, memoirs, and collections published since the year 2000. The results may surprise you.',image:null,url:'#',source:{name:'The Guardian'},publishedAt:new Date().toISOString()},
+        {title:'Why Reading Before Bed Improves Sleep Quality, According to Science',description:'New research confirms what avid readers have always known — a good book before sleep reduces stress and helps you drift off faster.',image:null,url:'#',source:{name:'Science Daily'},publishedAt:new Date(Date.now()-3600000).toISOString()},
+        {title:'Booker Prize 2026 Longlist: Six Debut Novels Make the Cut',description:'The prestigious literary award has revealed its longlist for 2026, with a surprising number of first-time novelists among the contenders.',image:null,url:'#',source:{name:'BBC Culture'},publishedAt:new Date(Date.now()-7200000).toISOString()},
+        {title:'How Public Libraries Are Fighting Back Against Digital Distractions',description:'Libraries across the world are reinventing themselves as sanctuaries from screens — and it seems to be working.',image:null,url:'#',source:{name:'The Atlantic'},publishedAt:new Date(Date.now()-10800000).toISOString()},
+        {title:'Record-Breaking Year: Book Sales Hit a Ten-Year High in 2025',description:'Despite predictions of decline, book sales surged globally as more people turned to reading for entertainment and education.',image:null,url:'#',source:{name:'Publishers Weekly'},publishedAt:new Date(Date.now()-14400000).toISOString()},
+        {title:"Chimamanda Ngozi Adichie's New Novel Tops Global Bestseller Lists",description:'The award-winning Nigerian author returns with a sweeping story of identity, belonging, and the meaning of home.',image:null,url:'#',source:{name:'NPR Books'},publishedAt:new Date(Date.now()-18000000).toISOString()},
+        {title:'Gen Z is Reading More Than Any Generation Before Them',description:"Contrary to popular belief, young people are reading more than ever — and social media's book communities are a big reason why.",image:null,url:'#',source:{name:'Vox'},publishedAt:new Date(Date.now()-21600000).toISOString()},
+      ];
+
+      renderPage();
+      renderTrending();
+      showToast('📰 Preview articles shown — add your GNews key for live news');
+    }
+
+    /* ── HELPERS ──────────────────────────────── */
+    function showLoading() {
+      $loading.style.display  = 'flex';
+      $featured.innerHTML     = '';
+      $grid.innerHTML         = '';
+      $empty.style.display    = 'none';
+      $lmWrap.style.display   = 'none';
+    }
+
+    function showError(msg) {
+      $loading.style.display = 'none';
+      $empty.style.display   = 'flex';
+      document.getElementById('emptyMsg').textContent = msg;
+    }
+
+    function formatDate(iso) {
+      if (!iso) return '';
+      const d    = new Date(iso);
+      const diff = Date.now() - d.getTime();
+      const mins = Math.floor(diff / 60000);
+      if (mins < 60)   return `${mins}m ago`;
+      if (mins < 1440) return `${Math.floor(mins/60)}h ago`;
+      return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    }
+
+    function esc(s) {
+      return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    /* ── CATEGORY TABS ────────────────────────── */
+    document.querySelectorAll('.cat-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentQ = tab.dataset.q;
+        fetchNews();
+      });
+    });
+
+    /* ── SORT ─────────────────────────────────── */
+    document.getElementById('sortSelect').addEventListener('change', function() {
+      currentSort = this.value;
+      fetchNews();
+    });
+
+    /* ── REFRESH ──────────────────────────────── */
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+      const btn = document.getElementById('refreshBtn');
+      btn.classList.add('spinning');
+      fetchNews().finally ? fetchNews().finally(() => btn.classList.remove('spinning'))
+                          : fetchNews().then(() => btn.classList.remove('spinning'));
+    });
+
+    /* ── NEWSLETTER ───────────────────────────── */
+    function subscribeNewsletter() {
+      const email = document.getElementById('nlEmail').value.trim();
+      if (!email || !email.includes('@')) { showToast('Please enter a valid email.'); return; }
+      /* TODO: connect to your email service */
+      showToast('📬 Subscribed! Welcome to the MindStark Digest.');
+      document.getElementById('nlEmail').value = '';
+    }
+
+    /* ── MOBILE MENU ──────────────────────────── */
+    const hamburger  = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      mobileMenu.classList.toggle('open');
+      document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+    });
+    function closeMobile() {
+      hamburger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    /* ── TOAST ────────────────────────────────── */
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3500);
+    }
+
+    /* ── INIT ─────────────────────────────────── */
+    fetchNews();
+  </script>
+   <script src="nav.js"></script>
+   <script src="terms.js"></script>
+   <script src="supabase.js"></script>
+</body>
+</html>
