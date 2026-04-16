@@ -184,10 +184,149 @@
     [data-theme="dark"] .history-title{color:#e8dfd0}
     [data-theme="dark"] .upload-area{background:#1e1510;border-color:rgba(200,150,62,.2)}
     [data-theme="dark"] .mobile-menu{background:#0f0a05}
+
+      /* ── MINDSTARK ID CARD ──────────────────────────────────── */
+  .msid-card-inner {
+    background: var(--brown);
+    border-radius: 16px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+  }
+  .msid-card-inner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 80% 50%, rgba(200,150,62,.18), transparent 60%);
+    pointer-events: none;
+  }
+  .msid-card-label {
+    font-size: .62rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: rgba(200,150,62,.6);
+    display: block;
+    margin-bottom: .4rem;
+    position: relative;
+    z-index: 1;
+  }
+  .msid-card-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--gold);
+    letter-spacing: .2em;
+    display: block;
+    position: relative;
+    z-index: 1;
+    margin-bottom: .65rem;
+  }
+  .msid-card-actions {
+    display: flex;
+    gap: .6rem;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+  }
+  .msid-copy-pill {
+    background: rgba(200,150,62,.15);
+    border: 1px solid rgba(200,150,62,.3);
+    color: var(--gold);
+    font-size: .72rem;
+    font-weight: 600;
+    padding: .3rem .85rem;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all .18s;
+  }
+  .msid-copy-pill:hover { background: rgba(200,150,62,.28); }
+
+  /* ── CONNECT BUTTON ─────────────────────────────────────── */
+  .connect-btn {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    background: linear-gradient(135deg, #1a1a2e, #2a2a4e);
+    border: 1px solid rgba(200,150,62,.25);
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    transition: all .2s;
+    text-decoration: none;
+    width: 100%;
+    margin-bottom: .75rem;
+  }
+  .connect-btn:hover {
+    border-color: var(--gold);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(59,42,26,.15);
+  }
+  .connect-btn-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(200,150,62,.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+  .connect-btn-info { flex: 1; min-width: 0; }
+  .connect-btn-title {
+    font-family: 'Playfair Display', serif;
+    font-size: .95rem;
+    font-weight: 700;
+    color: var(--gold);
+    display: block;
+  }
+  .connect-btn-sub {
+    font-size: .74rem;
+    color: rgba(200,150,62,.55);
+    display: block;
+    margin-top: 1px;
+  }
+  .connect-btn-arrow { color: rgba(200,150,62,.5); font-size: .9rem; flex-shrink: 0; }
+
+  /* Locked CONNECT state (non-Scholar) */
+  .connect-locked {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    background: var(--warm);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    margin-bottom: .75rem;
+  }
+  .connect-locked-icon { font-size: 1.5rem; flex-shrink: 0; }
+  .connect-locked-info { flex: 1; min-width: 0; }
+  .connect-locked-title {
+    font-size: .88rem;
+    font-weight: 600;
+    color: var(--brown);
+    display: block;
+  }
+  .connect-locked-sub {
+    font-size: .75rem;
+    color: var(--muted);
+    display: block;
+    margin-top: 2px;
+  }
+  .connect-upgrade-link {
+    font-size: .75rem;
+    color: var(--gold);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .connect-upgrade-link:hover { text-decoration: underline; }
   </style>
 </head>
-<body>
 
+<body>
 <nav>
   <div class="nav-inner">
     <a href="index.html" class="logo">
@@ -396,17 +535,61 @@
         </div>
       </div>
 
-      <!-- ACCOUNT -->
-      <div class="section-card full">
-        <div class="card-head"><h3>⚠️ Account</h3></div>
-        <div class="card-body" style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center">
-          <button class="danger-btn" onclick="clearBookmarks()">🗑️ Clear All Bookmarks</button>
-          <button class="danger-btn" onclick="signOutProfile()">🚪 Sign Out</button>
-          <span style="font-size:.78rem;color:var(--muted);flex:1">Signing out will clear your session. Your account stays safe.</span>
-        </div>
-      </div>
+    </div><!-- /.profile-grid -->
 
+    <!-- MINDSTARK ID + CONNECT -->
+    <div class="section-card full" id="msidSection">
+  <div class="card-head">
+    <h3>🎓 MindStark ID &amp; CONNECT</h3>
+  </div>
+  <div class="card-body">
+
+    <!-- ID card -->
+    <div class="msid-card-inner">
+      <span class="msid-card-label">Your MindStark ID</span>
+      <span class="msid-card-number" id="profileMsId">Loading…</span>
+      <div class="msid-card-actions">
+        <button class="msid-copy-pill" onclick="copyProfileMsId()">📋 Copy ID</button>
+        <span style="font-size:.72rem;color:rgba(200,150,62,.45);align-self:center">
+          Use this to log into CONNECT
+        </span>
+      </div>
     </div>
+
+    <!-- CONNECT access — shown when Scholar -->
+    <a href="https://mind-stark-connect.vercel.app"
+       target="_blank"
+       class="connect-btn"
+       id="connectOpenBtn"
+       style="display:none">
+      <div class="connect-btn-icon">💬</div>
+      <div class="connect-btn-info">
+        <span class="connect-btn-title">Open MindStark CONNECT</span>
+        <span class="connect-btn-sub">Your Scholar access is active — join the community</span>
+      </div>
+      <span class="connect-btn-arrow">→</span>
+    </a>
+
+    <!-- CONNECT locked — shown when not Scholar -->
+    <div class="connect-locked" id="connectLockedMsg" style="display:none">
+      <span class="connect-locked-icon">🔒</span>
+      <div class="connect-locked-info">
+        <span class="connect-locked-title">MindStark CONNECT</span>
+        <span class="connect-locked-sub">Exclusive to Scholar members</span>
+      </div>
+      <a href="membership.html" class="connect-upgrade-link">Upgrade →</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ACCOUNT -->
+<div class="section-card full">
+  <div class="card-head"><h3>⚠️ Account</h3></div>
+  <div class="card-body" style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center">
+    <button class="danger-btn" onclick="clearBookmarks()">🗑️ Clear All Bookmarks</button>
+    <button class="danger-btn" onclick="signOutProfile()">🚪 Sign Out</button>
+    <span style="font-size:.78rem;color:var(--muted);flex:1">Signing out will clear your session. Your account stays safe.</span>
   </div>
 </div>
 
@@ -456,6 +639,7 @@
       }
     }
     loadProfile();
+    loadMsIdSection();
   });
 
   /* Fallback if Supabase doesn't fire */
@@ -535,6 +719,42 @@
 
     buildColorGrid();
     buildHistory(bookmarks);
+  }
+
+  /* ── MINDSTARK ID + CONNECT ─────────────────────────────── */
+  async function loadMsIdSection() {
+    if (!window._sb) return;
+    const currentUser = await msGetUser();
+    if (!currentUser) return;
+
+    const profile = await msGetProfile(currentUser.id);
+    if (!profile) return;
+
+    /* Display the ID */
+    const msId = profile.mindstark_id;
+    if (msId) {
+      document.getElementById('profileMsId').textContent =
+        msId.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+    } else {
+      document.getElementById('profileMsId').textContent = 'Not assigned yet';
+    }
+
+    /* Show CONNECT button or locked state */
+    const isScholar = msIsScholar(profile);
+    document.getElementById('connectOpenBtn').style.display   = isScholar ? 'flex' : 'none';
+    document.getElementById('connectLockedMsg').style.display = isScholar ? 'none' : 'flex';
+    document.getElementById('msidSection').style.display = 'block';
+  }
+
+  function copyProfileMsId() {
+    const numEl = document.getElementById('profileMsId');
+    const raw   = (numEl?.textContent || '').replace(/\s/g, '');
+    if (!raw || raw === 'Loading…' || raw === 'Notassignedyet') return;
+    navigator.clipboard?.writeText(raw).then(() => {
+      const btn = document.querySelector('.msid-copy-pill');
+      btn.textContent = '✅ Copied!';
+      setTimeout(() => { btn.textContent = '📋 Copy ID'; }, 2000);
+    });
   }
 
   /* ── AVATAR UPLOAD ──────────────────────── */

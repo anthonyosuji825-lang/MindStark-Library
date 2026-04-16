@@ -22,7 +22,6 @@
     html{scroll-behavior:smooth}
     body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);line-height:1.6;min-height:100vh;display:flex;flex-direction:column}
 
-    /* NAV */
     nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(245,240,232,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
     .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;max-width:1280px;margin:0 auto}
     .logo{display:flex;flex-direction:column;line-height:1;text-decoration:none}
@@ -41,55 +40,37 @@
     .mobile-menu a{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--brown);text-decoration:none}
     .mobile-menu a:hover{color:var(--gold)}
 
-    /* MAIN */
     .auth-wrap{flex:1;display:grid;grid-template-columns:1.1fr .9fr;min-height:100vh;padding-top:65px}
 
-    /* ── LEFT PANEL ─────────────────────── */
     .left-panel{background:var(--brown);position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center;padding:4rem 3.5rem}
-    .left-panel::before{content:'';position:absolute;inset:0;background:
-      radial-gradient(ellipse at 10% 90%,rgba(200,150,62,.2) 0%,transparent 50%),
-      radial-gradient(ellipse at 90% 10%,rgba(200,150,62,.12) 0%,transparent 50%),
-      radial-gradient(ellipse at 50% 50%,rgba(59,42,26,.4) 0%,transparent 70%);
-      pointer-events:none}
-
-    /* Decorative floating circles */
+    .left-panel::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 10% 90%,rgba(200,150,62,.2) 0%,transparent 50%),radial-gradient(ellipse at 90% 10%,rgba(200,150,62,.12) 0%,transparent 50%),radial-gradient(ellipse at 50% 50%,rgba(59,42,26,.4) 0%,transparent 70%);pointer-events:none}
     .deco-circle{position:absolute;border-radius:50%;pointer-events:none}
     .deco-1{width:300px;height:300px;border:1px solid rgba(200,150,62,.08);top:-80px;right:-80px}
     .deco-2{width:200px;height:200px;border:1px solid rgba(200,150,62,.06);bottom:60px;left:-60px}
     .deco-3{width:120px;height:120px;background:rgba(200,150,62,.04);bottom:120px;right:80px}
-
     .left-content{position:relative;z-index:1;max-width:400px}
     .left-eyebrow{display:inline-flex;align-items:center;gap:.5rem;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);background:rgba(200,150,62,.1);border:1px solid rgba(200,150,62,.2);padding:.3rem .9rem;border-radius:50px;margin-bottom:2rem}
     .left-eyebrow::before{content:'✦';font-size:.6rem}
     .left-content h2{font-family:'Playfair Display',serif;font-size:2.6rem;font-weight:900;color:var(--cream);line-height:1.15;margin-bottom:1.25rem}
     .left-content h2 em{color:var(--gold);font-style:italic;display:block}
     .left-content p{color:rgba(245,240,232,.55);font-size:.92rem;line-height:1.8;margin-bottom:2.5rem}
-
-    /* Stats row */
     .stats-row{display:grid;grid-template-columns:repeat(2,1fr);gap:.85rem;margin-bottom:2.5rem}
     .stat-card{background:rgba(245,240,232,.05);border:1px solid rgba(245,240,232,.07);border-radius:14px;padding:1.1rem 1rem;transition:background .2s}
     .stat-card:hover{background:rgba(245,240,232,.08)}
     .stat-num{font-family:'Playfair Display',serif;font-size:1.75rem;font-weight:900;color:var(--gold);line-height:1}
     .stat-label{font-size:.72rem;color:rgba(245,240,232,.4);margin-top:.25rem;text-transform:uppercase;letter-spacing:.08em}
-
-    /* Perks */
     .perks{list-style:none;display:flex;flex-direction:column;gap:.7rem}
     .perks li{display:flex;align-items:center;gap:.75rem;font-size:.875rem;color:rgba(245,240,232,.65)}
     .perk-icon{width:24px;height:24px;border-radius:50%;background:rgba(200,150,62,.15);border:1px solid rgba(200,150,62,.2);display:flex;align-items:center;justify-content:center;font-size:.65rem;color:var(--gold);flex-shrink:0}
-
-    /* Testimonial */
     .testimonial{margin-top:2.5rem;padding:1.25rem;background:rgba(245,240,232,.04);border:1px solid rgba(245,240,232,.06);border-radius:14px;border-left:3px solid var(--gold)}
     .testimonial p{font-size:.82rem;color:rgba(245,240,232,.5);font-style:italic;line-height:1.7;margin-bottom:.6rem}
     .testimonial-author{font-size:.72rem;color:var(--gold);font-weight:600;letter-spacing:.06em}
 
-    /* ── RIGHT PANEL ────────────────────── */
     .right-panel{background:var(--cream);display:flex;align-items:center;justify-content:center;padding:2.5rem 2rem;position:relative}
     .right-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--gold),var(--rust),var(--gold))}
-
     .form-box{width:100%;max-width:400px;animation:slideUp .5s ease both}
     @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 
-    /* Already in */
     .already-in{text-align:center;padding:1rem 0}
     .already-in .ai-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--rust));display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 1.25rem}
     .already-in h3{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--brown);margin-bottom:.5rem}
@@ -99,38 +80,31 @@
     .signout-link{display:block;margin-top:1rem;font-size:.8rem;color:var(--muted);cursor:pointer;text-decoration:underline}
     .signout-link:hover{color:var(--rust)}
 
-    /* Form header */
     .form-head{margin-bottom:2rem}
     .form-head h1{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:900;color:var(--brown);line-height:1.2;margin-bottom:.3rem}
     .form-head h1 span{color:var(--gold)}
     .form-head p{font-size:.85rem;color:var(--muted)}
 
-    /* Tabs */
     .auth-tabs{display:flex;background:var(--warm);border-radius:14px;padding:.3rem;margin-bottom:1.75rem;gap:.2rem}
     .auth-tab{flex:1;padding:.6rem;border-radius:10px;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:.875rem;font-weight:500;color:var(--muted);cursor:pointer;transition:all .25s}
     .auth-tab.active{background:var(--brown);color:var(--cream);box-shadow:0 2px 8px rgba(59,42,26,.2)}
 
-    /* Google button */
     .google-btn{width:100%;padding:.85rem 1rem;border:1.5px solid var(--border);border-radius:12px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:500;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.75rem;transition:all .2s;margin-bottom:1.25rem}
     .google-btn:hover{border-color:var(--gold);background:var(--warm);transform:translateY(-1px);box-shadow:0 4px 12px rgba(59,42,26,.08)}
     .google-btn:disabled{opacity:.6;cursor:default;transform:none}
     .google-icon{width:18px;height:18px;flex-shrink:0}
 
-    /* Divider */
     .or-divider{display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem}
     .or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:var(--border)}
     .or-divider span{font-size:.75rem;color:var(--muted);white-space:nowrap}
 
-    /* Alert */
     .auth-alert{padding:.85rem 1rem;border-radius:10px;font-size:.84rem;margin-bottom:1.25rem;display:none;line-height:1.5;animation:fadeIn .2s ease}
     @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
     .auth-alert.show{display:block}
     .auth-alert.success{background:rgba(39,174,96,.08);border:1px solid rgba(39,174,96,.2);color:#1a6b3a}
     .auth-alert.error{background:rgba(192,57,43,.07);border:1px solid rgba(192,57,43,.18);color:var(--error)}
 
-    /* Fields */
     .field{margin-bottom:1.1rem}
-    .field-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
     .field label{display:block;font-size:.78rem;font-weight:600;color:var(--brown);margin-bottom:.4rem;letter-spacing:.02em}
     .input-wrap{position:relative}
     .field input{width:100%;padding:.78rem 1rem;border:1.5px solid var(--border);border-radius:10px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s}
@@ -139,22 +113,18 @@
     .field-err{font-size:.72rem;color:var(--error);margin-top:.3rem;display:none}
     .field-err.show{display:block}
 
-    /* Password toggle */
     .pw-toggle{position:absolute;right:.9rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:.9rem;padding:.2rem;line-height:1}
     .pw-toggle:hover{color:var(--gold)}
 
-    /* Strength bar */
     .pw-strength{margin-top:.5rem;display:none}
     .pw-strength.show{display:block}
     .pw-bar{height:3px;border-radius:2px;background:var(--border);overflow:hidden;margin-bottom:.25rem}
     .pw-fill{height:100%;border-radius:2px;transition:width .3s,background .3s;width:0}
     .pw-hint{font-size:.7rem;color:var(--muted)}
 
-    /* Forgot */
     .forgot-link{font-size:.77rem;color:var(--gold);text-decoration:none;display:block;text-align:right;margin-top:-.65rem;margin-bottom:.9rem;cursor:pointer}
     .forgot-link:hover{text-decoration:underline}
 
-    /* Submit */
     .auth-btn{width:100%;padding:.88rem;background:var(--brown);color:var(--cream);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:500;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.5rem;margin-bottom:1rem;letter-spacing:.01em}
     .auth-btn:hover:not(:disabled){background:var(--gold);transform:translateY(-1px);box-shadow:0 6px 20px rgba(200,150,62,.25)}
     .auth-btn:disabled{opacity:.6;cursor:default;transform:none}
@@ -163,31 +133,44 @@
     .auth-btn.loading .btn-text{opacity:.6}
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* Switch tab note */
     .switch-note{text-align:center;font-size:.82rem;color:var(--muted)}
     .switch-note a{color:var(--gold);font-weight:500;text-decoration:none;cursor:pointer}
     .switch-note a:hover{text-decoration:underline}
 
-    /* Guest */
     .guest-row{display:flex;align-items:center;justify-content:center;gap:.5rem;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border)}
     .guest-row span{font-size:.78rem;color:var(--muted)}
     .guest-row a{font-size:.78rem;color:var(--gold);font-weight:500;cursor:pointer;text-decoration:none}
     .guest-row a:hover{text-decoration:underline}
 
-    /* Terms */
     .terms-note{font-size:.7rem;color:var(--muted);text-align:center;margin-top:.75rem;line-height:1.6}
     .terms-note a{color:var(--gold);text-decoration:none}
 
-    /* TOAST */
     .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);background:var(--brown);color:var(--cream);padding:.75rem 1.5rem;border-radius:50px;font-size:.88rem;font-weight:500;box-shadow:0 8px 24px rgba(59,42,26,.3);transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap}
     .toast.show{transform:translateX(-50%) translateY(0)}
 
-    /* FOOTER */
     footer{background:#1e1208;padding:1.5rem 2rem}
     .footer-bottom{max-width:1280px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
     .footer-bottom span{font-size:.78rem;color:rgba(245,240,232,.25)}
 
-    /* RESPONSIVE */
+    /* ── MINDSTARK ID REVEAL MODAL ──────────────────────────── */
+    .msid-overlay{position:fixed;inset:0;background:rgba(30,18,8,.78);backdrop-filter:blur(8px);z-index:600;display:none;align-items:center;justify-content:center;padding:1.5rem}
+    .msid-overlay.show{display:flex}
+    .msid-modal{background:var(--white);border-radius:24px;padding:2.5rem 2rem;max-width:400px;width:100%;text-align:center;box-shadow:0 24px 64px rgba(30,18,8,.3);animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
+    @keyframes popIn{from{opacity:0;transform:scale(.85) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    .msid-icon{font-size:3rem;margin-bottom:.75rem;display:block}
+    .msid-modal h3{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:var(--brown);margin-bottom:.5rem}
+    .msid-modal > p{color:var(--muted);font-size:.88rem;line-height:1.7;margin-bottom:1.5rem}
+    .msid-badge-wrap{background:var(--brown);border-radius:16px;padding:1.5rem 1.25rem;margin-bottom:1.25rem;position:relative;overflow:hidden}
+    .msid-badge-wrap::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50%,rgba(200,150,62,.2),transparent 65%);pointer-events:none}
+    .msid-label{font-size:.65rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(200,150,62,.6);margin-bottom:.5rem;display:block;position:relative;z-index:1}
+    .msid-number{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:900;color:var(--gold);letter-spacing:.18em;position:relative;z-index:1;display:block}
+    .msid-copy-btn{background:rgba(200,150,62,.15);border:1px solid rgba(200,150,62,.3);color:var(--gold);font-size:.72rem;font-weight:600;padding:.3rem .9rem;border-radius:50px;cursor:pointer;transition:all .2s;margin-top:.65rem;display:inline-block;position:relative;z-index:1}
+    .msid-copy-btn:hover{background:rgba(200,150,62,.25)}
+    .msid-hint{font-size:.75rem;color:var(--muted);background:rgba(200,150,62,.06);border:1px solid rgba(200,150,62,.12);border-radius:10px;padding:.75rem 1rem;margin-bottom:1.5rem;line-height:1.6;text-align:left}
+    .msid-hint strong{color:var(--brown)}
+    .msid-cta{display:block;background:var(--brown);color:var(--cream);padding:.88rem 2rem;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:500;text-decoration:none;transition:background .2s;border:none;cursor:pointer;width:100%;text-align:center}
+    .msid-cta:hover{background:var(--gold)}
+
     @media(max-width:900px){
       .nav-links{display:none}
       .hamburger{display:flex}
@@ -198,7 +181,6 @@
     @media(max-width:480px){
       .right-panel{padding:1.75rem 1.25rem}
       .form-head h1{font-size:1.6rem}
-      .field-row{grid-template-columns:1fr}
     }
   </style>
 </head>
@@ -232,9 +214,30 @@
   <a href="feeds.html" onclick="closeMobile()">Feeds</a>
 </div>
 
+<!-- MINDSTARK ID REVEAL MODAL -->
+<div class="msid-overlay" id="msidOverlay">
+  <div class="msid-modal">
+    <span class="msid-icon">🎓</span>
+    <h3>Welcome to MindStark!</h3>
+    <p>Your account is ready. Here is your unique <strong>MindStark ID</strong> — keep it safe, you'll need it to access MindStark CONNECT.</p>
+    <div class="msid-badge-wrap">
+      <span class="msid-label">Your MindStark ID</span>
+      <span class="msid-number" id="msidNumber">— — —</span>
+      <br/>
+      <button class="msid-copy-btn" onclick="copyMsId()">📋 Copy ID</button>
+    </div>
+    <div class="msid-hint">
+      <strong>📌 Save this number.</strong> Your MindStark ID is how you log into
+      <strong>MindStark CONNECT</strong> — our exclusive Scholar community.
+      You can always find it again on your Profile page.
+    </div>
+    <button class="msid-cta" onclick="closeMsIdModal()">Continue to Library →</button>
+  </div>
+</div>
+
 <div class="auth-wrap">
 
-  <!-- ── LEFT PANEL ───────────────────────── -->
+  <!-- LEFT PANEL -->
   <div class="left-panel">
     <div class="deco-circle deco-1"></div>
     <div class="deco-circle deco-2"></div>
@@ -243,41 +246,26 @@
       <div class="left-eyebrow">Welcome to MindStark</div>
       <h2>Open a Book.<br/><em>Open a World.</em></h2>
       <p>Your personal library, always in your pocket. Discover timeless stories, learn something new, and track every book you love.</p>
-
       <div class="stats-row">
-        <div class="stat-card">
-          <div class="stat-num">70K+</div>
-          <div class="stat-label">Free Books</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num">12K+</div>
-          <div class="stat-label">Readers</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num">50+</div>
-          <div class="stat-label">Genres</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num">Free</div>
-          <div class="stat-label">To Start</div>
-        </div>
+        <div class="stat-card"><div class="stat-num">70K+</div><div class="stat-label">Free Books</div></div>
+        <div class="stat-card"><div class="stat-num">12K+</div><div class="stat-label">Readers</div></div>
+        <div class="stat-card"><div class="stat-num">50+</div><div class="stat-label">Genres</div></div>
+        <div class="stat-card"><div class="stat-num">Free</div><div class="stat-label">To Start</div></div>
       </div>
-
       <ul class="perks">
         <li><div class="perk-icon">✓</div> Sync reading progress across devices</li>
         <li><div class="perk-icon">✓</div> Permanent bookmarks & reading history</li>
         <li><div class="perk-icon">✓</div> Personal stats, streaks & achievements</li>
-        <li><div class="perk-icon">✓</div> Unlock Pro for the full 10,000+ catalog</li>
+        <li><div class="perk-icon">✓</div> Unlock Scholar for MindStark CONNECT</li>
       </ul>
-
       <div class="testimonial">
         <p>"MindStark completely changed how I read. I've finished 24 books this year alone!"</p>
-        <div class="testimonial-author">— Amara O., Lagos · Reader Pro member</div>
+        <div class="testimonial-author">— Amara O., Lagos · Scholar member</div>
       </div>
     </div>
   </div>
 
-  <!-- ── RIGHT PANEL ───────────────────────── -->
+  <!-- RIGHT PANEL -->
   <div class="right-panel">
     <div class="form-box">
 
@@ -302,7 +290,7 @@
           <button class="auth-tab" id="signupTab" onclick="switchTab('signup')">Create Account</button>
         </div>
 
-        <!-- Google button -->
+        <!-- Google -->
         <button class="google-btn" id="googleBtn" onclick="doGoogleSignIn()">
           <svg class="google-icon" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -315,10 +303,9 @@
         </button>
 
         <div class="or-divider"><span>or continue with email</span></div>
-
         <div class="auth-alert" id="authAlert"></div>
 
-        <!-- ── SIGN IN FORM ─────────────────── -->
+        <!-- SIGN IN -->
         <div id="signinForm">
           <div class="field">
             <label for="siEmail">Email Address</label>
@@ -347,7 +334,7 @@
           </div>
         </div>
 
-        <!-- ── SIGN UP FORM ─────────────────── -->
+        <!-- SIGN UP -->
         <div id="signupForm" style="display:none">
           <div class="field">
             <label for="suName">Full Name</label>
@@ -393,11 +380,11 @@
           </div>
         </div>
 
-      </div><!-- /authForm -->
-    </div><!-- /form-box -->
-  </div><!-- /right-panel -->
+      </div>
+    </div>
+  </div>
 
-</div><!-- /auth-wrap -->
+</div>
 
 <footer>
   <div class="footer-bottom">
@@ -409,41 +396,54 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  /* ── HELPERS ────────────────────────── */
+  /* ── HELPERS ─────────────────────────── */
   function waitSB() {
     if (window._sb) return Promise.resolve();
     return new Promise(r => document.addEventListener('supabase:ready', r, {once:true}));
   }
   function friendly(msg) {
     if (!msg) return '❌ Something went wrong. Please try again.';
-    if (msg.includes('Invalid login'))        return '❌ Incorrect email or password.';
-    if (msg.includes('already registered'))   return '❌ This email is already registered. Try signing in.';
-    if (msg.includes('Email not confirmed'))  return '📬 Please confirm your email first.';
-    if (msg.includes('Password should'))      return '❌ Password must be at least 6 characters.';
-    if (msg.includes('rate limit'))           return '⏳ Too many attempts. Please wait a minute.';
-    if (msg.includes('popup_closed'))         return '⚠️ Google sign-in was cancelled.';
+    if (msg.includes('Invalid login'))       return '❌ Incorrect email or password.';
+    if (msg.includes('already registered'))  return '❌ This email is already registered. Try signing in.';
+    if (msg.includes('Email not confirmed')) return '📬 Please confirm your email first.';
+    if (msg.includes('Password should'))     return '❌ Password must be at least 6 characters.';
+    if (msg.includes('rate limit'))          return '⏳ Too many attempts. Please wait a minute.';
+    if (msg.includes('popup_closed'))        return '⚠️ Google sign-in was cancelled.';
     return '❌ ' + msg;
   }
-  function showAlert(msg, type) {
-    const el = document.getElementById('authAlert');
-    el.textContent = msg; el.className = `auth-alert show ${type}`;
+  function showAlert(msg,type){ const e=document.getElementById('authAlert');e.textContent=msg;e.className=`auth-alert show ${type}`; }
+  function clearAlert(){ document.getElementById('authAlert').className='auth-alert'; }
+  function showFE(id){ document.getElementById(id).classList.add('show'); }
+  function hideFE(id){ document.getElementById(id).classList.remove('show'); }
+  function setBL(id,on){ const b=document.getElementById(id);b.classList.toggle('loading',on);b.disabled=on; }
+  function showToast(msg){ const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500); }
+  function togglePw(inputId,btn){ const i=document.getElementById(inputId);i.type=i.type==='password'?'text':'password';btn.textContent=i.type==='password'?'👁':'🙈'; }
+
+  /* ── MINDSTARK ID MODAL ──────────────── */
+  let _currentMsId = '';
+
+  function showMsIdModal(msId) {
+    _currentMsId = msId || '';
+    const formatted = msId
+      ? msId.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3')
+      : '— — —';
+    document.getElementById('msidNumber').textContent = formatted;
+    document.getElementById('msidOverlay').classList.add('show');
   }
-  function clearAlert() { document.getElementById('authAlert').className = 'auth-alert'; }
-  function showFE(id)   { document.getElementById(id).classList.add('show'); }
-  function hideFE(id)   { document.getElementById(id).classList.remove('show'); }
-  function setBL(id, on){
-    const b = document.getElementById(id);
-    b.classList.toggle('loading', on); b.disabled = on;
+
+  function closeMsIdModal() {
+    document.getElementById('msidOverlay').classList.remove('show');
+    const redirect = new URLSearchParams(window.location.search).get('redirect') || 'browse.html';
+    window.location.href = redirect;
   }
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg; t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3500);
-  }
-  function togglePw(inputId, btn) {
-    const input = document.getElementById(inputId);
-    input.type  = input.type === 'password' ? 'text' : 'password';
-    btn.textContent = input.type === 'password' ? '👁' : '🙈';
+
+  function copyMsId() {
+    if (!_currentMsId) return;
+    navigator.clipboard?.writeText(_currentMsId).then(() => {
+      const btn = document.querySelector('.msid-copy-btn');
+      btn.textContent = '✅ Copied!';
+      setTimeout(() => { btn.textContent = '📋 Copy ID'; }, 2000);
+    });
   }
 
   /* ── TAB SWITCH ─────────────────────── */
@@ -453,8 +453,7 @@
     document.getElementById('signupTab').classList.toggle('active', !isIn);
     document.getElementById('signinForm').style.display = isIn ? '' : 'none';
     document.getElementById('signupForm').style.display = isIn ? 'none' : '';
-    document.getElementById('formTitle').innerHTML = isIn
-      ? 'Welcome <span>Back</span>' : 'Create <span>Account</span>';
+    document.getElementById('formTitle').innerHTML = isIn ? 'Welcome <span>Back</span>' : 'Create <span>Account</span>';
     document.getElementById('formSub').textContent = isIn
       ? 'Sign in to continue your reading journey'
       : 'Join thousands of readers on MindStark';
@@ -482,23 +481,18 @@
       document.getElementById('googleSpinner').style.display = 'none';
       showAlert(friendly(error.message), 'error');
     }
-    /* On success Supabase redirects automatically */
   }
 
   /* ── HANDLE GOOGLE CALLBACK ─────────── */
   document.addEventListener('supabase:ready', async () => {
-    /* Check for OAuth callback */
     const hash   = window.location.hash;
     const params = new URLSearchParams(window.location.search);
-
-    /* Check if already signed in */
     const { data: { session } } = await window._sb.auth.getSession();
 
     if (session) {
       const user    = session.user;
       let profile   = await msGetProfile(user.id);
 
-      /* Auto-create profile for Google users */
       if (!profile) {
         const name = user.user_metadata?.full_name || user.email.split('@')[0];
         await msUpsertProfile({
@@ -512,13 +506,11 @@
 
       await msSyncSession(user, profile || { full_name: user.email.split('@')[0] });
 
-      /* Show already signed in card */
       document.getElementById('alreadyIn').style.display  = 'block';
       document.getElementById('authForm').style.display   = 'none';
       document.getElementById('alreadyInMsg').textContent =
         `Welcome back, ${profile?.full_name || user.email}!`;
 
-      /* If came from OAuth redirect, go to browse */
       if (hash.includes('access_token') || params.get('code')) {
         setTimeout(() => window.location.href = 'browse.html', 800);
       }
@@ -555,10 +547,10 @@
     const pw      = document.getElementById('suPassword').value;
     const confirm = document.getElementById('suConfirm').value;
     let ok = true;
-    if (!name)                       { showFE('suNameErr');    ok=false; } else hideFE('suNameErr');
-    if (!email||!email.includes('@')){ showFE('suEmailErr');   ok=false; } else hideFE('suEmailErr');
-    if (pw.length < 8)               { showFE('suPassErr');    ok=false; } else hideFE('suPassErr');
-    if (pw !== confirm)              { showFE('suConfirmErr'); ok=false; } else hideFE('suConfirmErr');
+    if (!name)                        { showFE('suNameErr');    ok=false; } else hideFE('suNameErr');
+    if (!email||!email.includes('@')) { showFE('suEmailErr');   ok=false; } else hideFE('suEmailErr');
+    if (pw.length < 8)                { showFE('suPassErr');    ok=false; } else hideFE('suPassErr');
+    if (pw !== confirm)               { showFE('suConfirmErr'); ok=false; } else hideFE('suConfirmErr');
     if (!ok) return;
 
     setBL('signupBtn', true); clearAlert();
@@ -571,21 +563,33 @@
     if (error) { setBL('signupBtn', false); showAlert(friendly(error.message), 'error'); return; }
 
     if (data.user) {
+      /* Create profile — the DB trigger will auto-assign mindstark_id */
       await msUpsertProfile({
         id: data.user.id, email, full_name: name, avatar_url: '',
         membership_plan: 'free', membership_active: false,
         created_at: new Date().toISOString()
       });
-      await msSyncSession(data.user, { full_name: name, membership_plan: 'free', membership_active: false });
-    }
 
-    setBL('signupBtn', false);
-    if (data.session) {
-      showAlert('🎉 Account created! Redirecting…', 'success');
-      setTimeout(() => window.location.href = 'browse.html', 1200);
+      await msSyncSession(data.user, { full_name: name, membership_plan: 'free', membership_active: false });
+
+      setBL('signupBtn', false);
+
+      if (data.session) {
+        /* Signed in immediately — fetch profile to get the generated mindstark_id */
+        const profile = await msGetProfile(data.user.id);
+        showMsIdModal(profile?.mindstark_id || null);
+      } else {
+        /* Email confirmation required — show the ID if available */
+        const profile = await msGetProfile(data.user.id);
+        if (profile?.mindstark_id) {
+          showMsIdModal(profile.mindstark_id);
+        } else {
+          showAlert('📬 Check your email to confirm your account!', 'success');
+          setTimeout(() => switchTab('signin'), 3500);
+        }
+      }
     } else {
-      showAlert('📬 Check your email to confirm your account!', 'success');
-      setTimeout(() => switchTab('signin'), 3500);
+      setBL('signupBtn', false);
     }
   }
 
@@ -615,19 +619,19 @@
   function checkPwStrength(val) {
     document.getElementById('pwStrength').classList.add('show');
     let score = 0;
-    if (val.length >= 8)          score++;
-    if (val.length >= 12)         score++;
-    if (/[A-Z]/.test(val))        score++;
-    if (/[0-9]/.test(val))        score++;
-    if (/[^A-Za-z0-9]/.test(val)) score++;
+    if (val.length >= 8)           score++;
+    if (val.length >= 12)          score++;
+    if (/[A-Z]/.test(val))         score++;
+    if (/[0-9]/.test(val))         score++;
+    if (/[^A-Za-z0-9]/.test(val))  score++;
     const colors = ['#e74c3c','#e67e22','#f1c40f','#2ecc71','#27ae60'];
     const labels = ['Weak','Fair','Good','Strong','Very Strong'];
     const fill   = document.getElementById('pwFill');
     const hint   = document.getElementById('pwHint');
-    fill.style.width      = `${score*20}%`;
-    fill.style.background = colors[score-1]||'#e74c3c';
-    hint.textContent      = labels[score-1]||'';
-    hint.style.color      = colors[score-1]||'#e74c3c';
+    fill.style.width      = `${score * 20}%`;
+    fill.style.background = colors[score-1] || '#e74c3c';
+    hint.textContent      = labels[score-1] || '';
+    hint.style.color      = colors[score-1] || '#e74c3c';
   }
 
   /* ── ENTER KEY ──────────────────────── */
@@ -651,6 +655,5 @@
 </script>
 <script src="nav.js"></script>
 <script src="terms.js"></script>
-<script src="supabase.js"></script>
 </body>
 </html>

@@ -213,6 +213,51 @@
       .cta-inner h2{font-size:1.6rem}
       .faq-q{font-size:.88rem}
     }
+
+    /* CONNECT promo inside success modal */
+  .connect-promo {
+    background: linear-gradient(135deg, #1a1a2e, #2a2a4e);
+    border-radius: 14px;
+    padding: 1.1rem 1.25rem;
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    border: 1px solid rgba(200,150,62,.2);
+    text-decoration: none;
+    transition: all .2s;
+  }
+  .connect-promo:hover {
+    border-color: var(--gold);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,.2);
+  }
+  .connect-promo-icon {
+    font-size: 1.8rem;
+    flex-shrink: 0;
+  }
+  .connect-promo-text { flex: 1; min-width: 0; text-align: left; }
+  .connect-promo-title {
+    font-family: 'Playfair Display', serif;
+    font-size: .98rem;
+    font-weight: 700;
+    color: var(--gold);
+    display: block;
+  }
+  .connect-promo-sub {
+    font-size: .74rem;
+    color: rgba(200,150,62,.55);
+    display: block;
+    margin-top: 2px;
+  }
+  .connect-promo-arrow { color: rgba(200,150,62,.5); flex-shrink: 0; }
+
+  /* Scholar-specific badge color */
+  .modal-plan-badge.scholar-badge {
+    background: rgba(200,150,62,.15);
+    border-color: rgba(200,150,62,.35);
+    color: var(--gold);
+  }
   </style>
 </head>
 <body>
@@ -472,14 +517,28 @@
   </div>
 </footer>
 
-<!-- SUCCESS MODAL -->
 <div class="modal-overlay" id="successModal">
   <div class="modal">
-    <span class="modal-icon">🎉</span>
+    <span class="modal-icon" id="successIcon">🎉</span>
     <div class="modal-plan-badge" id="modalPlanBadge">Reader Pro Active</div>
     <h3>Payment Successful!</h3>
-    <p id="modalMsg">Welcome to MindStark Pro! Your membership is now active. Enjoy the full library.</p>
-    <a href="browse.html" class="modal-btn">Start Reading Now →</a>
+    <p id="modalMsg">Welcome to MindStark Pro! Your membership is now active.</p>
+
+    <!-- CONNECT promo — only shown for Scholar -->
+    <a href="https://mind-stark-connect.vercel.app"
+       target="_blank"
+       class="connect-promo"
+       id="connectPromoLink"
+       style="display:none">
+      <span class="connect-promo-icon">💬</span>
+      <div class="connect-promo-text">
+        <span class="connect-promo-title">Open MindStark CONNECT</span>
+        <span class="connect-promo-sub">Your Scholar access is now unlocked — join the community</span>
+      </div>
+      <span class="connect-promo-arrow">→</span>
+    </a>
+
+    <a href="browse.html" class="modal-btn" id="successCta">Start Reading Now →</a>
   </div>
 </div>
 
@@ -627,11 +686,44 @@
   }
 
   /* ── SUCCESS MODAL ─────────────────────── */
-  function showSuccessModal(plan) {
-    document.getElementById('modalPlanBadge').textContent = `✦ ${PLANS[plan].name} Active`;
-    document.getElementById('modalMsg').textContent =
-      `Welcome to MindStark ${PLANS[plan].name}! Your membership is now active. Enjoy unlimited access to the full library.`;
+    function showSuccessModal(plan) {
+    const isScholar = plan === 'scholar';
+
+    document.getElementById('successIcon').textContent       = isScholar ? '🎓' : '🎉';
+    document.getElementById('modalPlanBadge').textContent    = `✦ ${PLANS[plan].name} Active`;
+    document.getElementById('modalPlanBadge').className      = `modal-plan-badge${isScholar ? ' scholar-badge' : ''}`;
+    document.getElementById('modalMsg').textContent          = isScholar
+      ? 'Welcome to Scholar! You now have full access to MindStark CONNECT — our exclusive community for serious readers.'
+      : `Welcome to MindStark ${PLANS[plan].name}! Your membership is now active. Enjoy unlimited access to the full library.`;
+
+    /* Show CONNECT promo only for Scholar */
+    document.getElementById('connectPromoLink').style.display = isScholar ? 'flex' : 'none';
     document.getElementById('successModal').classList.add('show');
+
+    /* If Scholar — also update their Supabase profile so CONNECT gate works */
+    if (isScholar) {
+      updateScholarProfile();
+    }
+  }
+
+  /* Update membership in Supabase so CONNECT recognises them */
+  async function updateScholarProfile() {
+    try {
+      await waitSBMembership();
+      const { data: { user } } = await window._sb.auth.getUser();
+      if (!user) return;
+      await window._sb.from('profiles').update({
+        membership_plan:   'scholar',
+        membership_active: true,
+      }).eq('id', user.id);
+    } catch(e) {
+      console.warn('Could not update scholar profile:', e);
+    }
+  }
+
+  function waitSBMembership() {
+    if (window._sb) return Promise.resolve();
+    return new Promise(r => document.addEventListener('supabase:ready', r, { once: true }));
   }
 
   /* ── HANDLE PAYSTACK REDIRECT (fallback) ─ */
