@@ -1,0 +1,10 @@
+# MindStark Library — Netlify Configuration
+
+[build]
+  functions = "netlify/functions"
+  publish   = "."
+
+[[redirects]]
+  from   = "/api/paystack"
+  to     = "/.netlify/functions/paystack"
+  status = 200
