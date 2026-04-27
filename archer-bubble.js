@@ -58,7 +58,7 @@
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0; position: relative;
     }
-    #archer-sigil img { border-radius: 50%; }
+    #archer-sigil svg { width: 21px; height: 21px; }
     #archer-dot {
       position: absolute; bottom: 1px; right: 1px;
       width: 9px; height: 9px; border-radius: 50%;
@@ -264,7 +264,10 @@
     <div id="archer-sidebar">
       <div id="archer-header">
         <div id="archer-sigil">
-          <img src="archer-logo.png" alt="ARCHER" style="width:32px;height:32px;object-fit:contain;border-radius:50%;"/>
+          <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M11 2L13.5 8.5H20.5L15 12.5L17.5 19.5L11 15.5L4.5 19.5L7 12.5L1.5 8.5H8.5L11 2Z" fill="#c8963e" stroke="rgba(200,150,62,0.3)" stroke-width="0.5"/>
+            <circle cx="11" cy="11" r="2.5" fill="rgba(245,240,232,0.65)"/>
+          </svg>
           <div id="archer-dot"></div>
         </div>
         <div id="archer-titles">
@@ -297,7 +300,10 @@
   const fab = document.createElement("button");
   fab.id = "archer-fab";
   fab.setAttribute("aria-label", "Open ARCHER");
-  fab.innerHTML = `<img src="archer-logo.png" alt="ARCHER" style="width:36px;height:36px;object-fit:contain;border-radius:50%;"/>`;
+  fab.innerHTML = `<svg viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12.5 2L15.5 9.5H23L17.5 13L19.5 20.5L12.5 16.5L5.5 20.5L7.5 13L2 9.5H9.5L12.5 2Z" fill="#c8963e" stroke="rgba(200,150,62,0.3)" stroke-width="0.5"/>
+    <circle cx="12.5" cy="12.5" r="3" fill="rgba(245,240,232,0.6)"/>
+  </svg>`;
   document.body.appendChild(fab);
 
   const sidebar  = document.getElementById("archer-sidebar");
