@@ -274,7 +274,7 @@
           <strong>ARCHER</strong>
           <span>MindStark Library AI</span>
         </div>
-        <button id="archer-close-btn">✕</button>
+        <button id="archer-close-btn">&#x2715;</button>
       </div>
       <div id="archer-messages"></div>
       <div id="archer-chips">
@@ -291,7 +291,7 @@
           </svg>
         </button>
       </div>
-      <div id="archer-footer">Powered by ARCHER · MindStark Library</div>
+      <div id="archer-footer">Powered by ARCHER &middot; MindStark Library</div>
     </div>
     <div id="archer-tooltip">Ask ARCHER anything about books</div>
   `;
@@ -317,8 +317,8 @@
 
   let isOpen = false, isTyping = false, greeted = false, history = [];
 
-  setTimeout(() => tooltip.classList.add("show"), 2000);
-  setTimeout(() => tooltip.classList.remove("show"), 5500);
+  setTimeout(function() { tooltip.classList.add("show"); }, 2000);
+  setTimeout(function() { tooltip.classList.remove("show"); }, 5500);
 
   function openSidebar() {
     isOpen = true;
@@ -328,11 +328,11 @@
     document.body.style.overflow = "hidden";
     if (!greeted) {
       greeted = true;
-      setTimeout(() => addMsg("archer",
-        "Welcome to <strong>MindStark Library</strong>. I am ARCHER — your guide through our vast collection of knowledge. Ask me about any book, author, genre, or idea. What shall we explore today?"
-      ), 350);
+      setTimeout(function() {
+        addMsg("archer", "Welcome to <strong>MindStark Library</strong>. I am ARCHER — your guide through our vast collection of knowledge. Ask me about any book, author, genre, or idea. What shall we explore today?");
+      }, 350);
     }
-    setTimeout(() => input.focus(), 400);
+    setTimeout(function() { input.focus(); }, 400);
   }
 
   function closeSidebar() {
@@ -352,19 +352,26 @@
     sendMessage();
   };
 
-  function addMsg(role, text, loading = false) {
-    const div = document.createElement("div");
+  function formatText(t) {
+    return t
+      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*(.*?)\*/g, "<em>$1</em>")
+      .replace(/\n/g, "<br>");
+  }
+
+  function addMsg(role, text, loading) {
+    var div = document.createElement("div");
     div.className = "archer-msg " + role;
-    const av = document.createElement("div");
+    var av = document.createElement("div");
     av.className = "archer-av";
     av.textContent = role === "user" ? "You" : "A";
-    const bub = document.createElement("div");
+    var bub = document.createElement("div");
     bub.className = "archer-bubble-msg";
     if (loading) {
       bub.innerHTML = '<div class="archer-typing"><span></span><span></span><span></span></div>';
       div.id = "archer-typing-el";
     } else {
-      bub.innerHTML = text.replace(/\n/g, "<br>").replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+      bub.innerHTML = formatText(text);
     }
     div.appendChild(av);
     div.appendChild(bub);
@@ -374,17 +381,20 @@
   }
 
   async function sendMessage() {
-    const text = input.value.trim();
+    var text = input.value.trim();
     if (!text || isTyping) return;
     isTyping = true;
     input.value = "";
     input.style.height = "auto";
     chips.style.display = "none";
-    addMsg("user", text);
+
+    addMsg("user", text, false);
     history.push({ role: "user", content: text });
-    const typingEl = addMsg("archer", "", true);
+
+    var typingEl = addMsg("archer", "", true);
+
     try {
-      const res = await fetch(SUPABASE_FUNCTION_URL, {
+      var res = await fetch(SUPABASE_FUNCTION_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -394,27 +404,79 @@
             hour: "2-digit", minute: "2-digit", second: "2-digit",
             timeZoneName: "short"
           })
-        }),
+        })
       });
-      const data = await res.json();
+
+      if (!res.ok || !res.body) throw new Error("No response");
+
+      var contentType = res.headers.get("content-type") || "";
+
+      if (contentType.includes("text/event-stream")) {
+        // STREAMING
+        typingEl.remove();
+
+        var streamDiv = document.createElement("div");
+        streamDiv.className = "archer-msg archer";
+        var streamAv = document.createElement("div");
+        streamAv.className = "archer-av";
+        streamAv.textContent = "A";
+        var streamBub = document.createElement("div");
+        streamBub.className = "archer-bubble-msg";
+        streamDiv.appendChild(streamAv);
+        streamDiv.appendChild(streamBub);
+        messages.appendChild(streamDiv);
+        messages.scrollTop = messages.scrollHeight;
+
+        var reader = res.body.getReader();
+        var decoder = new TextDecoder();
+        var fullReply = "";
+
+        while (true) {
+          var result = await reader.read();
+          if (result.done) break;
+          var lines = decoder.decode(result.value, { stream: true }).split("\n");
+          for (var i = 0; i < lines.length; i++) {
+            var line = lines[i];
+            if (!line.startsWith("data: ")) continue;
+            var d = line.slice(6).trim();
+            if (d === "[DONE]") break;
+            try {
+              var parsed = JSON.parse(d);
+              if (parsed.content) {
+                fullReply += parsed.content;
+                streamBub.innerHTML = formatText(fullReply);
+                messages.scrollTop = messages.scrollHeight;
+              }
+            } catch(e) { }
+          }
+        }
+        history.push({ role: "assistant", content: fullReply });
+
+      } else {
+        // FALLBACK JSON
+        var data = await res.json();
+        typingEl.remove();
+        var reply = data.reply || data.error || "I encountered an issue. Please try again.";
+        history.push({ role: "assistant", content: reply });
+        addMsg("archer", reply, false);
+      }
+
+    } catch(e) {
       typingEl.remove();
-      const reply = data.reply || "I encountered an issue. Please try again.";
-      history.push({ role: "assistant", content: reply });
-      addMsg("archer", reply);
-    } catch {
-      typingEl.remove();
-      addMsg("archer", "Connection interrupted. Please check your network and try again.");
+      addMsg("archer", "Connection interrupted. Please check your network and try again.", false);
     }
+
     isTyping = false;
     input.focus();
   }
 
-  input.addEventListener("keydown", (e) => {
+  input.addEventListener("keydown", function(e) {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   });
-  input.addEventListener("input", () => {
+  input.addEventListener("input", function() {
     input.style.height = "auto";
     input.style.height = Math.min(input.scrollHeight, 100) + "px";
   });
   sendBtn.addEventListener("click", sendMessage);
+
 })();
