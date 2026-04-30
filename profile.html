@@ -473,6 +473,40 @@
             <span class="color-label">Avatar fallback color (when no photo):</span>
             <div class="color-grid" id="colorGrid"></div>
           </div>
+
+          <!-- SET CONNECT PASSWORD (Google users only) -->
+          <div id="setPasswordSection" style="display:none;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border)">
+            <div style="display:flex;align-items:flex-start;gap:.65rem;background:rgba(200,150,62,.07);border:1px solid rgba(200,150,62,.18);border-radius:12px;padding:.85rem 1rem;margin-bottom:1.1rem">
+              <span style="font-size:1.1rem;flex-shrink:0">🔑</span>
+              <div>
+                <div style="font-size:.82rem;font-weight:600;color:var(--brown);margin-bottom:.2rem">Set a CONNECT Password</div>
+                <div style="font-size:.75rem;color:var(--muted);line-height:1.55">You signed in with Google, so you don't have a password yet. Set one below to be able to log into <strong>MindStark CONNECT</strong> using your MindStark ID.</div>
+              </div>
+            </div>
+
+            <div class="edit-field" style="margin-bottom:.75rem">
+              <label>New Password</label>
+              <div style="position:relative">
+                <input type="password" id="newPasswordInput" placeholder="At least 8 characters" style="padding-right:2.5rem"/>
+                <button type="button" onclick="togglePwVisibility('newPasswordInput', this)"
+                  style="position:absolute;right:.75rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:.9rem;padding:.2rem;line-height:1">👁</button>
+              </div>
+            </div>
+            <div class="edit-field" style="margin-bottom:1rem">
+              <label>Confirm Password</label>
+              <div style="position:relative">
+                <input type="password" id="confirmPasswordInput" placeholder="Repeat your password" style="padding-right:2.5rem"/>
+                <button type="button" onclick="togglePwVisibility('confirmPasswordInput', this)"
+                  style="position:absolute;right:.75rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:.9rem;padding:.2rem;line-height:1">👁</button>
+              </div>
+            </div>
+
+            <div id="setPasswordErr" style="font-size:.75rem;color:#c0392b;background:rgba(192,57,43,.07);border:1px solid rgba(192,57,43,.18);border-radius:8px;padding:.5rem .8rem;margin-bottom:.75rem;display:none"></div>
+            <div id="setPasswordOk"  style="font-size:.75rem;color:#27ae60;background:rgba(39,174,96,.07);border:1px solid rgba(39,174,96,.2);border-radius:8px;padding:.5rem .8rem;margin-bottom:.75rem;display:none"></div>
+
+            <button class="save-btn" onclick="saveConnectPassword()" id="setPasswordBtn">Set Password</button>
+          </div>
+
         </div>
       </div>
 
@@ -640,6 +674,19 @@
     }
     loadProfile();
     loadMsIdSection();
+
+    /* ── Show Set Password section for Google users ── */
+    if (sbUser) {
+      const provider = sbUser.app_metadata?.provider || '';
+      const identities = sbUser.identities || [];
+      const isGoogleUser = provider === 'google' ||
+        identities.some(i => i.provider === 'google');
+      /* Only show if they have no password identity */
+      const hasPassword = identities.some(i => i.provider === 'email');
+      if (isGoogleUser && !hasPassword) {
+        document.getElementById('setPasswordSection').style.display = 'block';
+      }
+    }
   });
 
   /* Fallback if Supabase doesn't fire */
@@ -744,6 +791,66 @@
     document.getElementById('connectOpenBtn').style.display   = isScholar ? 'flex' : 'none';
     document.getElementById('connectLockedMsg').style.display = isScholar ? 'none' : 'flex';
     document.getElementById('msidSection').style.display = 'block';
+  }
+
+  /* ── SET CONNECT PASSWORD (Google users) ───────────────── */
+  function togglePwVisibility(inputId, btn) {
+    const inp = document.getElementById(inputId);
+    if (!inp) return;
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+  }
+
+  async function saveConnectPassword() {
+    const pw1 = document.getElementById('newPasswordInput').value;
+    const pw2 = document.getElementById('confirmPasswordInput').value;
+    const errBox = document.getElementById('setPasswordErr');
+    const okBox  = document.getElementById('setPasswordOk');
+    const btn    = document.getElementById('setPasswordBtn');
+
+    errBox.style.display = 'none';
+    okBox.style.display  = 'none';
+
+    if (!pw1) {
+      errBox.textContent = '⚠️ Please enter a password.';
+      errBox.style.display = 'block'; return;
+    }
+    if (pw1.length < 8) {
+      errBox.textContent = '⚠️ Password must be at least 8 characters.';
+      errBox.style.display = 'block'; return;
+    }
+    if (pw1 !== pw2) {
+      errBox.textContent = '⚠️ Passwords do not match.';
+      errBox.style.display = 'block'; return;
+    }
+    if (!window._sb) {
+      errBox.textContent = '⚠️ Not connected. Please refresh and try again.';
+      errBox.style.display = 'block'; return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+
+    const { error } = await window._sb.auth.updateUser({ password: pw1 });
+
+    btn.disabled = false;
+    btn.textContent = 'Set Password';
+
+    if (error) {
+      errBox.textContent = '❌ ' + (error.message || 'Something went wrong. Please try again.');
+      errBox.style.display = 'block';
+      return;
+    }
+
+    document.getElementById('newPasswordInput').value    = '';
+    document.getElementById('confirmPasswordInput').value = '';
+    okBox.textContent = '✅ Password set! You can now log into MindStark CONNECT with your MindStark ID and this password.';
+    okBox.style.display = 'block';
+
+    /* Hide the section after success — they now have a password */
+    setTimeout(() => {
+      document.getElementById('setPasswordSection').style.display = 'none';
+    }, 5000);
   }
 
   function copyProfileMsId() {
