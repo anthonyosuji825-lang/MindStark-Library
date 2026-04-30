@@ -266,6 +266,25 @@
 
   var isOpen = false, isTyping = false, greeted = false, history = [];
 
+  function getMSUser() {
+    try {
+      var raw = sessionStorage.getItem("ms_current_user");
+      return raw ? JSON.parse(raw) : null;
+    } catch(e) { return null; }
+  }
+
+  function getGreeting() {
+    var user = getMSUser();
+    var hour = new Date().getHours();
+    var timeOfDay = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+    if (user && user.name && !user.guest) {
+      var firstName = user.name.split(" ")[0];
+      var memberTag = user.membership ? " — <em>" + user.membership.planName + " Member</em>" : "";
+      return timeOfDay + ", <strong>" + firstName + "</strong>" + memberTag + ". I am ARCHER, your guide through MindStark Library. What shall we explore today?";
+    }
+    return "Welcome to <strong>MindStark Library</strong>. I am ARCHER — your guide through our vast collection of knowledge. Ask me about any book, author, genre, or idea. What shall we explore today?";
+  }
+
   setTimeout(function() { tooltip.classList.add("show"); }, 2000);
   setTimeout(function() { tooltip.classList.remove("show"); }, 5500);
 
@@ -278,7 +297,7 @@
     if (!greeted) {
       greeted = true;
       setTimeout(function() {
-        addMsg("archer", "Welcome to <strong>MindStark Library</strong>. I am ARCHER — your guide through our vast collection of knowledge. Ask me about any book, author, genre, or idea. What shall we explore today?", false);
+        addMsg("archer", getGreeting(), false);
       }, 350);
     }
     setTimeout(function() { input.focus(); }, 400);
@@ -354,7 +373,12 @@
           weekday: "long", year: "numeric", month: "long", day: "numeric",
           hour: "2-digit", minute: "2-digit", second: "2-digit",
           timeZoneName: "short"
-        })
+        }),
+        currentUser: (function() {
+          var u = getMSUser();
+          if (!u || u.guest) return null;
+          return { name: u.name, membership: u.membership ? u.membership.planName : "Free" };
+        })()
       })
     });
 
