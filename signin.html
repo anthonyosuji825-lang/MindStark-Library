@@ -189,13 +189,13 @@
 <!-- NAV -->
 <nav>
   <div class="nav-inner">
-    <a href="mindstark-library.html" class="logo">
+    <a href="index.html" class="logo">
       <span class="logo-main">MindStark</span>
       <span class="logo-sub">Library</span>
     </a>
     <ul class="nav-links">
       <li><a href="browse.html">Browse</a></li>
-      <li><a href="book.html">My Books</a></li>
+      <li><a href="profile.html">My Books</a></li>
       <li><a href="membership.html">Membership</a></li>
       <li><a href="about.html">About</a></li>
       <li><a href="feeds.html">Feeds</a></li>
@@ -208,7 +208,7 @@
 
 <div class="mobile-menu" id="mobileMenu">
   <a href="browse.html" onclick="closeMobile()">Browse</a>
-  <a href="book.html" onclick="closeMobile()">My Books</a>
+  <a href="profile.html" onclick="closeMobile()">My Books</a>
   <a href="membership.html" onclick="closeMobile()">Membership</a>
   <a href="about.html" onclick="closeMobile()">About</a>
   <a href="feeds.html" onclick="closeMobile()">Feeds</a>
@@ -338,12 +338,12 @@
         <div id="signupForm" style="display:none">
           <div class="field">
             <label for="suName">Full Name</label>
-            <input type="text" id="suName" placeholder="Your full name" autocomplete="name"/>
+            <input type="text" id="suName" placeholder="Your full name" autocomplete="name" oninput="hideFE('suNameErr')"/>
             <span class="field-err" id="suNameErr">Please enter your name</span>
           </div>
           <div class="field">
             <label for="suEmail">Email Address</label>
-            <input type="email" id="suEmail" placeholder="your@email.com" autocomplete="email"/>
+            <input type="email" id="suEmail" placeholder="your@email.com" autocomplete="email" oninput="hideFE('suEmailErr')"/>
             <span class="field-err" id="suEmailErr">Please enter a valid email</span>
           </div>
           <div class="field">
@@ -404,7 +404,10 @@
   function friendly(msg) {
     if (!msg) return '❌ Something went wrong. Please try again.';
     if (msg.includes('Invalid login'))       return '❌ Incorrect email or password.';
-    if (msg.includes('already registered'))  return '❌ This email is already registered. Try signing in.';
+    if (msg.includes('already registered'))  {
+      setTimeout(() => switchTab('signin'), 1500);
+      return '✅ You already have a MindStark account. Switching to sign in…';
+    }
     if (msg.includes('Email not confirmed')) return '📬 Please confirm your email first.';
     if (msg.includes('Password should'))     return '❌ Password must be at least 6 characters.';
     if (msg.includes('rate limit'))          return '⏳ Too many attempts. Please wait a minute.';
@@ -487,6 +490,7 @@
   document.addEventListener('supabase:ready', async () => {
     const hash   = window.location.hash;
     const params = new URLSearchParams(window.location.search);
+    const isOAuthReturn = hash.includes('access_token') || !!params.get('code');
     const { data: { session } } = await window._sb.auth.getSession();
 
     if (session) {
@@ -506,13 +510,17 @@
 
       await msSyncSession(user, profile || { full_name: user.email.split('@')[0] });
 
-      document.getElementById('alreadyIn').style.display  = 'block';
-      document.getElementById('authForm').style.display   = 'none';
-      document.getElementById('alreadyInMsg').textContent =
-        `Welcome back, ${profile?.full_name || user.email}!`;
-
-      if (hash.includes('access_token') || params.get('code')) {
-        setTimeout(() => window.location.href = 'browse.html', 800);
+      if (isOAuthReturn) {
+        /* Coming back from Google OAuth — redirect straight to library */
+        setTimeout(() => {
+          window.location.href = new URLSearchParams(window.location.search).get('redirect') || 'browse.html';
+        }, 800);
+      } else {
+        /* Already logged in — show the "You're already in!" screen */
+        document.getElementById('alreadyIn').style.display  = 'block';
+        document.getElementById('authForm').style.display   = 'none';
+        document.getElementById('alreadyInMsg').textContent =
+          `Welcome back, ${profile?.full_name || user.email}!`;
       }
     }
   });
@@ -548,11 +556,11 @@
     const pw      = document.getElementById('suPassword').value;
     const confirm = document.getElementById('suConfirm').value;
     let ok = true;
-    if (!name)                        { showFE('suNameErr');    ok=false; } else hideFE('suNameErr');
+    if (!name)                          { showFE('suNameErr');    ok=false; } else hideFE('suNameErr');
     const suEmailRx=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
     if (!email||!suEmailRx.test(email)) { showFE('suEmailErr');   ok=false; } else hideFE('suEmailErr');
-    if (pw.length < 8)                { showFE('suPassErr');    ok=false; } else hideFE('suPassErr');
-    if (pw !== confirm)               { showFE('suConfirmErr'); ok=false; } else hideFE('suConfirmErr');
+    if (pw.length < 8)                  { showFE('suPassErr');    ok=false; } else hideFE('suPassErr');
+    if (pw !== confirm)                 { showFE('suConfirmErr'); ok=false; } else hideFE('suConfirmErr');
     if (!ok) return;
 
     setBL('signupBtn', true); clearAlert();
@@ -562,34 +570,41 @@
       email, password: pw,
       options: { data: { full_name: name } }
     });
-    if (error) { setBL('signupBtn', false); showAlert(friendly(error.message), 'error'); return; }
+
+    if (error) {
+      setBL('signupBtn', false);
+      showAlert(friendly(error.message), error.message.includes('already registered') ? 'success' : 'error');
+      return;
+    }
 
     if (data.user) {
-      /* Always require email confirmation — do NOT auto-login.
-         This ensures fake/non-existent emails can never access the library,
-         because no real confirmation email will arrive. */
       setBL('signupBtn', false);
 
-      /* Create the profile row so mindstark_id can be generated */
-      await msUpsertProfile({
-        id: data.user.id, email, full_name: name, avatar_url: '',
-        membership_plan: 'free', membership_active: false,
-        created_at: new Date().toISOString()
-      });
+      /* Wait a moment for the handle_new_user trigger to fire and assign MindStark ID */
+      await new Promise(r => setTimeout(r, 1200));
 
-      /* Clear any auto-session that Supabase may have created,
-         so the user must confirm their email before they can sign in */
-      await window._sb.auth.signOut();
-      sessionStorage.removeItem('ms_current_user');
-      sessionStorage.removeItem('ms_membership');
+      let profile = await msGetProfile(data.user.id);
 
-      showAlert(
-        '📬 A confirmation link has been sent to ' + email +
-        '. Please check your inbox (and spam folder) and click the link to activate your account.',
-        'success'
-      );
-      /* After 4 seconds switch to sign-in tab so they know what to do next */
-      setTimeout(() => switchTab('signin'), 4000);
+      /* Fallback: if trigger hasn't fired yet, upsert manually */
+      if (!profile) {
+        await msUpsertProfile({
+          id: data.user.id, email, full_name: name,
+          avatar_url: data.user.user_metadata?.avatar_url || '',
+          membership_plan: 'free', membership_active: false,
+          created_at: new Date().toISOString()
+        });
+        await new Promise(r => setTimeout(r, 600));
+        profile = await msGetProfile(data.user.id);
+      }
+
+      await msSyncSession(data.user, profile || { full_name: name });
+
+      /* Show MindStark ID modal */
+      if (profile?.mindstark_id) {
+        showMsIdModal(profile.mindstark_id, name);
+      } else {
+        window.location.href = 'browse.html';
+      }
     } else {
       setBL('signupBtn', false);
     }
@@ -604,7 +619,7 @@
     }
     await waitSB();
     const { error } = await window._sb.auth.resetPasswordForEmail(email, {
-      redirectTo: 'https://mind-stark-library.vercel.app/signin.html'
+      redirectTo: `${window.location.origin}/signin.html`
     });
     if (error) { showAlert(friendly(error.message), 'error'); return; }
     showAlert('📬 Password reset email sent! Check your inbox.', 'success');
@@ -620,7 +635,9 @@
 
   /* ── PASSWORD STRENGTH ──────────────── */
   function checkPwStrength(val) {
-    document.getElementById('pwStrength').classList.add('show');
+    const strengthEl = document.getElementById('pwStrength');
+    if (!val) { strengthEl.classList.remove('show'); return; }
+    strengthEl.classList.add('show');
     let score = 0;
     if (val.length >= 8)           score++;
     if (val.length >= 12)          score++;
