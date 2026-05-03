@@ -332,6 +332,16 @@
   /* ── AVATAR CLASS ──────────────────────────── */
   const avatarMemberClass = isPro ? 'member-pro' : isScholar ? 'member-scholar' : '';
 
+  /* ── AVATAR HTML — photo if available, else initials ── */
+  const avatarUrl = isSignedIn ? (currentUser.avatar || '') : '';
+  function avatarHtml(size) {
+    const dim = size === 'lg' ? 44 : size === 'mob' ? 46 : 30;
+    if (avatarUrl) {
+      return '<img src="' + esc(avatarUrl) + '" alt="' + esc(initials) + '" style="width:' + dim + 'px;height:' + dim + 'px;border-radius:50%;object-fit:cover;display:block;flex-shrink:0;border:2px solid rgba(200,150,62,.4)">';
+    }
+    return esc(initials);
+  }
+
   /* ══════════════════════════════════════════
      DESKTOP NAV
   ══════════════════════════════════════════ */
@@ -343,7 +353,7 @@
     wrap.innerHTML = `
       <button class="nav-profile-btn" onclick="toggleNavDropdown(event)">
         ${prefs.streak > 1 ? `<span class="streak-badge">🔥${prefs.streak}</span>` : ''}
-        <div class="nav-avatar ${avatarMemberClass}">${esc(initials)}</div>
+        <div class="nav-avatar ${avatarMemberClass}">${avatarHtml('sm')}</div>
         <span class="nav-profile-name">${esc(firstName)}</span>
         ${memberPillHtml(true)}
         <span class="nav-chevron">▼</span>
@@ -351,7 +361,7 @@
       </button>
       <div class="nav-dropdown">
         <div class="dd-header">
-          <div class="dd-avatar-large ${avatarMemberClass}">${esc(initials)}</div>
+          <div class="dd-avatar-large ${avatarMemberClass}">${avatarHtml('lg')}</div>
           <div class="dd-user-info">
             <div class="dd-greeting">${greeting} 👋</div>
             <div class="dd-user-name">
@@ -413,7 +423,7 @@
     if (isSignedIn) {
       topSection = `
         <div class="ms-profile-card">
-          <div class="ms-pf-avatar ${avatarMemberClass}">${esc(initials)}</div>
+          <div class="ms-pf-avatar ${avatarMemberClass}">${avatarHtml('mob')}</div>
           <div class="ms-pf-info">
             <div class="ms-pf-name">
               ${esc(name)}
