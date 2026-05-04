@@ -321,14 +321,28 @@
     } catch(e) { return null; }
   }
 
+  function getCurrentBook() {
+    try {
+      var raw = sessionStorage.getItem("ms_book");
+      return raw ? JSON.parse(raw) : null;
+    } catch(e) { return null; }
+  }
+
   function getGreeting() {
     var user = getMSUser();
+    var book = getCurrentBook();
     var hour = new Date().getHours();
     var timeOfDay = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
     if (user && user.name && !user.guest) {
       var firstName = user.name.split(" ")[0];
       var memberTag = user.membership ? " — <em>" + user.membership.planName + " Member</em>" : "";
+      if (book && book.title) {
+        return timeOfDay + ", <strong>" + firstName + "</strong>" + memberTag + ". I see you are reading <strong>" + book.title + "</strong>" + (book.author ? " by " + book.author : "") + ". I am ARCHER — shall I tell you more about this book, its themes, or its author?";
+      }
       return timeOfDay + ", <strong>" + firstName + "</strong>" + memberTag + ". I am ARCHER, your guide through MindStark Library. What shall we explore today?";
+    }
+    if (book && book.title) {
+      return "Welcome to <strong>MindStark Library</strong>. I am ARCHER. I see you are reading <strong>" + book.title + "</strong>" + (book.author ? " by " + book.author : "") + ". Shall I tell you more about this work?";
     }
     return "Welcome to <strong>MindStark Library</strong>. I am ARCHER — your guide through our vast collection of knowledge. Ask me about any book, author, genre, or idea. What shall we explore today?";
   }
@@ -433,7 +447,12 @@
           if (!u || u.guest) return null;
           return { name: u.name, membership: u.membership ? u.membership.planName : "Free" };
         })(),
-        archerMemory: archerMemory
+        archerMemory: archerMemory,
+        currentBook: (function() {
+          var b = getCurrentBook();
+          if (!b) return null;
+          return { title: b.title, author: b.author, id: b.id };
+        })()
       })
     });
 
