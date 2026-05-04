@@ -670,6 +670,18 @@
         user = await msSyncSession(sbUser, profile);
         if (profile.avatar_url) setAvatarImage(profile.avatar_url);
         document.getElementById('removeAvatarBtn').classList.toggle('show', !!profile.avatar_url);
+
+        // Sync Supabase stats into sessionStorage so loadProfile() shows real numbers
+        if (profile.books_opened != null) {
+          sessionStorage.setItem('ms_books_read', profile.books_opened);
+        }
+        if (profile.day_streak != null) {
+          try {
+            let prefs = JSON.parse(sessionStorage.getItem('ms_user_prefs') || '{}');
+            prefs.streak = profile.day_streak;
+            sessionStorage.setItem('ms_user_prefs', JSON.stringify(prefs));
+          } catch(e) {}
+        }
       }
     }
     loadProfile();

@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/><!-- Favicon & Meta -->
+  <meta charset="UTF-8"/>
+  <script src="supabase.js"></script>
+  <!-- Favicon & Meta -->
 <link rel="icon" type="image/png" href="logo.png"/>
 <link rel="apple-touch-icon" href="logo.png"/>
 <meta property="og:image" content="https://mind-stark-library.vercel.app/logo.png"/>
-<meta property="og:title" content="MindStark Library"/>
-<meta property="og:description" content="70,000+ free books. Read anywhere, anytime."/>
+<meta property="og:title" content="Feeds — MindStark Library"/>
+<meta property="og:description" content="Latest reading news, literary updates and book discoveries."/>
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://mind-stark-library.vercel.app"/>
+<meta property="og:url" content="https://mind-stark-library.vercel.app/feeds.html"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
   <title>News — MindStark Library</title>
@@ -659,20 +661,6 @@ try {
       document.getElementById('nlEmail').value = '';
     }
 
-    /* ── MOBILE MENU ──────────────────────────── */
-    const hamburger  = document.getElementById('hamburger');
-    const mobileMenu = document.getElementById('mobileMenu');
-    hamburger.addEventListener('click', () => {
-      hamburger.classList.toggle('open');
-      mobileMenu.classList.toggle('open');
-      document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
-    });
-    function closeMobile() {
-      hamburger.classList.remove('open');
-      mobileMenu.classList.remove('open');
-      document.body.style.overflow = '';
-    }
-
     /* ── TOAST ────────────────────────────────── */
     function showToast(msg) {
       const t = document.getElementById('toast');
@@ -686,7 +674,6 @@ try {
   </script>
    <script src="nav.js"></script>
    <script src="terms.js"></script>
-   <script src="supabase.js"></script>
    <script src="archer-bubble.js"></script>
 </body>
 </html>

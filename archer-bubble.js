@@ -1,6 +1,39 @@
 (function () {
   const SUPABASE_FUNCTION_URL =
     "https://wgcpuohwyarhjlndmnlj.supabase.co/functions/v1/archer";
+  const SUPABASE_URL = "https://wgcpuohwyarhjlndmnlj.supabase.co";
+  const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnY3B1b2h3eWFyaGpsbmRtbmxqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MzEzODYsImV4cCI6MjA4OTIwNzM4Nn0.W3SMmePgAdRR7v6_NWRlIoPYmo5HMF8mmTiwELkZclo";
+
+  // Load archer memory from Supabase
+  async function loadArcherMemory(userId) {
+    try {
+      var res = await fetch(SUPABASE_URL + "/rest/v1/profiles?id=eq." + userId + "&select=archer_memory", {
+        headers: {
+          "apikey": SUPABASE_ANON,
+          "Authorization": "Bearer " + SUPABASE_ANON,
+          "Content-Type": "application/json"
+        }
+      });
+      var data = await res.json();
+      return (data && data[0] && data[0].archer_memory) ? data[0].archer_memory : null;
+    } catch(e) { return null; }
+  }
+
+  // Save archer memory to Supabase
+  async function saveArcherMemory(userId, memory) {
+    try {
+      await fetch(SUPABASE_URL + "/rest/v1/profiles?id=eq." + userId, {
+        method: "PATCH",
+        headers: {
+          "apikey": SUPABASE_ANON,
+          "Authorization": "Bearer " + SUPABASE_ANON,
+          "Content-Type": "application/json",
+          "Prefer": "return=minimal"
+        },
+        body: JSON.stringify({ archer_memory: memory })
+      });
+    } catch(e) { }
+  }
 
   const style = document.createElement("style");
   style.textContent = `
@@ -264,7 +297,7 @@
   var chips    = document.getElementById("archer-chips");
   var tooltip  = document.getElementById("archer-tooltip");
 
-  var isOpen = false, isTyping = false, greeted = false, history = [];
+  var isOpen = false, isTyping = false, greeted = false, history = [], archerMemory = null;
 
   function getMSUser() {
     try {
@@ -296,9 +329,15 @@
     document.body.style.overflow = "hidden";
     if (!greeted) {
       greeted = true;
-      setTimeout(function() {
-        addMsg("archer", getGreeting(), false);
-      }, 350);
+      var user = getMSUser();
+      if (user && user.id && !user.guest) {
+        loadArcherMemory(user.id).then(function(mem) {
+          archerMemory = mem;
+          setTimeout(function() { addMsg("archer", getGreeting(), false); }, 350);
+        });
+      } else {
+        setTimeout(function() { addMsg("archer", getGreeting(), false); }, 350);
+      }
     }
     setTimeout(function() { input.focus(); }, 400);
   }
@@ -378,7 +417,8 @@
           var u = getMSUser();
           if (!u || u.guest) return null;
           return { name: u.name, membership: u.membership ? u.membership.planName : "Free" };
-        })()
+        })(),
+        archerMemory: archerMemory
       })
     });
 
@@ -414,6 +454,15 @@
       var reply = data.reply || "I encountered an issue. Please try again in a moment.";
       history.push({ role: "assistant", content: reply });
       addMsg("archer", reply, false);
+
+      // Save updated memory if returned
+      if (data.updatedMemory) {
+        archerMemory = data.updatedMemory;
+        var u = getMSUser();
+        if (u && u.id && !u.guest) {
+          saveArcherMemory(u.id, data.updatedMemory);
+        }
+      }
 
     } catch(e) {
       removeEl("archer-typing-el");

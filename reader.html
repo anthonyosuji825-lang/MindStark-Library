@@ -218,6 +218,53 @@
     .toast{position:fixed;bottom:6rem;left:50%;transform:translateX(-50%) translateY(100px);background:var(--brown);color:var(--cream);padding:.75rem 1.5rem;border-radius:50px;font-size:.88rem;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.4);transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap;pointer-events:none}
     .toast.show{transform:translateX(-50%) translateY(0)}
 
+    /* ── CALCULATOR DRAWER ───────────────────── */
+    .calc-drawer{position:fixed;left:0;top:0;bottom:0;width:340px;background:linear-gradient(160deg,#1a0f00 0%,#2b1800 50%,#1a0f00 100%);border-right:1px solid rgba(200,150,62,.25);z-index:260;transform:translateX(-100%);transition:transform .35s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden;box-shadow:8px 0 32px rgba(0,0,0,.45)}
+    .calc-drawer.open{transform:translateX(0)}
+    .calc-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:259;opacity:0;pointer-events:none;transition:opacity .3s}
+    .calc-overlay.show{opacity:1;pointer-events:all}
+    .cd-head{padding:12px 14px;border-bottom:1px solid rgba(200,150,62,.15);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+    .cd-head-title{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(200,150,62,.5);font-family:'DM Sans',sans-serif}
+    .cd-head-close{background:none;border:none;color:rgba(200,150,62,.4);font-size:1rem;cursor:pointer;line-height:1;padding:.25rem .35rem;border-radius:4px;transition:color .15s}
+    .cd-head-close:hover{color:var(--gold)}
+    .cd-body{flex:1;overflow-y:auto;padding:14px;scrollbar-width:thin;scrollbar-color:rgba(200,150,62,.2) transparent}
+    .cd-body::-webkit-scrollbar{width:3px}
+    .cd-body::-webkit-scrollbar-thumb{background:rgba(200,150,62,.2);border-radius:2px}
+    .cd-display{background:rgba(255,235,180,0.05);border:1px solid rgba(200,150,62,.18);border-radius:12px;padding:12px 14px;margin-bottom:11px;min-height:78px;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-end}
+    .cd-expr{font-size:11px;color:rgba(200,150,62,.55);font-family:monospace;word-break:break-all;text-align:right;min-height:16px}
+    .cd-result{font-size:26px;font-weight:500;color:#f5e6c0;font-family:monospace;word-break:break-all;text-align:right;margin-top:2px;transition:color .15s}
+    .cd-result.cd-err{color:#c87941}
+    .cd-tabs{display:flex;gap:5px;margin-bottom:10px}
+    .cd-tab{flex:1;padding:6px 4px;border-radius:7px;border:1px solid rgba(200,150,62,.2);background:rgba(255,235,180,.03);color:rgba(200,150,62,.45);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+    .cd-tab.active{background:rgba(200,150,62,.15);color:#d4a017;border-color:#d4a017}
+    .cd-sci{margin-bottom:7px}
+    .cd-row{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:4px}
+    .cd-sfn{font-size:10px;padding:8px 2px;background:rgba(180,120,20,.1);border:1px solid rgba(200,150,62,.16);border-radius:7px;color:#c8961a;cursor:pointer;font-family:monospace;transition:background .1s;user-select:none}
+    .cd-sfn:hover{background:rgba(180,120,20,.2)}
+    .cd-sfn:active{transform:scale(.96)}
+    .cd-div{height:1px;background:rgba(200,150,62,.1);margin:7px 0}
+    .cd-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+    .cd-n{border-radius:8px;border:1px solid rgba(255,235,180,.07);background:rgba(255,235,180,.05);color:#f0deb0;font-size:14px;font-weight:500;padding:11px 4px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .1s;user-select:none}
+    .cd-n:hover{background:rgba(255,235,180,.1)}
+    .cd-n:active{transform:scale(.96)}
+    .cd-op{background:rgba(180,120,20,.14);border-color:rgba(200,150,62,.28);color:#d4a017}
+    .cd-op:hover{background:rgba(180,120,20,.25)}
+    .cd-cl{background:rgba(139,60,20,.18);border-color:rgba(180,80,30,.3);color:#c87941}
+    .cd-cl:hover{background:rgba(139,60,20,.28)}
+    .cd-eq{background:rgba(180,120,20,.55);border-color:#c8961a;color:#fff8e1;font-size:17px}
+    .cd-eq:hover{background:rgba(180,120,20,.7)}
+    .cd-span2{grid-column:span 2}
+    .cd-strip{display:flex;align-items:center;gap:6px;margin-top:10px;padding:6px 10px;background:rgba(255,235,180,.02);border-radius:7px;border:1px solid rgba(200,150,62,.09)}
+    .cd-dot{width:6px;height:6px;border-radius:50%;background:#c8961a;flex-shrink:0}
+    .cd-stxt{font-size:10px;color:rgba(240,220,160,.3);font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .cd-hist{margin-top:13px}
+    .cd-hist-lbl{font-size:10px;color:rgba(200,150,62,.38);letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px;font-family:'DM Sans',sans-serif}
+    .cd-hi{padding:7px 9px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(200,150,62,.06);cursor:pointer;border-radius:5px;transition:background .1s}
+    .cd-hi:hover{background:rgba(200,150,62,.06)}
+    .cd-hi-e{font-size:10px;color:rgba(200,150,62,.55);font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:55%}
+    .cd-hi-r{font-size:11px;font-weight:500;color:#f0deb0;font-family:monospace}
+    @media(max-width:480px){.calc-drawer{width:100%}}
+
     /* ── RESPONSIVE ──────────────────────────── */
     @media(max-width:700px){
       .book-author-nav,.nav-divider{display:none}
@@ -262,6 +309,7 @@
     <button class="nav-btn pro" id="notesBtn" onclick="handleProFeature('notes')">📝 <span>Notes</span></button>
     <button class="nav-btn pro" id="downloadBtn" onclick="handleProFeature('download')">⬇️ <span>Download</span></button>
     <button class="nav-btn" onclick="openInNew()">↗ <span>Gutenberg</span></button>
+    <button class="nav-btn" id="calcBtn" onclick="toggleCalcDrawer()">🧮 <span>Calculator</span></button>
     <button class="nav-btn pro" id="musicBtn" onclick="handleProFeature('music')">🎵 <span>Music</span></button>
   </div>
 </div>
@@ -576,6 +624,7 @@
     document.getElementById('ttsTitleLabel').textContent = bookData.title;
     document.title = `${bookData.title} — MindStark`;
 
+
     try {
       sessionStorage.setItem('ms_last_read', JSON.stringify({
         id:bookData.id, title:bookData.title,
@@ -583,6 +632,38 @@
       }));
       const count = parseInt(sessionStorage.getItem('ms_books_read')||'0') + 1;
       sessionStorage.setItem('ms_books_read', count);
+
+      // Sync books_opened + streak to Supabase (async IIFE — safe in non-async context)
+      if (sbUser) {
+        (async () => {
+          try {
+            const today = new Date().toISOString().slice(0,10);
+            const profile = await msGetProfile(sbUser.id);
+            const lastDate = profile?.last_read_date || null;
+            const currentStreak = profile?.day_streak || 0;
+            let newStreak = 1;
+            if (lastDate) {
+              const yesterday = new Date();
+              yesterday.setDate(yesterday.getDate() - 1);
+              const yStr = yesterday.toISOString().slice(0,10);
+              if (lastDate === today) newStreak = currentStreak;
+              else if (lastDate === yStr) newStreak = currentStreak + 1;
+              else newStreak = 1;
+            }
+            await window._sb.from('profiles').update({
+              books_opened:   (profile?.books_opened || 0) + 1,
+              last_read_date: today,
+              day_streak:     newStreak,
+            }).eq('id', sbUser.id);
+            // Sync streak to sessionStorage prefs
+            try {
+              let prefs = JSON.parse(sessionStorage.getItem('ms_user_prefs') || '{}');
+              prefs.streak = newStreak;
+              sessionStorage.setItem('ms_user_prefs', JSON.stringify(prefs));
+            } catch(e2) {}
+          } catch(e) { console.warn('Streak sync failed:', e); }
+        })();
+      }
     } catch(e){}
 
     checkBookmarkStatus();
@@ -1195,6 +1276,191 @@
     if (musicAudio) musicAudio.pause();
   });
 </script>
+<!-- CALCULATOR DRAWER -->
+<div class="calc-overlay" id="calcOverlay" onclick="toggleCalcDrawer()"></div>
+<div class="calc-drawer" id="calcDrawer">
+  <div class="cd-head">
+    <span class="cd-head-title">MindStark Calculator</span>
+    <button class="cd-head-close" onclick="toggleCalcDrawer()">✕</button>
+  </div>
+  <div class="cd-body">
+    <div class="cd-display">
+      <div class="cd-expr" id="cdExpr"></div>
+      <div class="cd-result" id="cdResult">0</div>
+    </div>
+    <div class="cd-tabs">
+      <button class="cd-tab active" onclick="cdSetMode('sci',this)">Scientific</button>
+      <button class="cd-tab" onclick="cdSetMode('std',this)">Standard</button>
+    </div>
+    <div class="cd-sci" id="cdSciPanel">
+      <div class="cd-row">
+        <button class="cd-sfn" onclick="cdIns('sin(')">sin</button>
+        <button class="cd-sfn" onclick="cdIns('cos(')">cos</button>
+        <button class="cd-sfn" onclick="cdIns('tan(')">tan</button>
+        <button class="cd-sfn" onclick="cdIns('log(')">log</button>
+        <button class="cd-sfn" onclick="cdIns('sqrt(')">√</button>
+      </div>
+      <div class="cd-row">
+        <button class="cd-sfn" onclick="cdIns('asin(')">sin⁻¹</button>
+        <button class="cd-sfn" onclick="cdIns('acos(')">cos⁻¹</button>
+        <button class="cd-sfn" onclick="cdIns('atan(')">tan⁻¹</button>
+        <button class="cd-sfn" onclick="cdIns('pi')">π</button>
+        <button class="cd-sfn" onclick="cdIns('e')">e</button>
+      </div>
+      <div class="cd-row" style="margin-bottom:0">
+        <button class="cd-sfn" onclick="cdIns('^2')">x²</button>
+        <button class="cd-sfn" onclick="cdIns('^')">xʸ</button>
+        <button class="cd-sfn" onclick="cdIns('abs(')">|x|</button>
+        <button class="cd-sfn" onclick="cdIns('!')">n!</button>
+        <button class="cd-sfn" onclick="cdIns('(')">()</button>
+      </div>
+      <div class="cd-div"></div>
+    </div>
+    <div class="cd-grid">
+      <button class="cd-n cd-cl"   onclick="cdClear()">AC</button>
+      <button class="cd-n cd-op"   onclick="cdDel()">⌫</button>
+      <button class="cd-n cd-op"   onclick="cdIns('%')">%</button>
+      <button class="cd-n cd-op"   onclick="cdIns('/')">÷</button>
+      <button class="cd-n" onclick="cdIns('7')">7</button>
+      <button class="cd-n" onclick="cdIns('8')">8</button>
+      <button class="cd-n" onclick="cdIns('9')">9</button>
+      <button class="cd-n cd-op"   onclick="cdIns('*')">×</button>
+      <button class="cd-n" onclick="cdIns('4')">4</button>
+      <button class="cd-n" onclick="cdIns('5')">5</button>
+      <button class="cd-n" onclick="cdIns('6')">6</button>
+      <button class="cd-n cd-op"   onclick="cdIns('-')">−</button>
+      <button class="cd-n" onclick="cdIns('1')">1</button>
+      <button class="cd-n" onclick="cdIns('2')">2</button>
+      <button class="cd-n" onclick="cdIns('3')">3</button>
+      <button class="cd-n cd-op"   onclick="cdIns('+')">+</button>
+      <button class="cd-n cd-span2" onclick="cdIns('0')">0</button>
+      <button class="cd-n" onclick="cdIns('.')">.</button>
+      <button class="cd-n cd-eq"   onclick="cdCalc()">=</button>
+    </div>
+    <div class="cd-strip">
+      <div class="cd-dot"></div>
+      <span class="cd-stxt" id="cdStrip">No history yet</span>
+    </div>
+    <div class="cd-hist" id="cdHistSection" style="display:none">
+      <div class="cd-hist-lbl">Recent</div>
+      <div id="cdHistList"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.2/math.min.js"></script>
+<script>
+(function(){
+  /* ── STATE ── */
+  var _expr = '';
+  var _hist = [];
+
+  /* ── TOGGLE ── */
+  window.toggleCalcDrawer = function() {
+    var d = document.getElementById('calcDrawer');
+    var o = document.getElementById('calcOverlay');
+    var b = document.getElementById('calcBtn');
+    var open = d.classList.contains('open');
+    d.classList.toggle('open', !open);
+    o.classList.toggle('show', !open);
+    b && b.classList.toggle('active', !open);
+  };
+
+  /* ── INPUT ── */
+  window.cdIns   = function(s){ _expr += s; _upd(); };
+  window.cdClear = function(){ _expr = ''; _upd(); };
+  window.cdDel   = function(){ _expr = _expr.slice(0,-1); _upd(); };
+
+  function _upd() {
+    document.getElementById('cdExpr').textContent = _expr;
+    var r = document.getElementById('cdResult');
+    r.classList.remove('cd-err');
+    if (!_expr) { r.textContent = '0'; return; }
+    try {
+      var v = math.evaluate(_expr);
+      if (typeof v === 'number' && isFinite(v))
+        r.textContent = parseFloat(v.toFixed(10)).toString();
+    } catch(e){}
+  }
+
+  /* ── CALCULATE ── */
+  window.cdCalc = function() {
+    if (!_expr) return;
+    try {
+      var v = math.evaluate(_expr);
+      if (v !== undefined && isFinite(v)) {
+        var res = parseFloat(v.toFixed(10)).toString();
+        _hist.unshift({ expression: _expr, result: res });
+        if (_hist.length > 20) _hist.pop();
+        document.getElementById('cdStrip').textContent = _expr + ' = ' + res;
+        _save(_expr, res);
+        _expr = res;
+        _upd();
+        _renderHist();
+      } else { _err(); }
+    } catch(e){ _err(); }
+  };
+
+  function _err() {
+    var r = document.getElementById('cdResult');
+    r.textContent = 'Error';
+    r.classList.add('cd-err');
+  }
+
+  /* ── MODE ── */
+  window.cdSetMode = function(m, el) {
+    document.querySelectorAll('.cd-tab').forEach(function(t){ t.classList.remove('active'); });
+    el.classList.add('active');
+    document.getElementById('cdSciPanel').style.display = m === 'sci' ? 'block' : 'none';
+  };
+
+  /* ── SUPABASE SAVE ── */
+  function _save(expression, result) {
+    if (!window._sb) return;
+    window._sb.auth.getUser().then(function(r){
+      var user = r && r.data && r.data.user;
+      if (!user) return;
+      window._sb.from('calculations_history').insert({
+        user_id: user.id, expression: expression, result: result, category: 'general'
+      });
+    });
+  }
+
+  /* ── LOAD HISTORY ── */
+  function _loadHist() {
+    if (!window._sb) return;
+    window._sb.auth.getUser().then(function(r){
+      var user = r && r.data && r.data.user;
+      if (!user) return;
+      window._sb.from('calculations_history')
+        .select('*').eq('user_id', user.id)
+        .order('created_at', { ascending: false }).limit(20)
+        .then(function(res){
+          if (res.data) { _hist = res.data; _renderHist(); }
+        });
+    });
+  }
+
+  /* ── RENDER HISTORY ── */
+  function _renderHist() {
+    var list = document.getElementById('cdHistList');
+    var sec  = document.getElementById('cdHistSection');
+    if (!_hist.length) { sec.style.display = 'none'; return; }
+    sec.style.display = 'block';
+    list.innerHTML = _hist.map(function(h){
+      return '<div class="cd-hi" onclick="cdReuse(\'' + h.result + '\')">' +
+        '<span class="cd-hi-e">' + h.expression + '</span>' +
+        '<span class="cd-hi-r">= ' + h.result + '</span></div>';
+    }).join('');
+  }
+
+  window.cdReuse = function(val){ _expr = val; _upd(); };
+
+  /* ── INIT ON SUPABASE READY ── */
+  document.addEventListener('supabase:ready', _loadHist);
+})();
+</script>
+
 <script src="nav.js"></script>
 <script src="terms.js"></script>
 <script src="archer-bubble.js"></script>

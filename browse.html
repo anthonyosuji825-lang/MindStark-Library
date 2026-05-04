@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <script src="supabase.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="icon" type="image/png" href="logo.png"/>
   <link rel="apple-touch-icon" href="logo.png"/>
@@ -764,20 +765,6 @@
       fetchBooks();
     });
 
-    /* ── MOBILE MENU ── */
-    const hamburger  = document.getElementById('hamburger');
-    const mobileMenu = document.getElementById('mobileMenu');
-    hamburger.addEventListener('click', () => {
-      hamburger.classList.toggle('open');
-      mobileMenu.classList.toggle('open');
-      document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
-    });
-    function closeMobile() {
-      hamburger.classList.remove('open');
-      mobileMenu.classList.remove('open');
-      document.body.style.overflow = '';
-    }
-
     /* ── Load bookmarks from Supabase on ready ── */
     async function loadBookmarksFromSupabase() {
       if (!window._sb) return;
@@ -810,7 +797,6 @@
   </script>
   <script src="nav.js"></script>
   <script src="terms.js"></script>
-  <script src="supabase.js"></script>
   <script src="archer-bubble.js"></script>
 </body>
 </html>
