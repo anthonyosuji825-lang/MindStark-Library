@@ -4,13 +4,20 @@
   const SUPABASE_URL = "https://wgcpuohwyarhjlndmnlj.supabase.co";
   const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnY3B1b2h3eWFyaGpsbmRtbmxqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MzEzODYsImV4cCI6MjA4OTIwNzM4Nn0.W3SMmePgAdRR7v6_NWRlIoPYmo5HMF8mmTiwELkZclo";
 
-  // Load archer memory from Supabase
+  // Load archer memory from Supabase using user's auth token
   async function loadArcherMemory(userId) {
     try {
+      var token = null;
+      if (window._sb) {
+        var session = await window._sb.auth.getSession();
+        token = session?.data?.session?.access_token || null;
+      }
+      var authHeader = token ? "Bearer " + token : "Bearer " + SUPABASE_ANON;
+
       var res = await fetch(SUPABASE_URL + "/rest/v1/profiles?id=eq." + userId + "&select=archer_memory", {
         headers: {
           "apikey": SUPABASE_ANON,
-          "Authorization": "Bearer " + SUPABASE_ANON,
+          "Authorization": authHeader,
           "Content-Type": "application/json"
         }
       });
@@ -19,14 +26,22 @@
     } catch(e) { return null; }
   }
 
-  // Save archer memory to Supabase
+  // Save archer memory to Supabase using user's auth token
   async function saveArcherMemory(userId, memory) {
     try {
+      // Get the live session token from Supabase SDK
+      var token = null;
+      if (window._sb) {
+        var session = await window._sb.auth.getSession();
+        token = session?.data?.session?.access_token || null;
+      }
+      if (!token) return; // Can't save without auth token
+
       await fetch(SUPABASE_URL + "/rest/v1/profiles?id=eq." + userId, {
         method: "PATCH",
         headers: {
           "apikey": SUPABASE_ANON,
-          "Authorization": "Bearer " + SUPABASE_ANON,
+          "Authorization": "Bearer " + token,
           "Content-Type": "application/json",
           "Prefer": "return=minimal"
         },
