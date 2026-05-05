@@ -269,25 +269,64 @@
     @media(max-width:700px){
       .book-author-nav,.nav-divider{display:none}
       .book-title-nav{max-width:160px}
-      .controls-bar{padding:.5rem 1rem;gap:.5rem}
-      .reader-nav{padding:.65rem 1rem;gap:.5rem}
+      .controls-bar{padding:.5rem 1rem;gap:.5rem;flex-wrap:wrap}
+      .reader-nav{padding:.65rem 1rem;gap:.4rem}
       .bottom-bar{display:none}
       #bookContent{padding:2rem 1.25rem 5rem}
-      .notes-panel{width:100%}
-      .music-bar{width:220px;right:.75rem}
+      /* Notes panel full-screen on mobile, below the two header bars */
+      .notes-panel{width:100%;top:0;z-index:250}
+      .music-bar{width:calc(100vw - 1.5rem);max-width:320px;right:.75rem;left:.75rem}
     }
     @media(max-width:480px){
+      /* Nav: icon-only buttons in a scrollable row */
+      .nav-right{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:.25rem;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+      .nav-right::-webkit-scrollbar{display:none}
       .nav-btn span{display:none}
-      .nav-btn{padding:.4rem .6rem}
+      .nav-btn{padding:.38rem .52rem;font-size:.88rem;flex-shrink:0;border-radius:8px}
       .book-title-nav{max-width:110px;font-size:.82rem}
-      .reader-nav{padding:.55rem .75rem;gap:.3rem}
-      .controls-bar{padding:.4rem .75rem}
-      .font-btn{width:24px;height:24px;font-size:.82rem}
-      .theme-btn{width:20px;height:20px}
-      .progress-wrap{max-width:90px}
-      .ctrl-label,.ctrl-sep{display:none}
-      .lh-input{width:55px}
-      #bookContent{padding:1.5rem 1rem 4rem;font-size:16px!important}
+      .reader-nav{padding:.5rem .75rem;gap:.25rem}
+
+      /* Controls bar: wrap into two neat rows */
+      .controls-bar{padding:.4rem .75rem;flex-wrap:wrap;gap:.35rem .5rem}
+      .controls-left{flex-wrap:wrap;gap:.35rem .5rem;width:100%}
+      .ctrl-sep{display:none}
+      .ctrl-label{font-size:.65rem}
+      .font-btn{width:26px;height:26px;font-size:.82rem}
+      .theme-btn{width:22px;height:22px}
+      .progress-wrap{max-width:100%;flex:1 1 100%;margin-top:.2rem}
+      .lh-input{width:60px}
+      #bookContent{padding:1.5rem 1rem 5rem;font-size:16px!important}
+
+      /* Notes panel — account for nav + controls bar height on mobile */
+      .notes-panel{top:0;padding-top:0}
+      .notes-head{padding-top:max(1rem, env(safe-area-inset-top))}
+
+      /* Note modal — full width, bottom-sheet style on mobile */
+      .note-modal{align-items:flex-end;padding:0}
+      .note-modal-box{border-radius:20px 20px 0 0;max-width:100%;padding:1.5rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom))}
+
+      /* TTS bar — full width on mobile */
+      .tts-bar{width:calc(100vw - 2rem);left:1rem;right:1rem;transform:none;bottom:1.5rem;min-width:unset}
+
+      /* Highlight tooltip — larger tap targets */
+      .hl-color-btn{width:30px;height:30px}
+      .hl-tooltip{padding:.6rem;gap:.5rem}
+
+      /* Floating star button — avoid bottom content overlap */
+      #archerBubble,
+      a[href*="membership"]:has(>span){bottom:5rem!important}
+
+      /* Paywall box — full width bottom sheet */
+      .paywall-box{border-radius:20px 20px 0 0;max-width:100%;margin:0}
+      .paywall{align-items:flex-end;padding:0}
+    }
+
+    /* iOS safe area handling */
+    @supports(padding-bottom: env(safe-area-inset-bottom)){
+      @media(max-width:480px){
+        #bookContent{padding-bottom:calc(5rem + env(safe-area-inset-bottom))!important}
+        .tts-bar{bottom:calc(1.5rem + env(safe-area-inset-bottom))}
+      }
     }
   </style>
 </head>
@@ -562,13 +601,16 @@
 
   /* ── CHECK PRO STATUS ───────────────────── */
   function checkProStatus() {
+    // Mirror nav.js membership detection exactly
     try {
-      const user = JSON.parse(sessionStorage.getItem('ms_current_user') || 'null');
-      if (user && user.membership && user.membership.active) {
-        isPro = ['pro','scholar'].includes(user.membership.plan);
-      }
+      let memberPlan = null;
       const mem = JSON.parse(sessionStorage.getItem('ms_membership') || 'null');
-      if (mem && mem.active) isPro = true;
+      if (mem && mem.active) memberPlan = (mem.plan || '').toLowerCase();
+      if (!memberPlan) {
+        const user = JSON.parse(sessionStorage.getItem('ms_current_user') || 'null');
+        if (user?.membership?.active) memberPlan = (user.membership.plan || '').toLowerCase();
+      }
+      isPro = memberPlan === 'pro' || memberPlan === 'scholar';
     } catch(e) {}
   }
 
@@ -692,8 +734,25 @@
     sbUser = await msGetUser();
     if (sbUser) {
       const profile = await msGetProfile(sbUser.id);
-      if (profile && profile.membership_active) isPro = true;
+      if (profile) {
+        // Only grant Pro access to pro or scholar plans
+        const plan = (profile.membership_plan || '').toLowerCase();
+        if (profile.membership_active && (plan === 'pro' || plan === 'scholar')) {
+          isPro = true;
+          // Sync back to sessionStorage so nav.js and other pages stay consistent
+          try {
+            const u = JSON.parse(sessionStorage.getItem('ms_current_user') || 'null');
+            if (u) {
+              u.membership = { active: true, plan, planName: plan === 'scholar' ? 'Scholar' : 'Reader Pro' };
+              sessionStorage.setItem('ms_current_user', JSON.stringify(u));
+            }
+            sessionStorage.setItem('ms_membership', JSON.stringify({ active: true, plan }));
+          } catch(e) {}
+        }
+      }
     }
+    // Re-check after DB confirms membership — catches cases where sessionStorage was stale
+    checkProStatus();
   });
 
   /* ════════════════════════════════════════════
@@ -934,10 +993,14 @@
       if (globalIdx < ttsWordSpans.length) highlightWord(globalIdx);
     };
     ttsUtterance.onstart = function() {
+      // Start fallback timer immediately (no delay) for mobile where onboundary is unsupported
       setTimeout(() => {
         if (!boundarySupported && ttsPlaying) {
-          const rate      = parseFloat(document.getElementById('ttsSpeed').value) || 1;
-          const msPerWord = (60 / (150 * rate)) * 1000;
+          const rate = parseFloat(document.getElementById('ttsSpeed').value) || 1;
+          // Mobile TTS engines tend to speak ~170-180wpm — use 165 as base for better sync
+          const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+          const baseWpm  = isMobile ? 165 : 150;
+          const msPerWord = (60 / (baseWpm * rate)) * 1000;
           const chunkStart = ttsChunks.slice(0, ttsIndex).join(' ').split(/\s+/).filter(Boolean).length;
           let wordOffset   = 0;
           ttsWordTimer = setInterval(() => {
@@ -947,7 +1010,7 @@
             else { clearInterval(ttsWordTimer); }
           }, msPerWord);
         }
-      }, 300);
+      }, 50); // reduced from 300ms — tighter sync on mobile
     };
     ttsUtterance.onend   = () => { clearInterval(ttsWordTimer); ttsIndex++; if (ttsPlaying) playTTSChunk(); };
     ttsUtterance.onerror = () => { clearInterval(ttsWordTimer); ttsIndex++; if (ttsPlaying) playTTSChunk(); };
@@ -1079,8 +1142,14 @@
     if (!selection.rangeCount) return;
     const rect = selection.getRangeAt(0).getBoundingClientRect();
     const tip  = document.getElementById('hlTooltip');
-    tip.style.top  = (rect.top + window.scrollY - 48) + 'px';
-    tip.style.left = Math.max(8, rect.left + rect.width/2 - 80) + 'px';
+    const tipW = 220; // approx tooltip width
+    // Clamp horizontally so tooltip never goes off-screen on mobile
+    const left = Math.max(8, Math.min(window.innerWidth - tipW - 8, rect.left + rect.width/2 - tipW/2));
+    // Place above selection; if too close to top, place below
+    const topAbove = rect.top + window.scrollY - 52;
+    const topBelow = rect.bottom + window.scrollY + 8;
+    tip.style.top  = (topAbove > window.scrollY + 60 ? topAbove : topBelow) + 'px';
+    tip.style.left = left + 'px';
     tip.classList.add('show');
   }
 
