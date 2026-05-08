@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" type="image/png" href="logo.png"/>
+  <title>Arena Control — MindStark</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --arena-bg:     #0e0a06;
+      --arena-surface:#1a1108;
+      --arena-card:   #211609;
+      --arena-border: rgba(200,150,62,.15);
+      --arena-border-bright: rgba(200,150,62,.4);
+      --arena-text:   rgba(245,240,232,.92);
+      --arena-muted:  rgba(245,240,232,.42);
+      --gold:         #c8963e;
+      --gold-dim:     rgba(200,150,62,.7);
+      --success:      #4caf7d;
+      --danger:       #e05c5c;
+      --cream:        #f5f0e8;
+      --brown:        #3b2a1a;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--arena-bg);
+      color: var(--arena-text);
+      min-height: 100vh;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(200,150,62,.07) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── ACCESS WALL ─────────────────────────────── */
+    #access-wall {
+      position: fixed; inset: 0; z-index: 999;
+      background: var(--arena-bg);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 1rem; text-align: center; padding: 2rem;
+    }
+    #access-wall .icon { font-size: 3rem; margin-bottom: .5rem; }
+    #access-wall h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem; color: var(--cream);
+    }
+    #access-wall p { font-size: .88rem; color: var(--arena-muted); }
+
+    /* ── NAVBAR ──────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 200;
+      background: rgba(14,10,6,.95);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--arena-border);
+    }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .9rem 2rem; max-width: 1200px; margin: 0 auto;
+    }
+    .nav-brand {
+      display: flex; flex-direction: column; line-height: 1;
+    }
+    .nav-brand span:first-child {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem; font-weight: 900; color: var(--cream);
+    }
+    .nav-brand span:last-child {
+      font-size: .6rem; letter-spacing: .22em; text-transform: uppercase; color: var(--gold);
+    }
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+    .admin-badge {
+      font-size: .7rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--gold);
+      background: rgba(200,150,62,.1); border: 1px solid var(--arena-border-bright);
+      padding: .3rem .75rem; border-radius: 50px;
+    }
+    .nav-back {
+      font-size: .82rem; color: var(--arena-muted); text-decoration: none;
+      transition: color .2s;
+    }
+    .nav-back:hover { color: var(--gold); }
+
+    /* ── WRAP ────────────────────────────────────── */
+    .wrap {
+      position: relative; z-index: 1;
+      max-width: 1200px; margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* ── PAGE HEADER ─────────────────────────────── */
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem; font-weight: 900; color: var(--cream);
+      margin-bottom: .3rem;
+    }
+    .page-header p { font-size: .88rem; color: var(--arena-muted); }
+
+    /* ── GRID ────────────────────────────────────── */
+    .admin-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    .full-width { grid-column: 1 / -1; }
+
+    /* ── CARD ────────────────────────────────────── */
+    .card {
+      background: var(--arena-card);
+      border: 1px solid var(--arena-border);
+      border-radius: 16px; overflow: hidden;
+    }
+    .card-header {
+      padding: 1rem 1.4rem;
+      border-bottom: 1px solid var(--arena-border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: .95rem; font-weight: 700; color: var(--cream);
+    }
+    .card-body { padding: 1.4rem; }
+
+    /* ── FORM ELEMENTS ───────────────────────────── */
+    .form-group { margin-bottom: 1.1rem; }
+    .form-group:last-child { margin-bottom: 0; }
+    label {
+      display: block; font-size: .78rem; color: var(--arena-muted);
+      letter-spacing: .04em; margin-bottom: .4rem;
+    }
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      background: var(--arena-surface);
+      border: 1.5px solid var(--arena-border);
+      border-radius: 8px;
+      padding: .75rem 1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem; color: var(--arena-text);
+      outline: none; transition: border-color .2s;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--gold);
+    }
+    input::placeholder, textarea::placeholder {
+      color: var(--arena-muted);
+    }
+    textarea { resize: vertical; min-height: 80px; }
+    select option { background: var(--arena-card); }
+
+    .form-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+    }
+
+    /* ── BUTTONS ─────────────────────────────────── */
+    .btn {
+      padding: .75rem 1.4rem; border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .88rem; font-weight: 600; cursor: pointer;
+      transition: all .2s; border: none; display: inline-flex;
+      align-items: center; gap: .5rem;
+    }
+    .btn-gold {
+      background: var(--gold); color: var(--brown);
+    }
+    .btn-gold:hover { background: var(--cream); }
+    .btn-outline {
+      background: transparent; color: var(--arena-text);
+      border: 1.5px solid var(--arena-border);
+    }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-danger {
+      background: rgba(224,92,92,.15); color: var(--danger);
+      border: 1.5px solid rgba(224,92,92,.3);
+    }
+    .btn-danger:hover { background: rgba(224,92,92,.25); }
+    .btn-success {
+      background: rgba(76,175,125,.15); color: var(--success);
+      border: 1.5px solid rgba(76,175,125,.3);
+    }
+    .btn-success:hover { background: rgba(76,175,125,.25); }
+    .btn:disabled { opacity: .4; cursor: not-allowed; }
+    .btn-full { width: 100%; justify-content: center; }
+
+    /* ── STATUS PILL ─────────────────────────────── */
+    .pill {
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .25rem .75rem; border-radius: 50px;
+      font-size: .72rem; font-weight: 600; letter-spacing: .04em;
+      border: 1px solid;
+    }
+    .pill.registering { border-color: rgba(200,150,62,.4); color: var(--gold); background: rgba(200,150,62,.08); }
+    .pill.active      { border-color: rgba(76,175,125,.4); color: var(--success); background: rgba(76,175,125,.08); }
+    .pill.finished    { border-color: rgba(122,102,82,.4); color: var(--arena-muted); background: transparent; }
+    .pill.canceled    { border-color: rgba(224,92,92,.4); color: var(--danger); background: rgba(224,92,92,.08); }
+    .pill-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .pill-dot.pulse { animation: pulse 1.5s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.7)} }
+
+    /* ── ACTIVE EVENT PANEL ──────────────────────── */
+    .event-panel-header {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .event-panel-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem; font-weight: 900; color: var(--cream);
+      margin-bottom: .3rem;
+    }
+    .event-meta {
+      display: flex; gap: .75rem; flex-wrap: wrap;
+      font-size: .78rem; color: var(--arena-muted);
+    }
+    .event-meta span { display: flex; align-items: center; gap: .3rem; }
+
+    .stat-row {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1px; background: var(--arena-border);
+      border: 1px solid var(--arena-border);
+      border-radius: 10px; overflow: hidden; margin-bottom: 1.25rem;
+    }
+    .stat-cell {
+      background: var(--arena-surface);
+      padding: .85rem; text-align: center;
+    }
+    .stat-val {
+      display: block; font-family: 'DM Mono', monospace;
+      font-size: 1.2rem; color: var(--gold); line-height: 1;
+    }
+    .stat-lbl {
+      display: block; font-size: .65rem; text-transform: uppercase;
+      letter-spacing: .1em; color: var(--arena-muted); margin-top: .25rem;
+    }
+
+    .action-row {
+      display: flex; gap: .75rem; flex-wrap: wrap;
+    }
+
+    /* ── QUESTION QUEUE ──────────────────────────── */
+    .q-queue { display: flex; flex-direction: column; gap: .6rem; margin-bottom: 1rem; }
+    .q-item {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .7rem .9rem; border-radius: 8px;
+      background: var(--arena-surface); border: 1px solid var(--arena-border);
+      font-size: .84rem;
+    }
+    .q-num {
+      font-family: 'DM Mono', monospace; font-size: .75rem;
+      color: var(--gold); flex-shrink: 0; width: 24px; text-align: center;
+    }
+    .q-text { flex: 1; color: var(--arena-text); }
+    .q-answer { font-size: .75rem; color: var(--arena-muted); font-style: italic; }
+    .q-remove {
+      background: none; border: none; color: var(--arena-muted);
+      cursor: pointer; font-size: .9rem; padding: .2rem;
+      transition: color .2s; flex-shrink: 0;
+    }
+    .q-remove:hover { color: var(--danger); }
+    .q-empty {
+      padding: 1.5rem; text-align: center;
+      font-size: .85rem; color: var(--arena-muted);
+      background: var(--arena-surface); border-radius: 8px;
+      border: 1px dashed var(--arena-border);
+    }
+
+    /* ── LEADERBOARD ─────────────────────────────── */
+    .lb-row {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .65rem 1rem; border-bottom: 1px solid var(--arena-border);
+      font-size: .85rem;
+    }
+    .lb-row:last-child { border-bottom: none; }
+    .lb-rank {
+      font-family: 'DM Mono', monospace; font-size: .75rem;
+      color: var(--arena-muted); width: 20px; text-align: center;
+    }
+    .lb-name { flex: 1; color: var(--arena-text); }
+    .lb-score { font-family: 'DM Mono', monospace; color: var(--gold); font-weight: 500; }
+    .lb-status { font-size: .68rem; color: var(--arena-muted); }
+    .lb-empty { padding: 1.5rem; text-align: center; font-size: .85rem; color: var(--arena-muted); }
+
+    /* ── LOG ─────────────────────────────────────── */
+    .log {
+      background: var(--arena-surface); border-radius: 8px;
+      border: 1px solid var(--arena-border);
+      padding: .75rem 1rem; max-height: 160px; overflow-y: auto;
+      font-family: 'DM Mono', monospace; font-size: .75rem;
+      display: flex; flex-direction: column; gap: .3rem;
+    }
+    .log-entry { color: var(--arena-muted); }
+    .log-entry.ok  { color: var(--success); }
+    .log-entry.err { color: var(--danger); }
+    .log-entry.info { color: var(--gold); }
+
+    /* ── DIVIDER ─────────────────────────────────── */
+    .divider {
+      height: 1px; background: var(--arena-border); margin: 1.25rem 0;
+    }
+
+    /* ── TOAST ───────────────────────────────────── */
+    .toast {
+      position: fixed; bottom: 2rem; left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--arena-card); color: var(--arena-text);
+      border: 1px solid var(--arena-border-bright);
+      padding: .7rem 1.4rem; border-radius: 50px;
+      font-size: .85rem; font-weight: 500;
+      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+      transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+      z-index: 999; white-space: nowrap; pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.ok  { border-color: rgba(76,175,125,.5); color: var(--success); }
+    .toast.err { border-color: rgba(224,92,92,.5); color: var(--danger); }
+
+    @media (max-width: 768px) {
+      .admin-grid { grid-template-columns: 1fr; }
+      .full-width { grid-column: 1; }
+      .stat-row { grid-template-columns: repeat(2, 1fr); }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── ACCESS WALL (shown until auth confirmed) ── -->
+  <div id="access-wall">
+    <div class="icon">🔐</div>
+    <h2>Verifying Access</h2>
+    <p>Checking credentials…</p>
+  </div>
+
+  <!-- ── NAVBAR ──────────────────────────────────── -->
+  <nav>
+    <div class="nav-inner">
+      <div class="nav-brand">
+        <span>MindStark</span>
+        <span>Arena Control</span>
+      </div>
+      <div class="nav-right">
+        <span class="admin-badge">⚡ Admin</span>
+        <a class="nav-back" href="arena.html">← Back to Arena</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── MAIN CONTENT ────────────────────────────── -->
+  <div class="wrap">
+    <div class="page-header">
+      <h1>Arena Control Panel</h1>
+      <p>Create events, post questions, manage the Gauntlet.</p>
+    </div>
+
+    <div class="admin-grid">
+
+      <!-- ── CREATE EVENT ─────────────────────────── -->
+      <div class="card" id="create-card">
+        <div class="card-header">
+          <span class="card-title">Create New Event</span>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label>Event Title</label>
+            <input type="text" id="ev-title" placeholder="e.g. Thursday Night Gauntlet"/>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Entry Fee (units)</label>
+              <input type="number" id="ev-fee" value="50" min="0"/>
+            </div>
+            <div class="form-group">
+              <label>Min Participants</label>
+              <input type="number" id="ev-min" value="5" min="1"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Total Questions</label>
+              <input type="number" id="ev-questions" value="10" min="1" max="50"/>
+            </div>
+            <div class="form-group">
+              <label>Event Type</label>
+              <select id="ev-type">
+                <option value="gauntlet">Gauntlet</option>
+                <option value="grand_hall">Grand Hall</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-gold btn-full" id="create-btn">
+            ⚔️ Create Event
+          </button>
+        </div>
+      </div>
+
+      <!-- ── ACTIVE EVENT ─────────────────────────── -->
+      <div class="card" id="active-card">
+        <div class="card-header">
+          <span class="card-title">Active Event</span>
+          <span id="event-status-pill">—</span>
+        </div>
+        <div class="card-body" id="active-body">
+          <p style="color:var(--arena-muted);font-size:.88rem;">No event loaded. Create one or refresh.</p>
+        </div>
+      </div>
+
+      <!-- ── QUESTION QUEUE ────────────────────────── -->
+      <div class="card" id="queue-card">
+        <div class="card-header">
+          <span class="card-title">Question Queue</span>
+          <span id="queue-count" style="font-size:.75rem;color:var(--arena-muted);">0 questions</span>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label>Question</label>
+            <textarea id="q-text" placeholder="What is the capital of Nigeria?"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Answer</label>
+            <input type="text" id="q-answer" placeholder="Abuja"/>
+          </div>
+          <div style="display:flex;gap:.75rem;margin-bottom:1.25rem;">
+            <button class="btn btn-outline" style="flex:1" id="add-q-btn">+ Add to Queue</button>
+            <button class="btn btn-gold" style="flex:1" id="post-q-btn" disabled>▶ Post Next</button>
+          </div>
+          <div class="q-queue" id="q-queue">
+            <div class="q-empty">No questions queued. Add some above.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── LIVE LEADERBOARD ──────────────────────── -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Live Leaderboard</span>
+          <button class="btn btn-outline" style="padding:.3rem .75rem;font-size:.75rem;" id="refresh-lb-btn">↻ Refresh</button>
+        </div>
+        <div id="admin-lb">
+          <div class="lb-empty">No participants yet.</div>
+        </div>
+      </div>
+
+      <!-- ── ACTIVITY LOG ──────────────────────────── -->
+      <div class="card full-width">
+        <div class="card-header">
+          <span class="card-title">Activity Log</span>
+          <button class="btn btn-outline" style="padding:.3rem .75rem;font-size:.75rem;" id="clear-log-btn">Clear</button>
+        </div>
+        <div class="card-body">
+          <div class="log" id="activity-log">
+            <span class="log-entry info">Arena Control Panel ready.</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── TOAST ───────────────────────────────────── -->
+  <div class="toast" id="toast"></div>
+
+  <script src="supabase.js"></script>
+  <script src="arena-admin.js"></script>
+</body>
+</html>

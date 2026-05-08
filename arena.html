@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" type="image/png" href="logo.png"/>
+  <meta property="og:title" content="The Arena — MindStark"/>
+  <meta property="og:description" content="Compete. Answer first. Win units."/>
+  <title>The Arena — MindStark</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+
+  <style>
+    /* ── VARIABLES ─────────────────────────────────────────────── */
+    :root {
+      --cream: #f5f0e8;
+      --warm: #ede5d5;
+      --brown: #3b2a1a;
+      --gold: #c8963e;
+      --rust: #a0522d;
+      --text: #2c1e0f;
+      --muted: #7a6652;
+      --white: #ffffff;
+      --border: rgba(200,150,62,.18);
+      --shadow: 0 4px 32px rgba(59,42,26,.12);
+
+      /* Arena-specific dark palette */
+      --arena-bg: #0e0a06;
+      --arena-surface: #1a1108;
+      --arena-card: #211609;
+      --arena-border: rgba(200,150,62,.15);
+      --arena-border-bright: rgba(200,150,62,.4);
+      --arena-glow: rgba(200,150,62,.08);
+      --arena-text: rgba(245,240,232,.92);
+      --arena-muted: rgba(245,240,232,.42);
+      --gold-dim: rgba(200,150,62,.7);
+      --success: #4caf7d;
+      --danger: #e05c5c;
+      --danger-dim: rgba(224,92,92,.15);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--arena-bg);
+      color: var(--arena-text);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── AMBIENT BACKGROUND ────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(200,150,62,.07) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 10% 80%, rgba(160,82,45,.05) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 90% 20%, rgba(200,150,62,.04) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── NAVBAR ────────────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 200;
+      background: rgba(14,10,6,.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--arena-border);
+    }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem; max-width: 1280px; margin: 0 auto;
+    }
+    .logo { display: flex; flex-direction: column; line-height: 1; text-decoration: none; cursor: pointer; }
+    .logo-main { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 900; color: var(--cream); }
+    .logo-sub { font-size: .62rem; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); }
+
+    .nav-links { display: flex; gap: 1.75rem; list-style: none; }
+    .nav-links a { text-decoration: none; color: var(--arena-muted); font-size: .88rem; font-weight: 500; transition: color .2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--gold); }
+
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+    .nav-balance {
+      display: flex; align-items: center; gap: .5rem;
+      background: rgba(200,150,62,.1); border: 1px solid var(--arena-border-bright);
+      padding: .4rem .9rem; border-radius: 50px;
+      font-size: .82rem; font-weight: 600; color: var(--gold);
+      font-family: 'DM Mono', monospace;
+    }
+    .nav-balance span { color: var(--arena-muted); font-weight: 400; font-family: 'DM Sans', sans-serif; margin-right: .2rem; }
+
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: .4rem; background: none; border: none; z-index: 300; }
+    .hamburger span { display: block; width: 24px; height: 2px; background: var(--cream); border-radius: 2px; transition: all .3s; }
+
+    /* ── PAGE WRAPPER ──────────────────────────────────────────── */
+    .arena-wrap {
+      position: relative; z-index: 1;
+      max-width: 1280px; margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* ── ARENA HEADER ──────────────────────────────────────────── */
+    .arena-header {
+      text-align: center;
+      padding: 2.5rem 0 2rem;
+      position: relative;
+    }
+    .arena-eyebrow {
+      display: inline-flex; align-items: center; gap: .6rem;
+      font-size: .7rem; letter-spacing: .22em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 1rem;
+    }
+    .arena-eyebrow::before, .arena-eyebrow::after {
+      content: ''; display: block; width: 28px; height: 1px; background: var(--gold); opacity: .5;
+    }
+    .arena-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.4rem, 5vw, 3.6rem);
+      font-weight: 900; line-height: 1.05;
+      color: var(--cream);
+      margin-bottom: .75rem;
+    }
+    .arena-title em { font-style: italic; color: var(--gold); }
+    .arena-subtitle {
+      font-size: .95rem; color: var(--arena-muted);
+      max-width: 480px; margin: 0 auto;
+    }
+
+    /* ── STATUS PILL ───────────────────────────────────────────── */
+    .status-row {
+      display: flex; justify-content: center; gap: 1rem;
+      flex-wrap: wrap; margin: 1.5rem 0 2.5rem;
+    }
+    .status-pill {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .35rem 1rem; border-radius: 50px;
+      font-size: .78rem; font-weight: 600; letter-spacing: .04em;
+      border: 1px solid;
+    }
+    .status-pill.registering { border-color: rgba(200,150,62,.4); color: var(--gold); background: rgba(200,150,62,.08); }
+    .status-pill.active { border-color: rgba(76,175,125,.4); color: var(--success); background: rgba(76,175,125,.08); }
+    .status-pill.finished { border-color: rgba(122,102,82,.4); color: var(--arena-muted); background: transparent; }
+    .status-pill.canceled { border-color: rgba(224,92,92,.4); color: var(--danger); background: var(--danger-dim); }
+    .status-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: currentColor;
+    }
+    .status-dot.pulse { animation: pulse-dot 1.5s ease-in-out infinite; }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .5; transform: scale(.7); }
+    }
+
+    /* ── MAIN GRID ─────────────────────────────────────────────── */
+    .arena-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    /* ── CARDS ─────────────────────────────────────────────────── */
+    .card {
+      background: var(--arena-card);
+      border: 1px solid var(--arena-border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 1.1rem 1.4rem;
+      border-bottom: 1px solid var(--arena-border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem; font-weight: 700; color: var(--cream);
+    }
+    .card-badge {
+      font-size: .68rem; font-weight: 600; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--gold);
+      background: rgba(200,150,62,.1); padding: .2rem .65rem;
+      border-radius: 50px; border: 1px solid var(--arena-border-bright);
+    }
+
+    /* ── EVENT INFO CARD ───────────────────────────────────────── */
+    .event-info-card { margin-bottom: 1.5rem; }
+    .event-info-body { padding: 1.4rem; }
+    .event-title-display {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem; font-weight: 900; color: var(--cream);
+      margin-bottom: .4rem;
+    }
+    .event-type-tag {
+      font-size: .7rem; letter-spacing: .15em; text-transform: uppercase;
+      color: var(--gold); font-weight: 600; margin-bottom: 1.2rem;
+      display: block;
+    }
+
+    .event-stats {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: var(--arena-border);
+      border: 1px solid var(--arena-border); border-radius: 12px;
+      overflow: hidden; margin-bottom: 1.4rem;
+    }
+    .event-stat {
+      background: var(--arena-surface);
+      padding: 1rem; text-align: center;
+    }
+    .event-stat-val {
+      display: block; font-family: 'DM Mono', monospace;
+      font-size: 1.4rem; font-weight: 500; color: var(--gold);
+      line-height: 1;
+    }
+    .event-stat-lbl {
+      display: block; font-size: .68rem; text-transform: uppercase;
+      letter-spacing: .1em; color: var(--arena-muted); margin-top: .3rem;
+    }
+
+    /* ── PRIZE BREAKDOWN ───────────────────────────────────────── */
+    .prize-breakdown {
+      display: flex; flex-direction: column; gap: .5rem;
+    }
+    .prize-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .65rem .9rem; border-radius: 8px;
+      background: var(--arena-surface); border: 1px solid var(--arena-border);
+    }
+    .prize-rank {
+      display: flex; align-items: center; gap: .65rem;
+      font-size: .85rem; color: var(--arena-text); font-weight: 500;
+    }
+    .prize-medal {
+      font-size: 1rem; width: 24px; text-align: center;
+    }
+    .prize-amount {
+      font-family: 'DM Mono', monospace; font-size: .88rem;
+      color: var(--gold); font-weight: 500;
+    }
+
+    /* ── QUESTION ARENA ────────────────────────────────────────── */
+    .question-card { margin-bottom: 1.5rem; }
+    .question-body { padding: 2rem 1.4rem; min-height: 200px; display: flex; flex-direction: column; justify-content: center; }
+
+    /* Waiting state */
+    .q-waiting {
+      text-align: center; padding: 2rem 0;
+    }
+    .q-waiting-icon {
+      font-size: 2.5rem; margin-bottom: 1rem;
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .q-waiting h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem; color: var(--cream); margin-bottom: .5rem;
+    }
+    .q-waiting p { font-size: .88rem; color: var(--arena-muted); }
+
+    /* Active question */
+    .q-number {
+      font-size: .7rem; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--gold); font-weight: 600; margin-bottom: 1rem;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .q-number::before {
+      content: ''; display: block; width: 20px; height: 1px; background: var(--gold); opacity: .5;
+    }
+    .q-text {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.1rem, 2.5vw, 1.45rem);
+      font-weight: 700; color: var(--cream);
+      line-height: 1.45; margin-bottom: 1.75rem;
+    }
+
+    /* Answer input */
+    .answer-form { display: flex; gap: .75rem; align-items: stretch; }
+    .answer-input {
+      flex: 1;
+      background: var(--arena-surface);
+      border: 1.5px solid var(--arena-border);
+      border-radius: 10px;
+      padding: .85rem 1.1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem; color: var(--cream);
+      outline: none; transition: border-color .2s;
+    }
+    .answer-input::placeholder { color: var(--arena-muted); }
+    .answer-input:focus { border-color: var(--gold); }
+    .answer-input:disabled { opacity: .5; cursor: not-allowed; }
+
+    .submit-btn {
+      background: var(--gold); color: var(--brown);
+      border: none; border-radius: 10px;
+      padding: .85rem 1.5rem; font-family: 'DM Sans', sans-serif;
+      font-size: .9rem; font-weight: 700; cursor: pointer;
+      transition: all .2s; white-space: nowrap;
+    }
+    .submit-btn:hover { background: var(--cream); transform: translateY(-1px); }
+    .submit-btn:active { transform: translateY(0); }
+    .submit-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+    /* Feedback flash */
+    .answer-feedback {
+      margin-top: .85rem; padding: .65rem 1rem; border-radius: 8px;
+      font-size: .88rem; font-weight: 500;
+      display: none;
+    }
+    .answer-feedback.correct {
+      display: block;
+      background: rgba(76,175,125,.12); border: 1px solid rgba(76,175,125,.3);
+      color: var(--success);
+    }
+    .answer-feedback.wrong {
+      display: block;
+      background: var(--danger-dim); border: 1px solid rgba(224,92,92,.3);
+      color: var(--danger);
+    }
+
+    /* ── JOIN CARD ─────────────────────────────────────────────── */
+    .join-card { margin-bottom: 1.5rem; }
+    .join-body { padding: 1.4rem; }
+    .join-desc {
+      font-size: .88rem; color: var(--arena-muted); margin-bottom: 1.25rem; line-height: 1.6;
+    }
+    .join-btn {
+      width: 100%; padding: 1rem; border-radius: 10px;
+      background: var(--gold); color: var(--brown);
+      border: none; font-family: 'DM Sans', sans-serif;
+      font-size: .95rem; font-weight: 700; cursor: pointer;
+      transition: all .25s; letter-spacing: .02em;
+    }
+    .join-btn:hover { background: var(--cream); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(200,150,62,.25); }
+    .join-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
+    .already-joined {
+      display: flex; align-items: center; gap: .6rem;
+      padding: .85rem 1rem; border-radius: 10px;
+      background: rgba(76,175,125,.08); border: 1px solid rgba(76,175,125,.25);
+      font-size: .88rem; color: var(--success); font-weight: 500;
+    }
+
+    /* ── LEADERBOARD ───────────────────────────────────────────── */
+    .leaderboard-list { padding: .5rem 0; }
+    .lb-row {
+      display: flex; align-items: center; gap: .85rem;
+      padding: .75rem 1.1rem;
+      border-bottom: 1px solid var(--arena-border);
+      transition: background .15s;
+    }
+    .lb-row:last-child { border-bottom: none; }
+    .lb-row:hover { background: var(--arena-glow); }
+    .lb-row.is-me { background: rgba(200,150,62,.05); }
+
+    .lb-rank {
+      font-family: 'DM Mono', monospace;
+      font-size: .8rem; color: var(--arena-muted);
+      width: 20px; text-align: center; flex-shrink: 0;
+    }
+    .lb-rank.gold { color: #ffd700; }
+    .lb-rank.silver { color: #c0c0c0; }
+    .lb-rank.bronze { color: #cd7f32; }
+
+    .lb-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--arena-surface);
+      border: 1.5px solid var(--arena-border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem; font-weight: 700; color: var(--gold);
+      flex-shrink: 0; text-transform: uppercase;
+    }
+    .lb-name {
+      flex: 1; font-size: .88rem; color: var(--arena-text);
+      font-weight: 500; truncate: ellipsis; overflow: hidden;
+      white-space: nowrap;
+    }
+    .lb-name .you-tag {
+      font-size: .65rem; color: var(--gold); margin-left: .4rem;
+      background: rgba(200,150,62,.1); padding: .1rem .4rem;
+      border-radius: 50px; border: 1px solid var(--arena-border-bright);
+    }
+    .lb-score {
+      font-family: 'DM Mono', monospace;
+      font-size: .95rem; font-weight: 500; color: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .lb-empty {
+      padding: 2rem 1.4rem; text-align: center;
+      font-size: .88rem; color: var(--arena-muted);
+    }
+
+    /* ── PROGRESS BAR ──────────────────────────────────────────── */
+    .progress-wrap {
+      padding: .85rem 1.4rem;
+      border-top: 1px solid var(--arena-border);
+    }
+    .progress-label {
+      display: flex; justify-content: space-between;
+      font-size: .72rem; color: var(--arena-muted); margin-bottom: .5rem;
+    }
+    .progress-track {
+      height: 4px; background: var(--arena-surface); border-radius: 2px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; background: var(--gold);
+      border-radius: 2px; transition: width .4s ease;
+    }
+
+    /* ── NO EVENT STATE ────────────────────────────────────────── */
+    .no-event {
+      text-align: center; padding: 5rem 2rem;
+      grid-column: 1 / -1;
+    }
+    .no-event-icon { font-size: 3rem; margin-bottom: 1.5rem; opacity: .5; }
+    .no-event h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem; color: var(--cream); margin-bottom: .75rem;
+    }
+    .no-event p { color: var(--arena-muted); font-size: .92rem; max-width: 360px; margin: 0 auto; }
+
+    /* ── FINISHED STATE ────────────────────────────────────────── */
+    .results-card { margin-bottom: 1.5rem; }
+    .results-body { padding: 1.75rem 1.4rem; }
+    .results-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem; font-weight: 900; color: var(--gold);
+      margin-bottom: 1.5rem; text-align: center;
+    }
+    .podium {
+      display: flex; align-items: flex-end; justify-content: center;
+      gap: .75rem; margin-bottom: 1.75rem;
+    }
+    .podium-place {
+      flex: 1; max-width: 120px; text-align: center;
+    }
+    .podium-crown { font-size: 1.5rem; margin-bottom: .5rem; }
+    .podium-name {
+      font-size: .82rem; font-weight: 600; color: var(--cream);
+      margin-bottom: .3rem; overflow: hidden;
+      white-space: nowrap; text-overflow: ellipsis;
+    }
+    .podium-score { font-size: .72rem; color: var(--arena-muted); margin-bottom: .6rem; }
+    .podium-bar {
+      border-radius: 6px 6px 0 0; background: var(--arena-surface);
+      border: 1px solid var(--arena-border);
+    }
+    .podium-bar.first { height: 80px; border-color: var(--gold); background: rgba(200,150,62,.1); }
+    .podium-bar.second { height: 56px; }
+    .podium-bar.third { height: 40px; }
+    .podium-payout {
+      font-family: 'DM Mono', monospace;
+      font-size: .78rem; color: var(--gold); padding: .5rem;
+    }
+
+    /* ── PIN MODAL ─────────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(10,6,2,.8); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity .25s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--arena-card);
+      border: 1px solid var(--arena-border-bright);
+      border-radius: 20px;
+      padding: 2rem;
+      width: 90%; max-width: 380px;
+      transform: translateY(20px) scale(.97);
+      transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+      position: relative;
+    }
+    .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+
+    .modal-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: none; border: none; color: var(--arena-muted);
+      font-size: 1.2rem; cursor: pointer; line-height: 1; padding: .25rem;
+    }
+    .modal-close:hover { color: var(--cream); }
+
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem; font-weight: 900; color: var(--cream);
+      margin-bottom: .4rem;
+    }
+    .modal-sub { font-size: .85rem; color: var(--arena-muted); margin-bottom: 1.5rem; line-height: 1.5; }
+
+    .modal-fee-summary {
+      background: var(--arena-surface); border: 1px solid var(--arena-border);
+      border-radius: 10px; padding: 1rem 1.1rem; margin-bottom: 1.5rem;
+    }
+    .modal-fee-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: .85rem;
+    }
+    .modal-fee-row + .modal-fee-row { margin-top: .5rem; padding-top: .5rem; border-top: 1px solid var(--arena-border); }
+    .modal-fee-row span:first-child { color: var(--arena-muted); }
+    .modal-fee-row span:last-child { color: var(--gold); font-family: 'DM Mono', monospace; font-weight: 600; }
+
+    .pin-label { font-size: .8rem; color: var(--arena-muted); margin-bottom: .5rem; letter-spacing: .04em; }
+    .pin-input {
+      width: 100%; background: var(--arena-surface);
+      border: 1.5px solid var(--arena-border); border-radius: 10px;
+      padding: .9rem 1.1rem; font-family: 'DM Mono', monospace;
+      font-size: 1.3rem; letter-spacing: .3em; color: var(--cream);
+      outline: none; transition: border-color .2s; text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .pin-input:focus { border-color: var(--gold); }
+    .pin-input::placeholder { letter-spacing: .1em; font-size: .9rem; }
+
+    .modal-err {
+      font-size: .82rem; color: var(--danger);
+      margin-bottom: 1rem; text-align: center;
+      min-height: 1.2em;
+    }
+
+    .modal-confirm-btn {
+      width: 100%; padding: .95rem;
+      background: var(--gold); color: var(--brown);
+      border: none; border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem; font-weight: 700; cursor: pointer;
+      transition: all .2s;
+    }
+    .modal-confirm-btn:hover { background: var(--cream); }
+    .modal-confirm-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── TOAST ─────────────────────────────────────────────────── */
+    .toast {
+      position: fixed; bottom: 2rem; left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--arena-card); color: var(--cream);
+      border: 1px solid var(--arena-border-bright);
+      padding: .75rem 1.5rem; border-radius: 50px;
+      font-size: .88rem; font-weight: 500;
+      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+      transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+      z-index: 999; white-space: nowrap; pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: rgba(76,175,125,.5); color: var(--success); }
+    .toast.error { border-color: rgba(224,92,92,.5); color: var(--danger); }
+
+    /* ── LOADING SKELETON ──────────────────────────────────────── */
+    .skeleton {
+      background: linear-gradient(90deg, var(--arena-surface) 25%, var(--arena-card) 50%, var(--arena-surface) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 6px;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ── REVEAL ANIMATION ──────────────────────────────────────── */
+    .reveal { opacity: 0; transform: translateY(16px); transition: opacity .5s ease, transform .5s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .arena-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+    }
+    @media (max-width: 540px) {
+      .nav-inner { padding: .9rem 1rem; }
+      .arena-wrap { padding: 1.25rem 1rem 3rem; }
+      .event-stats { grid-template-columns: repeat(3, 1fr); }
+      .answer-form { flex-direction: column; }
+      .submit-btn { width: 100%; }
+      .modal { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAVBAR ──────────────────────────────────────────────────── -->
+  <nav>
+    <div class="nav-inner">
+      <a class="logo" href="index.html">
+        <span class="logo-main">MindStark</span>
+        <span class="logo-sub">The Arena</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Library</a></li>
+        <li><a href="browse.html">Browse</a></li>
+        <li><a href="feeds.html">Connect</a></li>
+        <li><a href="arena.html" class="active">Arena</a></li>
+      </ul>
+      <div class="nav-right">
+        <div class="nav-balance" id="nav-balance" style="display:none">
+          <span>Balance</span>
+          <span id="nav-balance-val">—</span>
+        </div>
+        <button class="hamburger" id="hamburger" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── ARENA HEADER ────────────────────────────────────────────── -->
+  <div class="arena-wrap">
+    <header class="arena-header reveal">
+      <div class="arena-eyebrow">The Arena</div>
+      <h1 class="arena-title">Compete. Answer <em>First</em>. Win.</h1>
+      <p class="arena-subtitle">Real-time intellectual combat. The fastest mind takes the prize.</p>
+      <div class="status-row" id="status-row">
+        <div class="status-pill registering">
+          <div class="status-dot"></div>
+          Loading...
+        </div>
+      </div>
+    </header>
+
+    <!-- ── MAIN CONTENT ──────────────────────────────────────────── -->
+    <div id="arena-content">
+      <!-- Populated by JS -->
+      <div class="arena-grid">
+        <div>
+          <div class="card event-info-card reveal">
+            <div class="card-header">
+              <span class="card-title">Event Details</span>
+              <span class="card-badge" id="event-type-badge">Gauntlet</span>
+            </div>
+            <div class="event-info-body">
+              <div class="event-title-display skeleton" id="event-title" style="height:2rem;width:60%;margin-bottom:.5rem;"></div>
+              <span class="event-type-tag skeleton" id="event-type-tag" style="height:1rem;width:30%;display:block;margin-bottom:1.5rem;"></span>
+              <div class="event-stats">
+                <div class="event-stat">
+                  <span class="event-stat-val" id="stat-entry">—</span>
+                  <span class="event-stat-lbl">Entry Fee</span>
+                </div>
+                <div class="event-stat">
+                  <span class="event-stat-val" id="stat-pool">—</span>
+                  <span class="event-stat-lbl">Prize Pool</span>
+                </div>
+                <div class="event-stat">
+                  <span class="event-stat-val" id="stat-players">—</span>
+                  <span class="event-stat-lbl">Players</span>
+                </div>
+              </div>
+              <div class="prize-breakdown" id="prize-breakdown">
+                <div class="prize-row">
+                  <div class="prize-rank"><span class="prize-medal">🥇</span> 1st Place</div>
+                  <span class="prize-amount" id="prize-1st">—</span>
+                </div>
+                <div class="prize-row">
+                  <div class="prize-rank"><span class="prize-medal">🥈</span> 2nd Place</div>
+                  <span class="prize-amount" id="prize-2nd">—</span>
+                </div>
+                <div class="prize-row">
+                  <div class="prize-rank"><span class="prize-medal">🥉</span> 3rd Place</div>
+                  <span class="prize-amount" id="prize-3rd">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question card -->
+          <div class="card question-card reveal">
+            <div class="card-header">
+              <span class="card-title">Question</span>
+              <span class="card-badge" id="q-progress-label">— / —</span>
+            </div>
+            <div class="question-body" id="question-body">
+              <div class="q-waiting">
+                <div class="q-waiting-icon">⚔️</div>
+                <h3>The Arena Awaits</h3>
+                <p>Questions will appear here when the event goes live.</p>
+              </div>
+            </div>
+            <div class="progress-wrap" id="progress-wrap" style="display:none">
+              <div class="progress-label">
+                <span id="progress-text">Question 0 of 0</span>
+                <span id="progress-pct">0%</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right sidebar -->
+        <div>
+          <!-- Join / status card -->
+          <div class="card join-card reveal" id="join-card">
+            <div class="card-header">
+              <span class="card-title">Entry</span>
+            </div>
+            <div class="join-body" id="join-body">
+              <p class="join-desc">Loading event details...</p>
+              <button class="join-btn" id="join-btn" disabled>Loading...</button>
+            </div>
+          </div>
+
+          <!-- Leaderboard -->
+          <div class="card reveal">
+            <div class="card-header">
+              <span class="card-title">Leaderboard</span>
+              <span class="card-badge" id="lb-count">0</span>
+            </div>
+            <div id="leaderboard-list" class="leaderboard-list">
+              <div class="lb-empty">No participants yet.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PIN MODAL ───────────────────────────────────────────────── -->
+  <div class="modal-overlay" id="pin-modal">
+    <div class="modal">
+      <button class="modal-close" id="modal-close">✕</button>
+      <h2 class="modal-title">Confirm Entry</h2>
+      <p class="modal-sub">Enter your 4-digit Wallet PIN to lock in your entry fee and join the Gauntlet.</p>
+      <div class="modal-fee-summary">
+        <div class="modal-fee-row">
+          <span>Entry Fee</span>
+          <span id="modal-fee">— units</span>
+        </div>
+        <div class="modal-fee-row">
+          <span>Your Balance</span>
+          <span id="modal-balance">— units</span>
+        </div>
+        <div class="modal-fee-row">
+          <span>After Entry</span>
+          <span id="modal-after">— units</span>
+        </div>
+      </div>
+      <p class="pin-label">Transaction PIN</p>
+      <input
+        type="password" inputmode="numeric" maxlength="4"
+        class="pin-input" id="pin-input"
+        placeholder="••••"
+        autocomplete="off"
+      />
+      <div class="modal-err" id="modal-err"></div>
+      <button class="modal-confirm-btn" id="modal-confirm-btn">Confirm & Join</button>
+    </div>
+  </div>
+
+  <!-- ── TOAST ───────────────────────────────────────────────────── -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ── SCRIPTS ─────────────────────────────────────────────────── -->
+  <script src="supabase.js"></script>
+  <script src="nav.js"></script>
+  <script src="arena.js"></script>
+</body>
+</html>
