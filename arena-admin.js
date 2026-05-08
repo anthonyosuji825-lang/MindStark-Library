@@ -484,17 +484,20 @@
   /* ── RPC helper ───────────────────────────────────────────── */
   async function rpc(fnName, params) {
     try {
+      // Always get a fresh token
+      const { data: { session } } = await window._sb.auth.getSession();
+      const token = session?.access_token || sessionToken;
+
       const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fnName}`, {
         method: 'POST',
         headers: {
           'apikey': SUPABASE_ANON,
-          'Authorization': 'Bearer ' + sessionToken,
+          'Authorization': 'Bearer ' + token,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(params),
       });
 
-      // VOID functions return empty body
       const text = await res.text();
       if (!text) return { success: true };
 
