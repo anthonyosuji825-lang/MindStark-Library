@@ -13,7 +13,7 @@
      Replace this with your actual Supabase user ID.
      Find it: Supabase Dashboard → Authentication → Users → your email → copy the UUID
   ────────────────────────────────────────────────────────────── */
-  const ADMIN_USER_ID = 'YOUR_USER_ID_HERE';
+  const ADMIN_USER_ID = '429025f0-a2b5-41ec-a292-29e8a2241690';
 
   const SUPABASE_URL  = 'https://wgcpuohwyarhjlndmnlj.supabase.co';
   const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnY3B1b2h3eWFyaGpsbmRtbmxqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MzEzODYsImV4cCI6MjA4OTIwNzM4Nn0.W3SMmePgAdRR7v6_NWRlIoPYmo5HMF8mmTiwELkZclo';
