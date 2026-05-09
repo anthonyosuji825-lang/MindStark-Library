@@ -13,7 +13,7 @@
      Replace this with your actual Supabase user ID.
      Find it: Supabase Dashboard → Authentication → Users → your email → copy the UUID
   ────────────────────────────────────────────────────────────── */
-  const ADMIN_USER_ID = '429025f0-a2b5-41ec-a292-29e8a2241690';
+  const ADMIN_USER_ID = 'YOUR_USER_ID_HERE';
 
   const SUPABASE_URL  = 'https://wgcpuohwyarhjlndmnlj.supabase.co';
   const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnY3B1b2h3eWFyaGpsbmRtbmxqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MzEzODYsImV4cCI6MjA4OTIwNzM4Nn0.W3SMmePgAdRR7v6_NWRlIoPYmo5HMF8mmTiwELkZclo';
@@ -215,8 +215,12 @@
     const minP      = parseInt($('ev-min').value)  || 5;
     const totalQ    = parseInt($('ev-questions').value) || 10;
     const type      = $('ev-type').value;
+    const timeLimit = parseInt($('ev-time-limit').value) || 30;
 
     if (!title) { showToast('Enter an event title.', 'err'); return; }
+    if (type === 'grand_hall' && (!timeLimit || timeLimit < 5)) {
+      showToast('Set a valid time limit (min 5 seconds).', 'err'); return;
+    }
 
     const btn = $('create-btn');
     btn.disabled = true; btn.textContent = 'Creating…';
@@ -228,6 +232,7 @@
         entry_fee: fee,
         min_participants: minP,
         total_questions: totalQ,
+        question_time_limit: type === 'grand_hall' ? timeLimit : 0,
         status: 'registering',
       })
       .select('*')
@@ -353,11 +358,13 @@
     const btn  = $('post-q-btn');
     if (btn) { btn.disabled = true; btn.textContent = 'Posting…'; }
 
-    const res = await rpc('post_question', {
-      p_event_id: currentEvent.id,
-      p_question: next.question,
-      p_answer:   next.answer,
-    });
+    const isGrandHall = currentEvent.type === 'grand_hall';
+    const fnName = isGrandHall ? 'post_grand_hall_question' : 'post_question';
+    const params = isGrandHall
+      ? { p_event_id: currentEvent.id, p_question: next.question, p_answer: next.answer, p_time_limit: currentEvent.question_time_limit || 30 }
+      : { p_event_id: currentEvent.id, p_question: next.question, p_answer: next.answer };
+
+    const res = await rpc(fnName, params);
 
     if (!res.success) {
       log('Post question failed: ' + (res.error || JSON.stringify(res)), 'err');
@@ -366,20 +373,29 @@
       return;
     }
 
+    // For Grand Hall — auto-post next question after time limit
+    if (isGrandHall && res.time_limit) {
+      const timeLimit = res.time_limit * 1000;
+      log(`Question posted. Auto-advancing in ${res.time_limit}s…`, 'info');
+      setTimeout(async () => {
+        if (questionQueue.length > 0) {
+          log('Time expired. Auto-posting next question…', 'info');
+          handlePostNextQuestion();
+        } else {
+          log('All questions done. Ready to finalize.', 'info');
+          showToast('All questions done. Finalize when ready.', 'ok');
+        }
+      }, timeLimit);
+    }
+
     // Remove from queue
     questionQueue.shift();
     renderQueue();
 
-    log(`Question posted: "${next.question.slice(0, 40)}…" | Answer: "${next.answer}"`, 'ok');
+    log(`Question posted: "${next.question.slice(0, 40)}…" | Answer: "${next.answer}"${isGrandHall ? ` | Time: ${currentEvent.question_time_limit}s` : ''}`, 'ok');
     showToast('Question is live!', 'ok');
 
     if (btn) { btn.disabled = false; btn.textContent = '▶ Post Next'; }
-
-    // Check if all questions done
-    if (currentEvent.question_number >= currentEvent.total_questions) {
-      log('All questions posted. Ready to finalize.', 'info');
-      showToast('All questions done. Finalize when ready.', 'ok');
-    }
   }
 
   /* ── RENDER QUEUE ─────────────────────────────────────────── */
@@ -484,20 +500,17 @@
   /* ── RPC helper ───────────────────────────────────────────── */
   async function rpc(fnName, params) {
     try {
-      // Always get a fresh token
-      const { data: { session } } = await window._sb.auth.getSession();
-      const token = session?.access_token || sessionToken;
-
       const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fnName}`, {
         method: 'POST',
         headers: {
           'apikey': SUPABASE_ANON,
-          'Authorization': 'Bearer ' + token,
+          'Authorization': 'Bearer ' + sessionToken,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(params),
       });
 
+      // VOID functions return empty body
       const text = await res.text();
       if (!text) return { success: true };
 

@@ -387,11 +387,15 @@
             </div>
             <div class="form-group">
               <label>Event Type</label>
-              <select id="ev-type">
-                <option value="gauntlet">Gauntlet</option>
-                <option value="grand_hall">Grand Hall</option>
+              <select id="ev-type" onchange="toggleTimeLimitField()">
+                <option value="gauntlet">Gauntlet — First Answer Wins</option>
+                <option value="grand_hall">Grand Hall — Everyone Answers</option>
               </select>
             </div>
+          </div>
+          <div class="form-group" id="time-limit-group" style="display:none">
+            <label>Time Limit Per Question (seconds)</label>
+            <input type="number" id="ev-time-limit" value="30" min="5" max="300" placeholder="e.g. 30"/>
           </div>
           <button class="btn btn-gold btn-full" id="create-btn">
             ⚔️ Create Event
@@ -465,6 +469,13 @@
   <!-- ── TOAST ───────────────────────────────────── -->
   <div class="toast" id="toast"></div>
 
+  <script>
+    function toggleTimeLimitField() {
+      const type = document.getElementById('ev-type').value;
+      const group = document.getElementById('time-limit-group');
+      group.style.display = type === 'grand_hall' ? 'block' : 'none';
+    }
+  </script>
   <script src="supabase.js"></script>
   <script src="arena-admin.js"></script>
 </body>

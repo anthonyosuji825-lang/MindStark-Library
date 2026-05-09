@@ -19,11 +19,12 @@
   /* ── State ────────────────────────────────────────────────── */
   let currentUser     = null;
   let currentEvent    = null;
-  let participation   = null;   // null | { score, status, ... }
+  let participation   = null;
   let leaderboard     = [];
   let walletBalance   = 0;
   let realtimeChannel = null;
-  let answerLocked    = false;  // prevent double-submit after correct answer
+  let answerLocked    = false;
+  let userAnswers     = {};  // { [questionNum]: { correct: bool } } for Grand Hall
 
   /* ── DOM refs ─────────────────────────────────────────────── */
   const $ = id => document.getElementById(id);
@@ -92,6 +93,7 @@
     }
 
     currentEvent = data;
+    userAnswers  = {};
 
     if (currentUser) {
       await loadParticipation();
@@ -297,15 +299,24 @@
       return;
     }
 
-    // Has active question
+    const isGrandHall   = currentEvent.type === 'grand_hall';
     const isParticipant = participation && participation.status === 'locked';
-    const qNum = currentEvent.question_number || 1;
+    const qNum  = currentEvent.question_number || 1;
     const total = currentEvent.total_questions || 10;
+    const alreadyAnswered = isGrandHall && userAnswers[qNum];
 
     body.innerHTML = `
       <div class="q-number">Question ${qNum} of ${total}</div>
+      ${isGrandHall && currentEvent.question_deadline ? `
+        <div class="countdown-wrap">
+          <div class="countdown-bar-track">
+            <div class="countdown-bar-fill" id="countdown-fill"></div>
+          </div>
+          <div class="countdown-label" id="countdown-label">—s</div>
+        </div>
+      ` : ''}
       <div class="q-text">${escHtml(currentEvent.current_question)}</div>
-      ${isParticipant ? `
+      ${isParticipant && !alreadyAnswered ? `
         <div class="answer-form">
           <input
             type="text" class="answer-input" id="answer-input"
@@ -315,6 +326,12 @@
           <button class="submit-btn" id="submit-btn">Submit</button>
         </div>
         <div class="answer-feedback" id="answer-feedback"></div>
+        ${isGrandHall ? `<p style="font-size:.75rem;color:var(--arena-muted);margin-top:.6rem;">Everyone answers independently. Submit before time runs out.</p>` : ''}
+      ` : isParticipant && alreadyAnswered ? `
+        <div class="answer-feedback ${alreadyAnswered.correct ? 'correct' : 'wrong'}" style="display:block">
+          ${alreadyAnswered.correct ? '✓ Correct! Point awarded.' : '✗ Incorrect answer submitted.'}
+          Waiting for next question…
+        </div>
       ` : `
         <div class="answer-feedback wrong" style="display:block">
           ${!currentUser
@@ -327,15 +344,122 @@
       `}
     `;
 
+    // Start countdown for Grand Hall
+    if (isGrandHall && currentEvent.question_deadline) {
+      startCountdown(currentEvent.question_deadline, currentEvent.question_time_limit || 30);
+    }
+
     // Bind submit
-    const submitBtn = $('submit-btn');
+    const submitBtn  = $('submit-btn');
     const answerInput = $('answer-input');
     if (submitBtn && answerInput) {
-      submitBtn.addEventListener('click', () => handleSubmitAnswer());
+      submitBtn.addEventListener('click', () => isGrandHall ? handleGrandHallAnswer(qNum) : handleSubmitAnswer());
       answerInput.addEventListener('keydown', e => {
-        if (e.key === 'Enter') handleSubmitAnswer();
+        if (e.key === 'Enter') isGrandHall ? handleGrandHallAnswer(qNum) : handleSubmitAnswer();
       });
       answerInput.focus();
+    }
+  }
+
+  /* ── Countdown timer (Grand Hall) ─────────────────────────── */
+  let countdownInterval = null;
+
+  function startCountdown(deadline, totalSeconds) {
+    if (countdownInterval) clearInterval(countdownInterval);
+
+    const fill  = $('countdown-fill');
+    const label = $('countdown-label');
+    if (!fill || !label) return;
+
+    function tick() {
+      const now       = Date.now();
+      const end       = new Date(deadline).getTime();
+      const remaining = Math.max(0, Math.floor((end - now) / 1000));
+      const pct       = Math.min(100, (remaining / totalSeconds) * 100);
+
+      if (label) label.textContent = remaining + 's';
+      if (fill) {
+        fill.style.width = pct + '%';
+        fill.style.background = remaining <= 5
+          ? 'var(--danger)'
+          : remaining <= 10
+          ? '#e0a020'
+          : 'var(--gold)';
+      }
+
+      if (remaining <= 0) {
+        clearInterval(countdownInterval);
+        // Lock input when time is up
+        const input = $('answer-input');
+        const btn   = $('submit-btn');
+        const fb    = $('answer-feedback');
+        if (input) input.disabled = true;
+        if (btn)   btn.disabled   = true;
+        if (fb && fb.style.display === 'none' || !fb?.textContent) {
+          showFeedback(fb, 'wrong', 'Time is up!');
+        }
+      }
+    }
+
+    tick();
+    countdownInterval = setInterval(tick, 500);
+  }
+
+  /* ── Grand Hall answer submit ─────────────────────────────── */
+  async function handleGrandHallAnswer(qNum) {
+    const input = $('answer-input');
+    const btn   = $('submit-btn');
+    const fb    = $('answer-feedback');
+    if (!input || !btn || !currentEvent || !currentUser) return;
+
+    const answer = input.value.trim();
+    if (!answer) { input.focus(); return; }
+
+    btn.disabled  = true;
+    btn.textContent = '…';
+    input.disabled = true;
+
+    try {
+      const session = await window._sb.auth.getSession();
+      const token   = session?.data?.session?.access_token;
+
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/submit_grand_hall_answer`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON,
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          p_user_id:    currentUser.id,
+          p_event_id:   currentEvent.id,
+          p_answer:     answer,
+          p_question_num: qNum,
+        }),
+      });
+
+      const result = await res.json();
+
+      if (result.correct) {
+        userAnswers[qNum] = { correct: true };
+        showFeedback(fb, 'correct', '✓ Correct! Point awarded.');
+        showToast('Correct! 🎯', 'success');
+      } else if (result.error) {
+        showFeedback(fb, 'wrong', result.error);
+      } else {
+        userAnswers[qNum] = { correct: false };
+        showFeedback(fb, 'wrong', '✗ Incorrect. Better luck next question.');
+        showToast('Wrong answer.', 'error');
+      }
+
+      // Lock after submission — answer is final
+      if (btn) btn.disabled = true;
+      if (input) input.disabled = true;
+
+    } catch (err) {
+      showFeedback(fb, 'wrong', 'Network error. Try again.');
+      if (btn) { btn.disabled = false; btn.textContent = 'Submit'; }
+      if (input) input.disabled = false;
     }
   }
 

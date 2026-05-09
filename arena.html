@@ -561,6 +561,28 @@
       100% { background-position: -200% 0; }
     }
 
+    /* ── COUNTDOWN TIMER (Grand Hall) ──────────────────────────── */
+    .countdown-wrap {
+      display: flex; align-items: center; gap: .85rem;
+      margin-bottom: 1rem;
+    }
+    .countdown-bar-track {
+      flex: 1; height: 6px; background: var(--arena-surface);
+      border-radius: 3px; overflow: hidden;
+      border: 1px solid var(--arena-border);
+    }
+    .countdown-bar-fill {
+      height: 100%; background: var(--gold);
+      border-radius: 3px;
+      transition: width .5s linear, background .3s;
+    }
+    .countdown-label {
+      font-family: 'DM Mono', monospace;
+      font-size: .95rem; font-weight: 500;
+      color: var(--gold); min-width: 32px;
+      text-align: right; flex-shrink: 0;
+    }
+
     /* ── REVEAL ANIMATION ──────────────────────────────────────── */
     .reveal { opacity: 0; transform: translateY(16px); transition: opacity .5s ease, transform .5s ease; }
     .reveal.visible { opacity: 1; transform: translateY(0); }
