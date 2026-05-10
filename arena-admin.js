@@ -32,17 +32,40 @@
   document.addEventListener('supabase:ready', boot);
 
   async function boot() {
-    // Wait for Supabase session to fully initialize
-    // Retry up to 5 times with 800ms delay
-    let user = null;
-    for (let i = 0; i < 5; i++) {
-      const { data } = await window._sb.auth.getUser();
-      user = data?.user;
-      if (user) break;
-      await new Promise(r => setTimeout(r, 800));
+    // First try immediate check
+    const { data: { user: immediateUser } } = await window._sb.auth.getUser();
+
+    if (immediateUser) {
+      await initAdmin(immediateUser);
+      return;
     }
 
-    if (!user || user.id !== ADMIN_USER_ID) {
+    // If no user yet, listen for auth state change
+    const { data: { subscription } } = window._sb.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        subscription.unsubscribe();
+        await initAdmin(session.user);
+      } else if (event === 'SIGNED_OUT') {
+        const wall = $('access-wall');
+        wall.querySelector('h2').textContent = 'Access Denied';
+        wall.querySelector('p').textContent  = 'This page is restricted to MindStark administrators.';
+        wall.querySelector('.icon').textContent = '🚫';
+      }
+    });
+
+    // Timeout after 6 seconds — show access denied
+    setTimeout(() => {
+      const wall = $('access-wall');
+      if (wall.style.display !== 'none') {
+        wall.querySelector('h2').textContent = 'Access Denied';
+        wall.querySelector('p').textContent  = 'Session not found. Please sign in first.';
+        wall.querySelector('.icon').textContent = '🚫';
+      }
+    }, 6000);
+  }
+
+  async function initAdmin(user) {
+    if (user.id !== ADMIN_USER_ID) {
       const wall = $('access-wall');
       wall.querySelector('h2').textContent = 'Access Denied';
       wall.querySelector('p').textContent  = 'This page is restricted to MindStark administrators.';
@@ -50,19 +73,12 @@
       return;
     }
 
-    // Get session token for RPC calls
     const { data: { session } } = await window._sb.auth.getSession();
     sessionToken = session?.access_token;
 
-    // Hide access wall
     $('access-wall').style.display = 'none';
-
-    // Load current event
     await loadCurrentEvent();
-
-    // Bind all UI events
     bindUI();
-
     log('Logged in as admin. Welcome, Tony.', 'info');
   }
 

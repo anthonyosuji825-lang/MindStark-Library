@@ -41,6 +41,18 @@
     if (currentUser) {
       await loadWalletBalance();
       renderNavBalance();
+
+      // Show admin link if Tony
+      if (currentUser.id === '429025f0-a2b5-41ec-a292-29e8a2241690') {
+        const navRight = document.querySelector('.nav-right');
+        if (navRight) {
+          const adminLink = document.createElement('a');
+          adminLink.href = 'arena-admin.html';
+          adminLink.textContent = '⚡ Admin';
+          adminLink.style.cssText = 'font-size:.75rem;font-weight:700;color:var(--gold);text-decoration:none;background:rgba(200,150,62,.1);border:1px solid rgba(200,150,62,.4);padding:.3rem .75rem;border-radius:50px;letter-spacing:.04em;';
+          navRight.insertBefore(adminLink, navRight.firstChild);
+        }
+      }
     }
 
     await loadEvent();
