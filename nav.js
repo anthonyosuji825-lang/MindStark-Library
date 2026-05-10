@@ -521,12 +521,15 @@
   };
 
   window.signOut = async function() {
-    if (window._sb) await window._sb.auth.signOut();
-    sessionStorage.removeItem('ms_current_user');
-    sessionStorage.removeItem('ms_membership');
-    showNavToast('👋 Signed out. See you soon!');
-    setTimeout(() => { window.location.href = 'signin.html'; }, 1200);
-  };
+  if (window._sb) await window._sb.auth.signOut();
+  sessionStorage.clear();
+  localStorage.removeItem('ms_current_user');
+  localStorage.removeItem('ms_membership');
+  showNavToast('👋 Signed out. See you soon!');
+  setTimeout(() => {
+    window.location.replace('signin.html');
+  }, 1200);
+};
 
   window.resumeBook = function() {
     if (lastBook) sessionStorage.setItem('ms_book', JSON.stringify(lastBook));
