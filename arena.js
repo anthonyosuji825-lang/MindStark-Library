@@ -84,10 +84,7 @@
     const val  = $('nav-balance-val');
     if (!wrap || !val || !currentUser) return;
     wrap.style.display = 'flex';
-    const n = walletBalance;
-    val.textContent = n >= 1000
-      ? n.toLocaleString() + 'tr'
-      : n + 'tr';
+    val.textContent = fmtUnits(walletBalance);
   }
 
   /* ── Load event ───────────────────────────────────────────── */
@@ -267,7 +264,7 @@
     const players = $('stat-players');
 
     if (fee)    fee.textContent    = currentEvent.entry_fee === 0 ? 'Free' : fmtUnits(currentEvent.entry_fee);
-    if (pool)   pool.textContent   = fmtUnits(currentEvent.prize_pool || 0);
+    if (pool)   pool.textContent   = currentEvent.prize_pool === 0 ? '0' : fmtUnits(currentEvent.prize_pool || 0);
     if (players) players.textContent = leaderboard.length;
 
     // lb count badge
@@ -284,9 +281,9 @@
     const p2 = $('prize-2nd');
     const p3 = $('prize-3rd');
 
-    if (p1) p1.textContent = fmtUnits(Math.floor(pool * 0.50));
-    if (p2) p2.textContent = fmtUnits(Math.floor(pool * 0.30));
-    if (p3) p3.textContent = fmtUnits(Math.floor(pool * 0.20));
+    if (p1) p1.textContent = pool === 0 ? '—' : fmtUnits(Math.floor(pool * 0.50));
+    if (p2) p2.textContent = pool === 0 ? '—' : fmtUnits(Math.floor(pool * 0.30));
+    if (p3) p3.textContent = pool === 0 ? '—' : fmtUnits(Math.floor(pool * 0.20));
   }
 
   /* ── Question render ──────────────────────────────────────── */
@@ -904,9 +901,10 @@
 
   /* ── Utilities ────────────────────────────────────────────── */
   function fmtUnits(n) {
-    if (n === undefined || n === null) return '—';
-    if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k tr';
-    return n.toString() + ' tr';
+    if (n === undefined || n === null || n === 0) return '0';
+    if (n >= 1000) return n.toLocaleString() + 'tr';
+    if (n >= 11)   return n + 'ft';
+    return n + 'gt';
   }
 
   function escHtml(str) {
