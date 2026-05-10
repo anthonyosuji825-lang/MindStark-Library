@@ -32,54 +32,35 @@
   document.addEventListener('supabase:ready', boot);
 
   async function boot() {
-    // First try immediate check
-    const { data: { user: immediateUser } } = await window._sb.auth.getUser();
+    const { data: { user } } = await window._sb.auth.getUser();
+    if (user) { initAdmin(user); return; }
 
-    if (immediateUser) {
-      await initAdmin(immediateUser);
-      return;
-    }
-
-    // If no user yet, listen for auth state change
-    const { data: { subscription } } = window._sb.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        subscription.unsubscribe();
-        await initAdmin(session.user);
-      } else if (event === 'SIGNED_OUT') {
-        const wall = $('access-wall');
-        wall.querySelector('h2').textContent = 'Access Denied';
-        wall.querySelector('p').textContent  = 'This page is restricted to MindStark administrators.';
-        wall.querySelector('.icon').textContent = '🚫';
-      }
+    window._sb.auth.onAuthStateChange((event, session) => {
+      if (session?.user) initAdmin(session.user);
+      if (event === 'SIGNED_OUT') showDenied('Sign in first, then return to this page.');
     });
 
-    // Timeout after 6 seconds — show access denied
     setTimeout(() => {
       const wall = $('access-wall');
-      if (wall.style.display !== 'none') {
-        wall.querySelector('h2').textContent = 'Access Denied';
-        wall.querySelector('p').textContent  = 'Session not found. Please sign in first.';
-        wall.querySelector('.icon').textContent = '🚫';
-      }
+      if (wall && wall.style.display !== 'none') showDenied('Session not found. Sign in first.');
     }, 6000);
   }
 
-  async function initAdmin(user) {
-    if (user.id !== ADMIN_USER_ID) {
-      const wall = $('access-wall');
-      wall.querySelector('h2').textContent = 'Access Denied';
-      wall.querySelector('p').textContent  = 'This page is restricted to MindStark administrators.';
-      wall.querySelector('.icon').textContent = '🚫';
-      return;
-    }
+  function showDenied(msg) {
+    const wall = $('access-wall');
+    if (!wall) return;
+    wall.querySelector('h2').textContent   = 'Access Denied';
+    wall.querySelector('p').textContent    = msg;
+    wall.querySelector('.icon').textContent = '🚫';
+  }
 
-    const { data: { session } } = await window._sb.auth.getSession();
-    sessionToken = session?.access_token;
-
-    $('access-wall').style.display = 'none';
-    await loadCurrentEvent();
-    bindUI();
-    log('Logged in as admin. Welcome, Tony.', 'info');
+  function initAdmin(user) {
+    if (user.id !== ADMIN_USER_ID) { showDenied('This page is restricted to MindStark administrators.'); return; }
+    window._sb.auth.getSession().then(({ data: { session } }) => {
+      sessionToken = session?.access_token;
+      $('access-wall').style.display = 'none';
+      loadCurrentEvent().then(() => { bindUI(); log('Logged in as admin. Welcome, Tony.', 'info'); });
+    });
   }
 
   /* ── Load current event ───────────────────────────────────── */
@@ -218,7 +199,7 @@
   }
 
   /* ── Bind static UI ───────────────────────────────────────── */
-  function bindUI() {
+  async function bindUI() {
     $('create-btn').addEventListener('click', handleCreateEvent);
     $('add-q-btn').addEventListener('click', handleAddQuestion);
     $('post-q-btn').addEventListener('click', handlePostNextQuestion);
