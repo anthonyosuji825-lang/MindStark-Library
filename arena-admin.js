@@ -13,7 +13,7 @@
      Replace this with your actual Supabase user ID.
      Find it: Supabase Dashboard → Authentication → Users → your email → copy the UUID
   ────────────────────────────────────────────────────────────── */
-  const ADMIN_USER_ID = '429025f0-a2b5-41ec-a292-29e8a2241690';
+  const ADMIN_USER_ID = 'YOUR_USER_ID_HERE';
 
   const SUPABASE_URL  = 'https://wgcpuohwyarhjlndmnlj.supabase.co';
   const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnY3B1b2h3eWFyaGpsbmRtbmxqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MzEzODYsImV4cCI6MjA4OTIwNzM4Nn0.W3SMmePgAdRR7v6_NWRlIoPYmo5HMF8mmTiwELkZclo';
@@ -121,11 +121,11 @@
           <span class="stat-lbl">Players</span>
         </div>
         <div class="stat-cell">
-          <span class="stat-val" id="s-pool">${prizePool}</span>
+          <span class="stat-val" id="s-pool">${prizePool} tr</span>
           <span class="stat-lbl">Pool</span>
         </div>
         <div class="stat-cell">
-          <span class="stat-val" id="s-payout">${prizePayout}</span>
+          <span class="stat-val" id="s-payout">${prizePayout} tr</span>
           <span class="stat-lbl">Payout (85%)</span>
         </div>
         <div class="stat-cell">
@@ -301,8 +301,8 @@
       log('Below threshold — all participants refunded.', 'info');
       showToast('Below threshold. Everyone refunded.', 'ok');
     } else {
-      log(`Paid out! Prize pool: ${res.prize_pool} units. Rake: ${res.rake} units.`, 'ok');
-      showToast(`Done! ${res.prize_pool} units paid to top 3.`, 'ok');
+      log(`Paid out! Prize pool: ${res.prize_pool} tr. Rake: ${res.rake} tr.`, 'ok');
+      showToast(`Done! ${res.prize_pool} tr paid to top 3.`, 'ok');
     }
 
     await loadCurrentEvent();

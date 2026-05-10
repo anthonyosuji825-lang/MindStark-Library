@@ -72,7 +72,10 @@
     const val  = $('nav-balance-val');
     if (!wrap || !val || !currentUser) return;
     wrap.style.display = 'flex';
-    val.textContent = fmtUnits(walletBalance);
+    const n = walletBalance;
+    val.textContent = n >= 1000
+      ? n.toLocaleString() + 'tr'
+      : n + 'tr';
   }
 
   /* ── Load event ───────────────────────────────────────────── */
@@ -269,9 +272,9 @@
     const p2 = $('prize-2nd');
     const p3 = $('prize-3rd');
 
-    if (p1) p1.textContent = fmtUnits(Math.floor(pool * 0.50)) + ' units';
-    if (p2) p2.textContent = fmtUnits(Math.floor(pool * 0.30)) + ' units';
-    if (p3) p3.textContent = fmtUnits(Math.floor(pool * 0.20)) + ' units';
+    if (p1) p1.textContent = fmtUnits(Math.floor(pool * 0.50));
+    if (p2) p2.textContent = fmtUnits(Math.floor(pool * 0.30));
+    if (p3) p3.textContent = fmtUnits(Math.floor(pool * 0.20));
   }
 
   /* ── Question render ──────────────────────────────────────── */
@@ -594,11 +597,11 @@
       <p class="join-desc">
         ${fee === 0
           ? 'This event is free to enter. Join and compete for glory.'
-          : `Entry costs <strong style="color:var(--gold)">${fmtUnits(fee)} units</strong>. Your balance: <strong style="color:var(--gold)">${fmtUnits(walletBalance)} units</strong>.`
+          : `Entry costs <strong style="color:var(--gold)">${fmtUnits(fee)}</strong>. Your balance: <strong style="color:var(--gold)">${fmtUnits(walletBalance)}</strong>.`
         }
       </p>
       <button class="join-btn" id="join-btn" ${!canAfford && fee > 0 ? 'disabled' : ''}>
-        ${fee === 0 ? 'Join Free' : canAfford ? `Join · ${fmtUnits(fee)} units` : 'Insufficient Balance'}
+        ${fee === 0 ? 'Join Free' : canAfford ? `Join · ${fmtUnits(fee)}` : 'Insufficient Balance'}
       </button>
       ${!canAfford && fee > 0 ? '<p style="font-size:.75rem;color:var(--arena-muted);margin-top:.5rem;text-align:center;">Top up your Wallet to enter.</p>' : ''}
     `;
@@ -668,9 +671,9 @@
     const pinInput = $('pin-input');
     const errEl   = $('modal-err');
 
-    if (mFee)    mFee.textContent    = fmtUnits(fee) + ' units';
-    if (mBal)    mBal.textContent    = fmtUnits(walletBalance) + ' units';
-    if (mAfter)  mAfter.textContent  = fmtUnits(Math.max(0, afterBal)) + ' units';
+    if (mFee)    mFee.textContent    = fmtUnits(fee);
+    if (mBal)    mBal.textContent    = fmtUnits(walletBalance);
+    if (mAfter)  mAfter.textContent  = fmtUnits(Math.max(0, afterBal));
     if (pinInput) pinInput.value = '';
     if (errEl)   errEl.textContent  = '';
 
@@ -759,7 +762,7 @@
         await loadParticipation();
         renderJoinSection();
         renderPrizeBreakdown();
-        showToast(`Entered! ${fmtUnits(currentEvent.entry_fee)} units locked. ⚔️`, 'success');
+        showToast(`Entered! ${fmtUnits(currentEvent.entry_fee)} locked. ⚔️`, 'success');
       } else {
         if (errEl) errEl.textContent = result.error || 'Failed to join. Please try again.';
         if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = 'Confirm & Join'; }
@@ -890,8 +893,8 @@
   /* ── Utilities ────────────────────────────────────────────── */
   function fmtUnits(n) {
     if (n === undefined || n === null) return '—';
-    if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
-    return n.toString();
+    if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k tr';
+    return n.toString() + ' tr';
   }
 
   function escHtml(str) {
