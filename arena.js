@@ -30,7 +30,12 @@
   const $ = id => document.getElementById(id);
 
   /* ── Init ─────────────────────────────────────────────────── */
-  document.addEventListener('supabase:ready', init);
+  // Handle supabase:ready — works whether event fires before or after this script loads
+  if (window._sb) {
+    init();
+  } else {
+    document.addEventListener('supabase:ready', init);
+  }
 
   async function init() {
     revealElements();
@@ -272,18 +277,24 @@
     if (lbCount) lbCount.textContent = leaderboard.length;
   }
 
-  /* ── Prize breakdown ──────────────────────────────────────── */
   function renderPrizeBreakdown() {
     if (!currentEvent) return;
-    const pool = (currentEvent.prize_pool || 0) * 0.85; // after 15% rake
+    const pool = Math.floor((currentEvent.prize_pool || 0) * 0.85);
 
     const p1 = $('prize-1st');
     const p2 = $('prize-2nd');
     const p3 = $('prize-3rd');
 
-    if (p1) p1.textContent = pool === 0 ? '—' : fmtUnits(Math.floor(pool * 0.50));
-    if (p2) p2.textContent = pool === 0 ? '—' : fmtUnits(Math.floor(pool * 0.30));
-    if (p3) p3.textContent = pool === 0 ? '—' : fmtUnits(Math.floor(pool * 0.20));
+    if (pool === 0) {
+      if (p1) p1.textContent = '—';
+      if (p2) p2.textContent = '—';
+      if (p3) p3.textContent = '—';
+      return;
+    }
+
+    if (p1) p1.textContent = fmtUnits(Math.floor(pool * 0.50));
+    if (p2) p2.textContent = fmtUnits(Math.floor(pool * 0.30));
+    if (p3) p3.textContent = fmtUnits(Math.floor(pool * 0.20));
   }
 
   /* ── Question render ──────────────────────────────────────── */
@@ -818,7 +829,6 @@
     }).join('');
   }
 
-  /* ── Progress bar ─────────────────────────────────────────── */
   function renderProgress() {
     const wrap   = $('progress-wrap');
     const fill   = $('progress-fill');
@@ -827,8 +837,8 @@
     const pct    = $('progress-pct');
     if (!currentEvent) return;
 
-    const qNum   = currentEvent.question_number || 0;
     const total  = currentEvent.total_questions || 10;
+    const qNum   = Math.min(currentEvent.question_number || 0, total);
     const perc   = total > 0 ? Math.round((qNum / total) * 100) : 0;
 
     if (label) label.textContent = `${qNum} / ${total}`;
