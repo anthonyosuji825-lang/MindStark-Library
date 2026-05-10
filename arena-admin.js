@@ -32,28 +32,35 @@
   document.addEventListener('supabase:ready', boot);
 
   async function boot() {
-    // 1. Check auth
-    const { data: { user } } = await window._sb.auth.getUser();
+    // Wait for Supabase session to fully initialize
+    // Retry up to 5 times with 800ms delay
+    let user = null;
+    for (let i = 0; i < 5; i++) {
+      const { data } = await window._sb.auth.getUser();
+      user = data?.user;
+      if (user) break;
+      await new Promise(r => setTimeout(r, 800));
+    }
 
     if (!user || user.id !== ADMIN_USER_ID) {
       const wall = $('access-wall');
       wall.querySelector('h2').textContent = 'Access Denied';
       wall.querySelector('p').textContent  = 'This page is restricted to MindStark administrators.';
       wall.querySelector('.icon').textContent = '🚫';
-      return; // Stop everything
+      return;
     }
 
-    // 2. Get session token for RPC calls
+    // Get session token for RPC calls
     const { data: { session } } = await window._sb.auth.getSession();
     sessionToken = session?.access_token;
 
-    // 3. Hide access wall
+    // Hide access wall
     $('access-wall').style.display = 'none';
 
-    // 4. Load current event
+    // Load current event
     await loadCurrentEvent();
 
-    // 5. Bind all UI events
+    // Bind all UI events
     bindUI();
 
     log('Logged in as admin. Welcome, Tony.', 'info');
