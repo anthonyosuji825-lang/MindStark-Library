@@ -32,35 +32,17 @@
   document.addEventListener('supabase:ready', boot);
 
   async function boot() {
-    const { data: { user } } = await window._sb.auth.getUser();
-    if (user) { initAdmin(user); return; }
-
-    window._sb.auth.onAuthStateChange((event, session) => {
-      if (session?.user) initAdmin(session.user);
-      if (event === 'SIGNED_OUT') showDenied('Sign in first, then return to this page.');
-    });
-
-    setTimeout(() => {
-      const wall = $('access-wall');
-      if (wall && wall.style.display !== 'none') showDenied('Session not found. Sign in first.');
-    }, 6000);
-  }
-
-  function showDenied(msg) {
+    // Hide access wall immediately — no auth check
     const wall = $('access-wall');
-    if (!wall) return;
-    wall.querySelector('h2').textContent   = 'Access Denied';
-    wall.querySelector('p').textContent    = msg;
-    wall.querySelector('.icon').textContent = '🚫';
-  }
+    if (wall) wall.style.display = 'none';
 
-  function initAdmin(user) {
-    if (user.id !== ADMIN_USER_ID) { showDenied('This page is restricted to MindStark administrators.'); return; }
-    window._sb.auth.getSession().then(({ data: { session } }) => {
-      sessionToken = session?.access_token;
-      $('access-wall').style.display = 'none';
-      loadCurrentEvent().then(() => { bindUI(); log('Logged in as admin. Welcome, Tony.', 'info'); });
-    });
+    // Get session token for RPC calls
+    const { data: { session } } = await window._sb.auth.getSession();
+    sessionToken = session?.access_token;
+
+    await loadCurrentEvent();
+    bindUI();
+    log('Arena Control Panel ready. Welcome, Tony.', 'info');
   }
 
   /* ── Load current event ───────────────────────────────────── */
