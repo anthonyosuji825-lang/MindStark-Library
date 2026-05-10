@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" type="image/png" href="logo.png"/>
+  <title>Request an Event — MindStark Arena</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --arena-bg:     #0e0a06;
+      --arena-surface:#1a1108;
+      --arena-card:   #211609;
+      --arena-border: rgba(200,150,62,.15);
+      --arena-border-bright: rgba(200,150,62,.4);
+      --arena-text:   rgba(245,240,232,.92);
+      --arena-muted:  rgba(245,240,232,.42);
+      --gold:         #c8963e;
+      --success:      #4caf7d;
+      --danger:       #e05c5c;
+      --cream:        #f5f0e8;
+      --brown:        #3b2a1a;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--arena-bg);
+      color: var(--arena-text);
+      min-height: 100vh;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(200,150,62,.07) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── NAV ─────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 200;
+      background: rgba(14,10,6,.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--arena-border);
+    }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem; max-width: 800px; margin: 0 auto;
+    }
+    .logo { display: flex; flex-direction: column; line-height: 1; text-decoration: none; }
+    .logo-main { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 900; color: var(--cream); }
+    .logo-sub { font-size: .6rem; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); }
+    .nav-back { font-size: .82rem; color: var(--arena-muted); text-decoration: none; transition: color .2s; }
+    .nav-back:hover { color: var(--gold); }
+
+    /* ── WRAP ────────────────────────────────────── */
+    .wrap {
+      position: relative; z-index: 1;
+      max-width: 680px; margin: 0 auto;
+      padding: 3rem 1.5rem 5rem;
+    }
+
+    /* ── HEADER ──────────────────────────────────── */
+    .page-header { text-align: center; margin-bottom: 2.5rem; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: .6rem;
+      font-size: .7rem; letter-spacing: .22em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 1rem;
+    }
+    .eyebrow::before, .eyebrow::after {
+      content: ''; display: block; width: 24px; height: 1px; background: var(--gold); opacity: .5;
+    }
+    .page-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 4vw, 2.4rem);
+      font-weight: 900; color: var(--cream);
+      margin-bottom: .75rem;
+    }
+    .page-header p { font-size: .92rem; color: var(--arena-muted); line-height: 1.6; max-width: 480px; margin: 0 auto; }
+
+    /* ── CARD ────────────────────────────────────── */
+    .card {
+      background: var(--arena-card);
+      border: 1px solid var(--arena-border);
+      border-radius: 16px; padding: 2rem;
+    }
+
+    /* ── FORM ────────────────────────────────────── */
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group:last-child { margin-bottom: 0; }
+    label {
+      display: block; font-size: .78rem; color: var(--arena-muted);
+      letter-spacing: .04em; margin-bottom: .45rem; font-weight: 500;
+    }
+    label span { color: var(--gold); margin-left: .2rem; }
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    textarea {
+      width: 100%;
+      background: var(--arena-surface);
+      border: 1.5px solid var(--arena-border);
+      border-radius: 10px;
+      padding: .85rem 1.1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .92rem; color: var(--arena-text);
+      outline: none; transition: border-color .2s;
+    }
+    input:focus, textarea:focus { border-color: var(--gold); }
+    input::placeholder, textarea::placeholder { color: var(--arena-muted); }
+    textarea { resize: vertical; min-height: 100px; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    .fee-hint {
+      font-size: .72rem; color: var(--arena-muted);
+      margin-top: .35rem; display: block;
+    }
+
+    .divider { height: 1px; background: var(--arena-border); margin: 1.5rem 0; }
+
+    /* ── SUBMIT ──────────────────────────────────── */
+    .submit-btn {
+      width: 100%; padding: 1rem;
+      background: var(--gold); color: var(--brown);
+      border: none; border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem; font-weight: 700;
+      cursor: pointer; transition: all .2s;
+      margin-top: 1.5rem;
+    }
+    .submit-btn:hover { background: var(--cream); transform: translateY(-2px); }
+    .submit-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+    /* ── SUCCESS STATE ───────────────────────────── */
+    .success-state {
+      text-align: center; padding: 2rem 0; display: none;
+    }
+    .success-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .success-state h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem; color: var(--cream); margin-bottom: .75rem;
+    }
+    .success-state p { font-size: .88rem; color: var(--arena-muted); line-height: 1.6; margin-bottom: 1.5rem; }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .75rem 1.4rem; border-radius: 8px;
+      background: transparent; color: var(--gold);
+      border: 1.5px solid var(--arena-border-bright);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .88rem; font-weight: 600;
+      text-decoration: none; transition: all .2s;
+    }
+    .back-btn:hover { background: rgba(200,150,62,.08); }
+
+    /* ── NOT SIGNED IN ───────────────────────────── */
+    .signin-wall {
+      text-align: center; padding: 3rem 1rem;
+    }
+    .signin-wall .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .signin-wall h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem; color: var(--cream); margin-bottom: .5rem;
+    }
+    .signin-wall p { font-size: .88rem; color: var(--arena-muted); margin-bottom: 1.5rem; }
+    .signin-btn {
+      display: inline-block; padding: .85rem 1.75rem;
+      background: var(--gold); color: var(--brown);
+      border-radius: 10px; text-decoration: none;
+      font-weight: 700; font-size: .92rem; transition: all .2s;
+    }
+    .signin-btn:hover { background: var(--cream); }
+
+    /* ── ERROR ───────────────────────────────────── */
+    .form-err {
+      font-size: .82rem; color: var(--danger);
+      margin-top: 1rem; text-align: center; min-height: 1.2em;
+    }
+
+    /* ── INFO BOX ────────────────────────────────── */
+    .info-box {
+      background: rgba(200,150,62,.06);
+      border: 1px solid var(--arena-border);
+      border-radius: 10px; padding: 1rem 1.1rem;
+      margin-bottom: 1.5rem;
+      font-size: .82rem; color: var(--arena-muted);
+      line-height: 1.6;
+    }
+    .info-box strong { color: var(--gold); }
+
+    @media (max-width: 540px) {
+      .wrap { padding: 2rem 1rem 4rem; }
+      .card { padding: 1.5rem; }
+      .form-row { grid-template-columns: 1fr; }
+      .nav-inner { padding: .9rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a class="logo" href="index.html">
+        <span class="logo-main">MindStark</span>
+        <span class="logo-sub">The Arena</span>
+      </a>
+      <a class="nav-back" href="arena.html">← Back to Arena</a>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <div class="page-header">
+      <div class="eyebrow">Event Request</div>
+      <h1>Propose an Arena Event</h1>
+      <p>Have an idea for a Gauntlet or Grand Hall? Share the details and MindStark will organize it for you.</p>
+    </div>
+
+    <div class="card" id="main-card">
+
+      <!-- Not signed in -->
+      <div class="signin-wall" id="signin-wall" style="display:none">
+        <div class="icon">🔐</div>
+        <h2>Sign In Required</h2>
+        <p>You need to be signed in to propose an event.</p>
+        <a class="signin-btn" href="signin.html">Sign In</a>
+      </div>
+
+      <!-- Success state -->
+      <div class="success-state" id="success-state">
+        <div class="success-icon">✅</div>
+        <h2>Request Submitted!</h2>
+        <p>Your event proposal has been sent to MindStark. Tony will review it and reach out if it gets approved. Keep an eye on the Arena for your event.</p>
+        <a class="back-btn" href="arena.html">← Back to Arena</a>
+      </div>
+
+      <!-- Form -->
+      <div id="form-wrap">
+        <div class="info-box">
+          <strong>How it works:</strong> Fill out this form with your event idea. MindStark reviews all proposals and organizes approved events. You'll see your event appear in the Arena if it's selected.
+        </div>
+
+        <div class="form-group">
+          <label>Event Title <span>*</span></label>
+          <input type="text" id="req-title" placeholder="e.g. African History Gauntlet"/>
+        </div>
+
+        <div class="form-group">
+          <label>What is the event about? <span>*</span></label>
+          <textarea id="req-topic" placeholder="Describe the topic, theme, or subject matter of your proposed event. The more detail, the better."></textarea>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Suggested Entry Fee (tr)</label>
+            <input type="number" id="req-fee" value="0" min="0" placeholder="0"/>
+            <span class="fee-hint">0 = free event</span>
+          </div>
+          <div class="form-group">
+            <label>Suggested Prize Pool (tr)</label>
+            <input type="number" id="req-prize" value="0" min="0" placeholder="0"/>
+            <span class="fee-hint">Final amount set by MindStark</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Additional Notes</label>
+          <textarea id="req-notes" placeholder="Anything else you'd like MindStark to know — preferred date, format, sample questions, etc." style="min-height:80px;"></textarea>
+        </div>
+
+        <div class="form-err" id="form-err"></div>
+
+        <button class="submit-btn" id="submit-btn">Submit Event Request</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="supabase.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+
+    document.addEventListener('supabase:ready', async () => {
+      const { data: { user } } = await window._sb.auth.getUser();
+
+      if (!user) {
+        $('form-wrap').style.display = 'none';
+        $('signin-wall').style.display = 'block';
+        return;
+      }
+
+      // Get profile for display name
+      const { data: profile } = await window._sb
+        .from('profiles')
+        .select('full_name, mindstark_id')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      const displayName = profile?.full_name || user.email.split('@')[0];
+
+      $('submit-btn').addEventListener('click', async () => {
+        const title = $('req-title').value.trim();
+        const topic = $('req-topic').value.trim();
+        const fee   = parseInt($('req-fee').value) || 0;
+        const prize = parseInt($('req-prize').value) || 0;
+        const notes = $('req-notes').value.trim();
+        const errEl = $('form-err');
+
+        errEl.textContent = '';
+
+        if (!title) { errEl.textContent = 'Please enter an event title.'; return; }
+        if (!topic) { errEl.textContent = 'Please describe what the event is about.'; return; }
+
+        const btn = $('submit-btn');
+        btn.disabled = true;
+        btn.textContent = 'Submitting…';
+
+        const { error } = await window._sb
+          .from('event_requests')
+          .insert({
+            user_id:      user.id,
+            display_name: displayName,
+            email:        user.email,
+            event_title:  title,
+            event_topic:  topic,
+            entry_fee:    fee,
+            prize_pool:   prize,
+            notes:        notes || null,
+            status:       'pending',
+          });
+
+        if (error) {
+          errEl.textContent = 'Failed to submit. Please try again.';
+          btn.disabled = false;
+          btn.textContent = 'Submit Event Request';
+          return;
+        }
+
+        // Show success
+        $('form-wrap').style.display = 'none';
+        $('success-state').style.display = 'block';
+      });
+    });
+  </script>
+</body>
+</html>

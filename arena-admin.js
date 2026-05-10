@@ -201,11 +201,15 @@
     $('post-q-btn').addEventListener('click', handlePostNextQuestion);
     $('refresh-lb-btn').addEventListener('click', async () => { await loadLeaderboard(); renderLeaderboard(); });
     $('clear-log-btn').addEventListener('click', () => { $('activity-log').innerHTML = ''; });
+    $('refresh-req-btn').addEventListener('click', async () => { await loadRequests(); });
 
     // Allow Enter in answer field to add question
     $('q-answer').addEventListener('keydown', e => {
       if (e.key === 'Enter') handleAddQuestion();
     });
+
+    // Load requests on boot
+    await loadRequests();
   }
 
   /* ── CREATE EVENT ─────────────────────────────────────────── */
@@ -520,6 +524,118 @@
       return { success: false, error: e.message };
     }
   }
+
+  /* ── LOAD REQUESTS ────────────────────────────────────────── */
+  async function loadRequests() {
+    const { data: { session } } = await window._sb.auth.getSession();
+    const token = session?.access_token || sessionToken;
+
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/event_requests?order=created_at.desc&limit=50`, {
+      headers: {
+        'apikey': SUPABASE_ANON,
+        'Authorization': 'Bearer ' + token,
+      }
+    });
+
+    const requests = await res.json();
+    renderRequests(Array.isArray(requests) ? requests : []);
+  }
+
+  /* ── RENDER REQUESTS ──────────────────────────────────────── */
+  function renderRequests(requests) {
+    const container = $('requests-list');
+    const countEl   = $('req-count');
+    if (!container) return;
+
+    const pending = requests.filter(r => r.status === 'pending');
+    if (countEl) countEl.textContent = `${pending.length} pending`;
+
+    if (!requests.length) {
+      container.innerHTML = '<div class="lb-empty">No event requests yet.</div>';
+      return;
+    }
+
+    container.innerHTML = requests.map(r => `
+      <div class="req-card" id="req-${r.id}">
+        <div class="req-header">
+          <div>
+            <div class="req-title">${esc(r.event_title)}</div>
+          </div>
+          <span class="req-status ${r.status}">${r.status}</span>
+        </div>
+        <div class="req-meta">
+          <span>👤 ${esc(r.display_name || 'Anonymous')}</span>
+          <span>✉️ ${esc(r.email || '—')}</span>
+          <span>💰 Entry: ${r.entry_fee} tr</span>
+          <span>🏆 Prize: ${r.prize_pool} tr</span>
+          <span>🕐 ${new Date(r.created_at).toLocaleDateString()}</span>
+        </div>
+        <div class="req-topic">${esc(r.event_topic)}</div>
+        ${r.notes ? `<div class="req-notes">📝 ${esc(r.notes)}</div>` : ''}
+        ${r.status === 'pending' ? `
+          <div class="req-actions">
+            <button class="btn btn-success" style="padding:.5rem 1rem;font-size:.8rem;" onclick="approveRequest('${r.id}')">✓ Approve</button>
+            <button class="btn btn-danger" style="padding:.5rem 1rem;font-size:.8rem;" onclick="rejectRequest('${r.id}')">✕ Reject</button>
+            <button class="btn btn-outline" style="padding:.5rem 1rem;font-size:.8rem;" onclick="useRequest('${r.id}', '${esc(r.event_title)}', ${r.entry_fee})">⚔️ Use as Event</button>
+          </div>
+        ` : ''}
+      </div>
+    `).join('');
+  }
+
+  /* ── APPROVE REQUEST ──────────────────────────────────────── */
+  window.approveRequest = async function(id) {
+    const { data: { session } } = await window._sb.auth.getSession();
+    const token = session?.access_token || sessionToken;
+
+    await fetch(`${SUPABASE_URL}/rest/v1/event_requests?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_ANON,
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status: 'approved' }),
+    });
+
+    log(`Request approved.`, 'ok');
+    showToast('Request approved.', 'ok');
+    await loadRequests();
+  };
+
+  /* ── REJECT REQUEST ───────────────────────────────────────── */
+  window.rejectRequest = async function(id) {
+    const { data: { session } } = await window._sb.auth.getSession();
+    const token = session?.access_token || sessionToken;
+
+    await fetch(`${SUPABASE_URL}/rest/v1/event_requests?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_ANON,
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status: 'rejected' }),
+    });
+
+    log(`Request rejected.`, 'info');
+    showToast('Request rejected.', 'ok');
+    await loadRequests();
+  };
+
+  /* ── USE REQUEST AS EVENT ─────────────────────────────────── */
+  window.useRequest = function(id, title, fee) {
+    // Pre-fill the create event form with the request details
+    const titleInput = $('ev-title');
+    const feeInput   = $('ev-fee');
+    if (titleInput) titleInput.value = title;
+    if (feeInput)   feeInput.value   = fee;
+
+    // Scroll to create form
+    $('create-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    showToast('Request loaded into Create Event form.', 'ok');
+    log(`Request "${title}" loaded into form.`, 'info');
+  };
 
   /* ── Log ──────────────────────────────────────────────────── */
   function log(msg, type = '') {

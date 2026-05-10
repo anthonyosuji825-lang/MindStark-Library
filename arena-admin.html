@@ -286,6 +286,44 @@
     .lb-status { font-size: .68rem; color: var(--arena-muted); }
     .lb-empty { padding: 1.5rem; text-align: center; font-size: .85rem; color: var(--arena-muted); }
 
+    /* ── REQUEST CARDS ───────────────────────────── */
+    .req-card {
+      padding: 1.1rem 1.4rem;
+      border-bottom: 1px solid var(--arena-border);
+    }
+    .req-card:last-child { border-bottom: none; }
+    .req-header {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 1rem;
+      margin-bottom: .6rem;
+    }
+    .req-title {
+      font-family: 'Playfair Display', serif;
+      font-size: .95rem; font-weight: 700; color: var(--cream);
+    }
+    .req-meta {
+      font-size: .75rem; color: var(--arena-muted);
+      display: flex; gap: .75rem; flex-wrap: wrap;
+      margin-bottom: .6rem;
+    }
+    .req-topic {
+      font-size: .84rem; color: var(--arena-text);
+      line-height: 1.5; margin-bottom: .75rem;
+    }
+    .req-notes {
+      font-size: .78rem; color: var(--arena-muted);
+      font-style: italic; margin-bottom: .75rem;
+    }
+    .req-actions { display: flex; gap: .6rem; flex-wrap: wrap; }
+    .req-status {
+      font-size: .7rem; font-weight: 600; letter-spacing: .08em;
+      text-transform: uppercase; padding: .2rem .65rem;
+      border-radius: 50px; border: 1px solid;
+    }
+    .req-status.pending  { color: var(--gold); border-color: rgba(200,150,62,.4); background: rgba(200,150,62,.08); }
+    .req-status.approved { color: var(--success); border-color: rgba(76,175,125,.4); background: rgba(76,175,125,.08); }
+    .req-status.rejected { color: var(--danger); border-color: rgba(224,92,92,.4); background: rgba(224,92,92,.08); }
+
     /* ── LOG ─────────────────────────────────────── */
     .log {
       background: var(--arena-surface); border-radius: 8px;
@@ -447,6 +485,20 @@
         </div>
         <div id="admin-lb">
           <div class="lb-empty">No participants yet.</div>
+        </div>
+      </div>
+
+      <!-- ── EVENT REQUESTS ────────────────────────── -->
+      <div class="card full-width">
+        <div class="card-header">
+          <span class="card-title">Event Requests</span>
+          <div style="display:flex;align-items:center;gap:.75rem;">
+            <span id="req-count" style="font-size:.75rem;color:var(--arena-muted);">0 pending</span>
+            <button class="btn btn-outline" style="padding:.3rem .75rem;font-size:.75rem;" id="refresh-req-btn">↻ Refresh</button>
+          </div>
+        </div>
+        <div id="requests-list">
+          <div class="lb-empty">No event requests yet.</div>
         </div>
       </div>
 
