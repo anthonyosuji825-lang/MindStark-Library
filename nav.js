@@ -380,7 +380,7 @@
         <div class="dd-section">Library</div>
         <a href="browse.html" class="dd-item"><span class="dd-icon">📚</span> Browse Books</a>
         <a href="book.html" class="dd-item"><span class="dd-icon">🔖</span> My Books ${bmCount>0?`<span class="dd-badge">${bmCount}</span>`:''}</a>
-        <a href="arena.html" class="dd-item"><span class="dd-icon">⚔️</span> The Arena</a>
+        <a href="arena.html" class="dd-item" id="nav-arena-link"><span class="dd-icon">⚔️</span> The Arena</a>
         <div class="dd-section">Account</div>
         <a href="profile.html" class="dd-item"><span class="dd-icon">👤</span> My Profile</a>
         <a href="membership.html" class="dd-item"><span class="dd-icon">💳</span> Membership</a>
@@ -447,7 +447,7 @@
       <a href="book.html" class="ms-mob-link"><span class="ms-mob-link-icon">🔖</span> My Books ${bmCount>0?`<span class="ms-mob-link-badge">${bmCount}</span>`:''}</a>
       <a href="membership.html" class="ms-mob-link"><span class="ms-mob-link-icon">💎</span> Membership</a>
       <a href="feeds.html" class="ms-mob-link"><span class="ms-mob-link-icon">📰</span> Feeds</a>
-      <a href="arena.html" class="ms-mob-link"><span class="ms-mob-link-icon">⚔️</span> The Arena</a>
+      <a href="arena.html" class="ms-mob-link" id="mob-arena-link"><span class="ms-mob-link-icon">⚔️</span> The Arena</a>
       <a href="about.html" class="ms-mob-link"><span class="ms-mob-link-icon">ℹ️</span> About</a>`;
 
     let accountSection = '';
@@ -550,6 +550,30 @@
     t.textContent = msg;
     t.style.transform = 'translateX(-50%) translateY(0)';
     setTimeout(() => { t.style.transform = 'translateX(-50%) translateY(100px)'; }, 3000);
+  }
+
+  /* ── ADMIN BADGE: show pending request count for Tony ─────── */
+  const TONY_ID = '429025f0-a2b5-41ec-a292-29e8a2241690';
+  if (isSignedIn && currentUser?.id === TONY_ID) {
+    document.addEventListener('supabase:ready', async () => {
+      try {
+        const { count } = await window._sb
+          .from('event_requests')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'pending');
+
+        if (count > 0) {
+          const badge = `<span class="dd-badge" style="background:#e05c5c;">${count}</span>`;
+          const mobBadge = `<span class="ms-mob-link-badge" style="background:#e05c5c;">${count}</span>`;
+
+          const desktopLink = document.getElementById('nav-arena-link');
+          if (desktopLink) desktopLink.innerHTML += badge;
+
+          const mobLink = document.getElementById('mob-arena-link');
+          if (mobLink) mobLink.innerHTML += mobBadge;
+        }
+      } catch(e) {}
+    });
   }
 
 })();

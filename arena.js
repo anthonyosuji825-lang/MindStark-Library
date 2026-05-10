@@ -51,10 +51,18 @@
       if (currentUser.id === '429025f0-a2b5-41ec-a292-29e8a2241690') {
         const navRight = document.querySelector('.nav-right');
         if (navRight) {
+          // Check pending requests count
+          const { count } = await window._sb
+            .from('event_requests')
+            .select('*', { count: 'exact', head: true })
+            .eq('status', 'pending');
+
+          const badge = count > 0 ? ` <span style="background:var(--danger);color:#fff;font-size:.6rem;padding:.1rem .35rem;border-radius:50px;margin-left:.3rem;">${count}</span>` : '';
+
           const adminLink = document.createElement('a');
           adminLink.href = 'arena-admin.html';
-          adminLink.textContent = '⚡ Admin';
-          adminLink.style.cssText = 'font-size:.75rem;font-weight:700;color:var(--gold);text-decoration:none;background:rgba(200,150,62,.1);border:1px solid rgba(200,150,62,.4);padding:.3rem .75rem;border-radius:50px;letter-spacing:.04em;';
+          adminLink.innerHTML = `⚡ Admin${badge}`;
+          adminLink.style.cssText = 'font-size:.75rem;font-weight:700;color:var(--gold);text-decoration:none;background:rgba(200,150,62,.1);border:1px solid rgba(200,150,62,.4);padding:.3rem .75rem;border-radius:50px;letter-spacing:.04em;display:flex;align-items:center;';
           navRight.insertBefore(adminLink, navRight.firstChild);
         }
       }
