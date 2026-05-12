@@ -249,13 +249,13 @@
   /* ── START EVENT ──────────────────────────────────────────── */
   async function handleStartEvent() {
     if (!currentEvent) return;
-
     if (!confirm(`Start "${currentEvent.title}"? This opens the event to questions.`)) return;
 
     const btn = $('start-btn');
     if (btn) { btn.disabled = true; btn.textContent = 'Starting…'; }
 
-    const res = await rpc('start_event', { p_event_id: currentEvent.id });
+    const fnName = currentEvent.type === 'hot_seat' ? 'start_hot_seat_event' : 'start_event';
+    const res = await rpc(fnName, { p_event_id: currentEvent.id });
 
     if (!res.success) {
       log('Start failed: ' + (res.error || JSON.stringify(res)), 'err');
@@ -344,15 +344,23 @@
       return;
     }
 
-    const next = questionQueue[0];
-    const btn  = $('post-q-btn');
+    const next      = questionQueue[0];
+    const btn       = $('post-q-btn');
+    const timeLimit = currentEvent.question_time_limit || 30;
+    const type      = currentEvent.type;
     if (btn) { btn.disabled = true; btn.textContent = 'Posting…'; }
 
-    const isGrandHall = currentEvent.type === 'grand_hall';
-    const fnName = isGrandHall ? 'post_grand_hall_question' : 'post_question';
-    const params = isGrandHall
-      ? { p_event_id: currentEvent.id, p_question: next.question, p_answer: next.answer, p_time_limit: currentEvent.question_time_limit || 30 }
-      : { p_event_id: currentEvent.id, p_question: next.question, p_answer: next.answer };
+    let fnName, params;
+    if (type === 'hot_seat') {
+      fnName = 'post_hot_seat_question';
+      params = { p_event_id: currentEvent.id, p_question: next.question, p_answer: next.answer, p_time_limit: timeLimit };
+    } else if (type === 'grand_hall') {
+      fnName = 'post_grand_hall_question';
+      params = { p_event_id: currentEvent.id, p_question: next.question, p_answer: next.answer, p_time_limit: timeLimit };
+    } else {
+      fnName = 'post_question';
+      params = { p_event_id: currentEvent.id, p_question: next.question, p_answer: next.answer };
+    }
 
     const res = await rpc(fnName, params);
 
@@ -363,28 +371,24 @@
       return;
     }
 
-    // For Grand Hall — auto-post next question after time limit
-    if (isGrandHall && res.time_limit) {
-      const timeLimit = res.time_limit * 1000;
+    // Grand Hall — auto-post next after time limit
+    if (type === 'grand_hall' && res.time_limit) {
       log(`Question posted. Auto-advancing in ${res.time_limit}s…`, 'info');
       setTimeout(async () => {
-        if (questionQueue.length > 0) {
-          log('Time expired. Auto-posting next question…', 'info');
-          handlePostNextQuestion();
-        } else {
-          log('All questions done. Ready to finalize.', 'info');
-          showToast('All questions done. Finalize when ready.', 'ok');
-        }
-      }, timeLimit);
+        if (questionQueue.length > 0) handlePostNextQuestion();
+        else { log('All questions done. Ready to finalize.', 'info'); showToast('All questions done. Finalize when ready.', 'ok'); }
+      }, res.time_limit * 1000);
     }
 
-    // Remove from queue
+    // Hot Seat — log who's up
+    if (type === 'hot_seat' && res.display_name) {
+      log(`🎯 Hot Seat: ${res.display_name} → "${next.question.slice(0,40)}…"`, 'ok');
+    }
+
     questionQueue.shift();
     renderQueue();
-
-    log(`Question posted: "${next.question.slice(0, 40)}…" | Answer: "${next.answer}"${isGrandHall ? ` | Time: ${currentEvent.question_time_limit}s` : ''}`, 'ok');
+    log(`Question posted: "${next.question.slice(0, 40)}…" | Answer: "${next.answer}"`, 'ok');
     showToast('Question is live!', 'ok');
-
     if (btn) { btn.disabled = false; btn.textContent = '▶ Post Next'; }
   }
 

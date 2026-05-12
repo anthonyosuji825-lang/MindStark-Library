@@ -68,6 +68,17 @@
       }
     }
 
+    // Speech toggle
+    const speechBtn = $('speech-toggle');
+    if (speechBtn) {
+      speechBtn.addEventListener('click', () => {
+        speechEnabled = !speechEnabled;
+        speechBtn.textContent = speechEnabled ? '🔊 Voice' : '🔇 Voice';
+        speechBtn.style.opacity = speechEnabled ? '1' : '.5';
+        if (!speechEnabled) synth?.cancel();
+      });
+    }
+
     await loadEvent();
   }
 
@@ -168,8 +179,29 @@
         table: 'events_public',
         filter: `id=eq.${currentEvent.id}`
       }, payload => {
+        const prev = { ...currentEvent };
         currentEvent = { ...currentEvent, ...payload.new };
         renderEvent();
+
+        // Speech announcements for Hot Seat
+        if (currentEvent.type === 'hot_seat') {
+          // New question arrived
+          if (payload.new.current_question && !prev.current_question) {
+            const player = leaderboard.find(p => p.user_id === payload.new.current_player_id);
+            const name   = player?.display_name || 'Next player';
+            const isMe   = currentUser && payload.new.current_player_id === currentUser.id;
+            const intro  = isMe ? `${name}, your question is:` : `${name}'s question:`;
+            speak(`${intro} ${payload.new.current_question}`);
+          }
+          // Correct answer revealed
+          if (payload.new.reveal_answer && !prev.reveal_answer) {
+            speak(`Wrong. The correct answer was ${payload.new.reveal_answer}.`);
+          }
+          // Question cleared after correct answer
+          if (!payload.new.current_question && prev.current_question && !payload.new.reveal_answer) {
+            speak('Correct!');
+          }
+        }
       })
       // Listen to participant inserts (new joins)
       .on('postgres_changes', {
@@ -261,12 +293,16 @@
     }
     const tagEl = $('event-type-tag');
     if (tagEl) {
-      tagEl.textContent = currentEvent.type === 'gauntlet' ? '⚔️ Gauntlet — Winner Takes Prize Pool' : '🏛 Grand Hall';
+      tagEl.textContent = currentEvent.type === 'gauntlet'
+        ? '⚔️ Gauntlet — Winner Takes Prize Pool'
+        : currentEvent.type === 'grand_hall'
+        ? '🏛 Grand Hall — Everyone Answers'
+        : '🎤 Hot Seat — One Player at a Time';
       tagEl.classList.remove('skeleton');
       tagEl.style = '';
     }
     const badgeEl = $('event-type-badge');
-    if (badgeEl) badgeEl.textContent = currentEvent.type === 'gauntlet' ? 'Gauntlet' : 'Grand Hall';
+    if (badgeEl) badgeEl.textContent = currentEvent.type === 'gauntlet' ? 'Gauntlet' : currentEvent.type === 'grand_hall' ? 'Grand Hall' : 'Hot Seat';
 
     updateEventStats();
   }
@@ -331,10 +367,13 @@
     }
 
     const isGrandHall   = currentEvent.type === 'grand_hall';
+    const isHotSeat     = currentEvent.type === 'hot_seat';
     const isParticipant = participation && participation.status === 'locked';
-    const qNum  = currentEvent.question_number || 1;
+    const qNum  = Math.min(currentEvent.question_number || 1, currentEvent.total_questions || 10);
     const total = currentEvent.total_questions || 10;
-    const alreadyAnswered = isGrandHall && userAnswers[qNum];
+
+    // Route to Hot Seat renderer
+    if (isHotSeat) { renderHotSeat(); return; }
 
     body.innerHTML = `
       <div class="q-number">Question ${qNum} of ${total}</div>
@@ -436,7 +475,165 @@
     countdownInterval = setInterval(tick, 500);
   }
 
-  /* ── Grand Hall answer submit ─────────────────────────────── */
+  /* ── Web Speech API ───────────────────────────────────────── */
+  const synth = window.speechSynthesis;
+  let speechEnabled = true;
+
+  function speak(text, onEnd) {
+    if (!speechEnabled || !synth) { if (onEnd) onEnd(); return; }
+    synth.cancel();
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.rate  = 0.95;
+    utt.pitch = 1;
+    utt.volume = 1;
+    if (onEnd) utt.onend = onEnd;
+    synth.speak(utt);
+  }
+
+  /* ── Hot Seat render ──────────────────────────────────────── */
+  function renderHotSeat() {
+    const body = $('question-body');
+    if (!body || !currentEvent) return;
+
+    const isMyTurn = currentUser && currentEvent.current_player_id === currentUser.id;
+    const qNum     = Math.min(currentEvent.question_number || 0, currentEvent.total_questions || 10);
+    const total    = currentEvent.total_questions || 10;
+
+    // Get current player name from leaderboard
+    const currentPlayer = leaderboard.find(p => p.user_id === currentEvent.current_player_id);
+    const playerName    = currentPlayer?.display_name || 'Unknown';
+
+    // No question active — waiting state or reveal
+    if (!currentEvent.current_question) {
+      if (currentEvent.reveal_answer) {
+        // Show correct answer after wrong/timeout
+        body.innerHTML = `
+          <div class="q-waiting">
+            <div class="q-waiting-icon">💡</div>
+            <h3>The correct answer was:</h3>
+            <p style="color:var(--gold);font-size:1.1rem;font-weight:700;margin-top:.5rem;">${escHtml(currentEvent.reveal_answer)}</p>
+            <p style="margin-top:.75rem;font-size:.85rem;">Next question incoming…</p>
+          </div>`;
+      } else {
+        body.innerHTML = `
+          <div class="q-waiting">
+            <div class="q-waiting-icon">🎤</div>
+            <h3>${currentEvent.status === 'registering' ? 'Filling the Arena…' : 'Next question incoming…'}</h3>
+            <p>${currentEvent.status === 'registering'
+              ? `Waiting for ${currentEvent.min_participants} players.`
+              : 'Stay sharp. Your turn may be next.'
+            }</p>
+          </div>`;
+      }
+      return;
+    }
+
+    // Active question
+    body.innerHTML = `
+      <div style="margin-bottom:1rem;">
+        <div class="q-number">Question ${qNum} of ${total}</div>
+        <div style="display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;background:${isMyTurn ? 'rgba(200,150,62,.08)' : 'var(--arena-surface)'};border:1.5px solid ${isMyTurn ? 'var(--gold)' : 'var(--arena-border)'};border-radius:10px;margin-bottom:1rem;">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--arena-card);border:2px solid ${isMyTurn ? 'var(--gold)' : 'var(--arena-border)'};display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:var(--gold);text-transform:uppercase;flex-shrink:0;">${(playerName).slice(0,2)}</div>
+          <div>
+            <div style="font-size:.7rem;color:var(--arena-muted);letter-spacing:.1em;text-transform:uppercase;">In the Hot Seat</div>
+            <div style="font-size:.92rem;font-weight:700;color:${isMyTurn ? 'var(--gold)' : 'var(--cream)'};">${escHtml(playerName)}${isMyTurn ? ' — That\'s You!' : ''}</div>
+          </div>
+          ${isMyTurn ? '<div style="margin-left:auto;font-size:1.2rem;">🎯</div>' : ''}
+        </div>
+      </div>
+      ${currentEvent.question_deadline ? `
+        <div class="countdown-wrap">
+          <div class="countdown-bar-track"><div class="countdown-bar-fill" id="countdown-fill"></div></div>
+          <div class="countdown-label" id="countdown-label">—s</div>
+        </div>
+      ` : ''}
+      <div class="q-text">${escHtml(currentEvent.current_question)}</div>
+      ${isMyTurn ? `
+        <div class="answer-form" style="margin-top:1.25rem;">
+          <input type="text" class="answer-input" id="answer-input"
+            placeholder="Your answer…"
+            autocomplete="off" autocorrect="off" spellcheck="false"/>
+          <button class="submit-btn" id="submit-btn">Submit</button>
+        </div>
+        <div class="answer-feedback" id="answer-feedback"></div>
+        <p style="font-size:.75rem;color:var(--arena-muted);margin-top:.6rem;">Everyone is watching. Answer carefully.</p>
+      ` : `
+        <div class="answer-feedback wrong" style="display:block;margin-top:1rem;">
+          👁 Watching mode — ${escHtml(playerName)} is answering.
+        </div>
+      `}
+    `;
+
+    // Start countdown
+    if (currentEvent.question_deadline) {
+      startCountdown(currentEvent.question_deadline, currentEvent.question_time_limit || 30);
+    }
+
+    // Bind submit
+    const submitBtn   = $('submit-btn');
+    const answerInput = $('answer-input');
+    if (submitBtn && answerInput) {
+      submitBtn.addEventListener('click', () => handleHotSeatAnswer());
+      answerInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleHotSeatAnswer(); });
+      answerInput.focus();
+    }
+  }
+
+  /* ── Hot Seat answer submit ───────────────────────────────── */
+  async function handleHotSeatAnswer() {
+    const input = $('answer-input');
+    const btn   = $('submit-btn');
+    const fb    = $('answer-feedback');
+    if (!input || !btn || !currentEvent || !currentUser) return;
+
+    const answer = input.value.trim();
+    if (!answer) { input.focus(); return; }
+
+    btn.disabled   = true;
+    btn.textContent = '…';
+    input.disabled  = true;
+
+    try {
+      const session = await window._sb.auth.getSession();
+      const token   = session?.data?.session?.access_token;
+
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/submit_hot_seat_answer`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON,
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          p_user_id:  currentUser.id,
+          p_event_id: currentEvent.id,
+          p_answer:   answer,
+        }),
+      });
+
+      const result = await res.json();
+
+      if (result.correct) {
+        showFeedback(fb, 'correct', '✓ Correct! Point awarded.');
+        speak('Correct!');
+        showToast('Correct! 🎯', 'success');
+      } else if (result.error) {
+        showFeedback(fb, 'wrong', result.error);
+        btn.disabled = false;
+        btn.textContent = 'Submit';
+        input.disabled = false;
+      } else {
+        showFeedback(fb, 'wrong', `✗ Wrong. The correct answer was: ${result.correct_answer || '—'}`);
+        speak(`Wrong. The correct answer was ${result.correct_answer || 'unknown'}.`);
+        showToast('Wrong answer.', 'error');
+      }
+    } catch (err) {
+      showFeedback(fb, 'wrong', 'Network error. Try again.');
+      btn.disabled = false;
+      btn.textContent = 'Submit';
+      input.disabled = false;
+    }
+  }
   async function handleGrandHallAnswer(qNum) {
     const input = $('answer-input');
     const btn   = $('submit-btn');
