@@ -6,7 +6,7 @@
 */
 
 const SUPABASE_URL  = 'https://wgcpuohwyarhjlndmnlj.supabase.co';
-const SUPABASE_ANON = 'sb_publishable_aCM0iO7qCRXWSnnzzynAlA_mHRquGLQ';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnY3B1b2h3eWFyaGpsbmRtbmxqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MzEzODYsImV4cCI6MjA4OTIwNzM4Nn0.W3SMmePgAdRR7v6_NWRlIoPYmo5HMF8mmTiwELkZclo';
 
 /* Prevent redirect loops */
 if (window.location.hostname.includes('vercel.app') &&
