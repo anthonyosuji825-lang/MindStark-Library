@@ -654,6 +654,19 @@
     hint.style.color      = colors[score-1] || '#e74c3c';
   }
 
+  /* ── AUTO-SHOW RESET FORM (from CONNECT forgot password link) ── */
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('reset') === '1') {
+    switchTab('signin');
+    showAlert('Enter your email below and click "Forgot Password" to reset your password.', 'success');
+    setTimeout(() => {
+      const emailInput = document.getElementById('siEmail');
+      if (emailInput) emailInput.focus();
+    }, 300);
+  }
+})();
+  
   /* ── ENTER KEY ──────────────────────── */
   ['siEmail','siPassword'].forEach(id =>
     document.getElementById(id)?.addEventListener('keydown', e => { if(e.key==='Enter') doSignIn(); }));
