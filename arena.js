@@ -131,12 +131,11 @@
     currentEvent = data;
     userAnswers  = {};
 
-    // Load participation and leaderboard in parallel
-    await Promise.all([
-      currentUser ? loadParticipation() : Promise.resolve(),
-      loadLeaderboard(),
-    ]);
+    if (currentUser) {
+      await loadParticipation();
+    }
 
+    await loadLeaderboard();
     renderEvent();
     subscribeRealtime();
   }
@@ -364,19 +363,6 @@
     }
 
     if (!currentEvent.current_question || currentEvent.status === 'registering') {
-      // For Grand Hall — keep last question visible until next one arrives
-      if (isGrandHall && currentEvent.status === 'active' && !currentEvent.current_question) {
-        // Check if user already answered current question
-        const answered = userAnswers[currentEvent.question_number];
-        body.innerHTML = `
-          <div class="q-waiting">
-            <div class="q-waiting-icon">⏳</div>
-            <h3>${answered ? (answered.correct ? '✓ Correct!' : '✗ Incorrect') : 'Time\'s up!'}</h3>
-            <p>Next question incoming. Stay sharp.</p>
-          </div>`;
-        return;
-      }
-
       body.innerHTML = `
         <div class="q-waiting">
           <div class="q-waiting-icon">${currentEvent.status === 'registering' ? '⏳' : '⚔️'}</div>

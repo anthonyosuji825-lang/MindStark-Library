@@ -412,14 +412,13 @@
       return;
     }
 
-    // Grand Hall — auto-post next after time limit + 3s buffer
+    // Grand Hall — auto-post next after time limit
     if (type === 'grand_hall' && res.time_limit) {
-      const delay = (res.time_limit + 3) * 1000; // 3 second buffer for clients to see result
-      log(`Question posted. Auto-advancing in ${res.time_limit}s + 3s buffer…`, 'info');
+      log(`Question posted. Auto-advancing in ${res.time_limit}s…`, 'info');
       setTimeout(async () => {
         if (questionQueue.length > 0) handlePostNextQuestion();
         else { log('All questions done. Ready to finalize.', 'info'); showToast('All questions done. Finalize when ready.', 'ok'); }
-      }, delay);
+      }, res.time_limit * 1000);
     }
 
     // Hot Seat — log who's up
