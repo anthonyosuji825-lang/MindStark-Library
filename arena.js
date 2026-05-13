@@ -242,6 +242,15 @@
         renderLeaderboard();
         renderQuestionFeedback(payload.new);
       })
+      // Listen to admin comments
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'event_comments',
+        filter: `event_id=eq.${currentEvent.id}`
+      }, payload => {
+        showAdminComment(payload.new.message);
+      })
       .subscribe();
   }
 
@@ -1132,6 +1141,56 @@
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
     const hashArray  = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  /* ── Admin comment display ────────────────────────────────── */
+  function showAdminComment(message) {
+    // Remove existing comment if any
+    const existing = document.getElementById('admin-comment-banner');
+    if (existing) existing.remove();
+
+    const banner = document.createElement('div');
+    banner.id = 'admin-comment-banner';
+    banner.style.cssText = `
+      position: fixed; bottom: 5rem; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--arena-card);
+      border: 1px solid var(--arena-border-bright);
+      border-radius: 12px; padding: .85rem 1.4rem;
+      max-width: 480px; width: 90%;
+      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+      z-index: 998; opacity: 0;
+      transition: all .4s cubic-bezier(.34,1.56,.64,1);
+      display: flex; align-items: flex-start; gap: .75rem;
+    `;
+    banner.innerHTML = `
+      <span style="font-size:1.1rem;flex-shrink:0;">🎙</span>
+      <div>
+        <div style="font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.2rem;">MindStark Host</div>
+        <div style="font-size:.9rem;color:var(--arena-text);line-height:1.5;">${escHtml(message)}</div>
+      </div>
+      <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--arena-muted);cursor:pointer;font-size:.9rem;margin-left:auto;flex-shrink:0;padding:.2rem;">✕</button>
+    `;
+
+    document.body.appendChild(banner);
+
+    // Animate in
+    requestAnimationFrame(() => {
+      banner.style.opacity = '1';
+      banner.style.transform = 'translateX(-50%) translateY(0)';
+    });
+
+    // Speak the comment
+    speak(`Host says: ${message}`);
+
+    // Auto-remove after 8 seconds
+    setTimeout(() => {
+      if (banner.parentElement) {
+        banner.style.opacity = '0';
+        banner.style.transform = 'translateX(-50%) translateY(20px)';
+        setTimeout(() => banner.remove(), 400);
+      }
+    }, 8000);
   }
 
   /* ── Toast ────────────────────────────────────────────────── */

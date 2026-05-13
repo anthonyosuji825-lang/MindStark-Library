@@ -62,6 +62,7 @@
     if (currentEvent) {
       log(`Event loaded: "${currentEvent.title}" [${currentEvent.status}]`, 'info');
       await loadLeaderboard();
+      await loadQueue();
       renderActiveEvent();
       subscribeRealtime();
     } else {
@@ -194,8 +195,14 @@
       if (e.key === 'Enter') handleAddQuestion();
     });
 
+    $('send-comment-btn').addEventListener('click', handleSendComment);
+    $('comment-text').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendComment(); }
+    });
+
     // Load requests on boot
     await loadRequests();
+    await loadQueue();
   }
 
   /* ── CREATE EVENT ─────────────────────────────────────────── */
@@ -313,23 +320,57 @@
     await loadCurrentEvent();
   }
 
-  /* ── ADD QUESTION TO QUEUE ────────────────────────────────── */
-  function handleAddQuestion() {
+  /* ── ADD QUESTION TO QUEUE (DB-backed) ───────────────────── */
+  async function handleAddQuestion() {
     const qText = $('q-text').value.trim();
     const qAns  = $('q-answer').value.trim();
 
     if (!qText) { showToast('Enter a question.', 'err'); return; }
     if (!qAns)  { showToast('Enter the answer.', 'err'); return; }
 
-    questionQueue.push({ question: qText, answer: qAns });
+    if (!currentEvent) { showToast('Create an event first.', 'err'); return; }
+
+    const btn = $('add-q-btn');
+    btn.disabled = true; btn.textContent = 'Saving…';
+
+    const { data: { session } } = await window._sb.auth.getSession();
+    const token = session?.access_token || sessionToken;
+
+    // Get current max position
+    const posRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/event_question_queue?event_id=eq.${currentEvent.id}&select=position&order=position.desc&limit=1`,
+      { headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + token } }
+    );
+    const posData = await posRes.json();
+    const nextPos = posData.length > 0 ? (posData[0].position + 1) : 0;
+
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/event_question_queue`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON,
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation',
+      },
+      body: JSON.stringify({
+        event_id: currentEvent.id,
+        question: qText,
+        answer:   qAns,
+        position: nextPos,
+      }),
+    });
+
+    btn.disabled = false; btn.textContent = '+ Add to Queue';
+
+    if (!res.ok) { showToast('Failed to save question.', 'err'); return; }
 
     $('q-text').value   = '';
     $('q-answer').value = '';
     $('q-text').focus();
 
-    log(`Q${questionQueue.length} queued: "${qText.slice(0, 40)}…"`, 'ok');
-    renderQueue();
-    showToast('Question added to queue.', 'ok');
+    log(`Question saved to DB queue.`, 'ok');
+    showToast('Question saved.', 'ok');
+    await loadQueue();
   }
 
   /* ── POST NEXT QUESTION ───────────────────────────────────── */
@@ -385,6 +426,16 @@
       log(`🎯 Hot Seat: ${res.display_name} → "${next.question.slice(0,40)}…"`, 'ok');
     }
 
+    // Delete posted question from DB queue
+    if (next.id) {
+      const { data: { session } } = await window._sb.auth.getSession();
+      const token = session?.access_token || sessionToken;
+      await fetch(`${SUPABASE_URL}/rest/v1/event_question_queue?id=eq.${next.id}`, {
+        method: 'DELETE',
+        headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + token },
+      });
+    }
+
     questionQueue.shift();
     renderQueue();
     log(`Question posted: "${next.question.slice(0, 40)}…" | Answer: "${next.answer}"`, 'ok');
@@ -392,7 +443,56 @@
     if (btn) { btn.disabled = false; btn.textContent = '▶ Post Next'; }
   }
 
-  /* ── RENDER QUEUE ─────────────────────────────────────────── */
+  /* ── SEND COMMENT ─────────────────────────────────────────── */
+  async function handleSendComment() {
+    const text = $('comment-text')?.value.trim();
+    if (!text) { showToast('Type a comment first.', 'err'); return; }
+    if (!currentEvent) { showToast('No active event.', 'err'); return; }
+
+    const btn = $('send-comment-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+
+    const { data: { session } } = await window._sb.auth.getSession();
+    const token = session?.access_token || sessionToken;
+
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/event_comments`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON,
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({ event_id: currentEvent.id, message: text }),
+    });
+
+    if (btn) { btn.disabled = false; btn.textContent = '📢 Send'; }
+
+    if (res.ok) {
+      $('comment-text').value = '';
+      log(`Comment sent: "${text.slice(0, 50)}"`, 'ok');
+      showToast('Comment broadcasted!', 'ok');
+    } else {
+      showToast('Failed to send comment.', 'err');
+    }
+  }
+
+  /* ── LOAD QUEUE FROM DB ───────────────────────────────────── */
+  async function loadQueue() {
+    if (!currentEvent) { renderQueue(); return; }
+
+    const { data: { session } } = await window._sb.auth.getSession();
+    const token = session?.access_token || sessionToken;
+
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/event_question_queue?event_id=eq.${currentEvent.id}&order=position.asc`,
+      { headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + token } }
+    );
+
+    const data = await res.json();
+    questionQueue = Array.isArray(data) ? data : [];
+    renderQueue();
+  }
   function renderQueue() {
     const container = $('q-queue');
     const count     = $('queue-count');
@@ -409,14 +509,22 @@
         <span class="q-num">${i + 1}</span>
         <span class="q-text">${esc(q.question.slice(0, 60))}${q.question.length > 60 ? '…' : ''}</span>
         <span class="q-answer">→ ${esc(q.answer)}</span>
-        <button class="q-remove" data-idx="${i}" title="Remove">✕</button>
+        <button class="q-remove" data-id="${q.id || ''}" data-idx="${i}" title="Remove">✕</button>
       </div>
     `).join('');
 
-    // Bind remove buttons
     container.querySelectorAll('.q-remove').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', async () => {
+        const id  = btn.dataset.id;
         const idx = parseInt(btn.dataset.idx);
+        if (id) {
+          const { data: { session } } = await window._sb.auth.getSession();
+          const token = session?.access_token || sessionToken;
+          await fetch(`${SUPABASE_URL}/rest/v1/event_question_queue?id=eq.${id}`, {
+            method: 'DELETE',
+            headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + token },
+          });
+        }
         questionQueue.splice(idx, 1);
         renderQueue();
       });

@@ -503,6 +503,22 @@
         </div>
       </div>
 
+      <!-- ── ADMIN COMMENTS ─────────────────────────── -->
+      <div class="card full-width">
+        <div class="card-header">
+          <span class="card-title">Host Commentary</span>
+          <span style="font-size:.75rem;color:var(--arena-muted);">Broadcasts to all players instantly</span>
+        </div>
+        <div class="card-body" style="display:flex;gap:.75rem;align-items:flex-start;">
+          <textarea id="comment-text" placeholder="e.g. You can do better next time, Tony! Great question everyone…"
+            style="flex:1;background:var(--arena-surface);border:1.5px solid var(--arena-border);border-radius:8px;padding:.75rem 1rem;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--arena-text);outline:none;resize:none;height:72px;transition:border-color .2s;"
+            onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--arena-border)'"></textarea>
+          <button class="btn btn-gold" id="send-comment-btn" style="flex-shrink:0;padding:.75rem 1.25rem;">
+            📢 Send
+          </button>
+        </div>
+      </div>
+
       <!-- ── ACTIVITY LOG ──────────────────────────── -->
       <div class="card full-width">
         <div class="card-header">
@@ -526,7 +542,7 @@
     function toggleTimeLimitField() {
       const type = document.getElementById('ev-type').value;
       const group = document.getElementById('time-limit-group');
-      group.style.display = (type === 'grand_hall' || type === 'hot_seat') ? 'block' : 'none';
+      group.style.display = type === 'grand_hall' ? 'block' : 'none';
     }
   </script>
   <script src="supabase.js"></script>
