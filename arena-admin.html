@@ -542,7 +542,7 @@
     function toggleTimeLimitField() {
       const type = document.getElementById('ev-type').value;
       const group = document.getElementById('time-limit-group');
-      group.style.display = type === 'grand_hall' ? 'block' : 'none';
+      group.style.display = (type === 'grand_hall' || type === 'hot_seat') ? 'block' : 'none';
     }
   </script>
   <script src="supabase.js"></script>
