@@ -252,7 +252,11 @@
         renderLeaderboard();
         renderQuestionFeedback(payload.new);
       })
-      // Listen to admin comments
+      .subscribe();
+
+    // Comments on separate channel
+    window._sb
+      .channel(`arena-comments-${currentEvent.id}`)
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
