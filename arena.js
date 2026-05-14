@@ -30,17 +30,27 @@
   const $ = id => document.getElementById(id);
 
   /* ── Init ─────────────────────────────────────────────────── */
-  // Handle supabase:ready — works whether event fires before or after this script loads
-  if (window._sb) {
-    init();
-  } else {
-    document.addEventListener('supabase:ready', init);
-  }
+  let _initDone = false;
+  document.addEventListener('supabase:ready', init);
+  if (window._sb) init();
 
   async function init() {
+    if (_initDone) return;
+    _initDone = true;
     revealElements();
 
-    const { data: { user } } = await window._sb.auth.getUser();
+    // Try to get user — session may not be restored yet on first call
+    let user = null;
+    try {
+      const res1 = await window._sb.auth.getUser();
+      user = res1.data?.user || null;
+      if (!user) {
+        // Wait 800ms for session cookie to restore, then retry
+        await new Promise(r => setTimeout(r, 800));
+        const res2 = await window._sb.auth.getUser();
+        user = res2.data?.user || null;
+      }
+    } catch(e) { user = null; }
     currentUser = user;
 
     if (currentUser) {
