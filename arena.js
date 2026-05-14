@@ -394,6 +394,7 @@
     const isParticipant = participation && participation.status === 'locked';
     const qNum  = Math.min(currentEvent.question_number || 1, currentEvent.total_questions || 10);
     const total = currentEvent.total_questions || 10;
+    const alreadyAnswered = isGrandHall && userAnswers[qNum];
 
     // Route to Hot Seat renderer
     if (isHotSeat) { renderHotSeat(); return; }
