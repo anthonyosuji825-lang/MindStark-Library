@@ -333,17 +333,45 @@
     var book = getCurrentBook();
     var hour = new Date().getHours();
     var timeOfDay = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
     if (user && user.name && !user.guest) {
       var firstName = user.name.split(" ")[0];
       var memberTag = user.membership ? " — <em>" + user.membership.planName + " Member</em>" : "";
+      var isReturning = archerMemory && archerMemory.lastVisit;
+
+      // Currently reading a book
       if (book && book.title) {
+        if (isReturning) {
+          return timeOfDay + ", <strong>" + firstName + "</strong>" + memberTag + ". I see you have returned — and you are reading <strong>" + book.title + "</strong>" + (book.author ? " by " + book.author : "") + ". Shall I illuminate this work for you, or is there something else on your mind?";
+        }
         return timeOfDay + ", <strong>" + firstName + "</strong>" + memberTag + ". I see you are reading <strong>" + book.title + "</strong>" + (book.author ? " by " + book.author : "") + ". I am ARCHER — shall I tell you more about this book, its themes, or its author?";
       }
+
+      // Returning user with memory
+      if (isReturning) {
+        var memoryParts = [];
+        if (archerMemory.genres && archerMemory.genres.length > 0) {
+          memoryParts.push("your interest in <strong>" + archerMemory.genres.slice(-2).join(" and ") + "</strong>");
+        }
+        if (archerMemory.books && archerMemory.books.length > 0) {
+          memoryParts.push("<strong>" + archerMemory.books[archerMemory.books.length - 1] + "</strong>");
+        }
+        if (memoryParts.length > 0) {
+          return "Welcome back, <strong>" + firstName + "</strong>" + memberTag + ". Last time we touched on " + memoryParts.join(" and ") + ". Shall we continue from there, or shall we venture somewhere new today?";
+        }
+        return "Welcome back, <strong>" + firstName + "</strong>" + memberTag + ". It is a pleasure to have you return to MindStark Library. What shall we explore today?";
+      }
+
+      // First time user
       return timeOfDay + ", <strong>" + firstName + "</strong>" + memberTag + ". I am ARCHER, your guide through MindStark Library. What shall we explore today?";
     }
+
+    // Guest user reading a book
     if (book && book.title) {
       return "Welcome to <strong>MindStark Library</strong>. I am ARCHER. I see you are reading <strong>" + book.title + "</strong>" + (book.author ? " by " + book.author : "") + ". Shall I tell you more about this work?";
     }
+
+    // Guest user
     return "Welcome to <strong>MindStark Library</strong>. I am ARCHER — your guide through our vast collection of knowledge. Ask me about any book, author, genre, or idea. What shall we explore today?";
   }
 
