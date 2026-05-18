@@ -353,15 +353,14 @@
     /* ── MAIN AREA ───────────────────────────────── */
     .books-area { min-width: 0; }
 
-    /* ── LOADING ─────────────────────────────────── */
+    /* ── SKELETON LOADING ────────────────────────── */
     .loading {
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
+      text-align: center;
       padding: 5rem 2rem; gap: 1.5rem;
     }
-    .spinner-wrap {
-      position: relative; width: 52px; height: 52px;
-    }
+    .spinner-wrap { position: relative; width: 52px; height: 52px; }
     .spinner {
       width: 52px; height: 52px;
       border: 3px solid rgba(200,150,62,.15);
@@ -373,18 +372,84 @@
       position: absolute; top: 50%; left: 50%;
       transform: translate(-50%,-50%);
       width: 8px; height: 8px;
-      border-radius: 50%; background: var(--gold);
-      opacity: .7;
+      border-radius: 50%; background: var(--gold); opacity: .7;
     }
-    .loading p { color: var(--muted); font-size: .88rem; letter-spacing: .02em; }
+    .loading p { color: var(--muted); font-size: .88rem; letter-spacing: .02em; text-align: center; }
     @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes shimmer {
+      0%   { background-position: -600px 0; }
+      100% { background-position: 600px 0; }
+    }
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(20px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    @keyframes shimmer {
-      0%   { background-position: -200% center; }
-      100% { background-position: 200% center; }
+    .skeleton-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(188px, 1fr));
+      gap: 1.4rem;
+    }
+    .skeleton-card {
+      background: var(--white);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .skeleton-cover {
+      height: 200px;
+      background: linear-gradient(90deg, #ede5d5 25%, #e8dcc8 50%, #ede5d5 75%);
+      background-size: 600px 100%;
+      animation: shimmer 1.4s infinite linear;
+    }
+    .skeleton-body { padding: 1rem; }
+    .skeleton-line {
+      border-radius: 6px;
+      background: linear-gradient(90deg, #ede5d5 25%, #e8dcc8 50%, #ede5d5 75%);
+      background-size: 600px 100%;
+      animation: shimmer 1.4s infinite linear;
+      margin-bottom: .55rem;
+    }
+    .skeleton-line.genre  { height: 10px; width: 55%; }
+    .skeleton-line.title  { height: 13px; width: 90%; }
+    .skeleton-line.title2 { height: 13px; width: 70%; }
+    .skeleton-line.author { height: 10px; width: 50%; margin-bottom: .8rem; }
+    .skeleton-footer {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: .5rem;
+    }
+    .skeleton-line.dl   { height: 10px; width: 35%; margin: 0; }
+    .skeleton-btn {
+      height: 28px; width: 58px; border-radius: 50px;
+      background: linear-gradient(90deg, #ede5d5 25%, #e8dcc8 50%, #ede5d5 75%);
+      background-size: 600px 100%;
+      animation: shimmer 1.4s infinite linear;
+    }
+
+    /* ── BACK TO TOP ─────────────────────────────── */
+    .back-to-top {
+      position: fixed; bottom: 2rem; right: 2rem; z-index: 500;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--brown); color: var(--cream);
+      border: 1.5px solid rgba(200,150,62,.3);
+      box-shadow: 0 4px 20px rgba(59,42,26,.25);
+      cursor: pointer; font-size: 1.1rem;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transform: translateY(12px);
+      transition: opacity .3s, transform .3s, background .2s;
+    }
+    .back-to-top.visible {
+      opacity: 1; pointer-events: auto;
+      transform: translateY(0);
+    }
+    .back-to-top:hover {
+      background: var(--gold);
+      border-color: var(--gold);
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 560px) {
+      .back-to-top { bottom: 1.25rem; right: 1.25rem; width: 40px; height: 40px; font-size: 1rem; }
     }
 
     /* ── ORIGINALS BANNER ────────────────────────── */
@@ -804,9 +869,20 @@
       .cs-cover { height: 260px; }
     }
     @media (max-width: 560px) {
-      .cs-card { width: 165px; }
-      .cs-cover { height: 230px; }
+      .cs-track-wrap {
+        padding: 0 1.25rem;
+        -webkit-mask-image: none;
+        mask-image: none;
+      }
+      .cs-card {
+        width: calc(100vw - 2.5rem);
+        max-width: 360px;
+      }
+      .cs-cover { height: 340px; }
       .cs-title { font-size: 1.1rem; }
+      .cs-info { padding: 1rem 1.1rem 1.1rem; }
+      .cs-book-title { font-size: 1.05rem; white-space: normal; }
+      .cs-synopsis { -webkit-line-clamp: 2; }
     }
 
     /* ── GUTENBERG MID SLIDER ────────────────────── */
@@ -1244,7 +1320,7 @@
           <div class="spinner"></div>
           <div class="spinner-dot"></div>
         </div>
-        <p>Fetching books from Project Gutenberg…</p>
+        <p style="text-align:center">Fetching books from Project Gutenberg…</p>
       </div>
       <div class="books-grid" id="booksGrid" style="display:none"></div>
       <div class="empty-state" id="emptyState">
@@ -1262,6 +1338,7 @@
   </div>
 
   <div class="toast" id="toast"></div>
+  <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
 
   <footer>
     © 2026 <a href="index.html">MindStark Library</a> ·
@@ -1354,15 +1431,41 @@
        FETCH BOOKS
     ════════════════════════════════════════════ */
     async function fetchBooks(url = null) {
-      $loading.style.display = 'flex';
-      $grid.style.display    = 'none';
+      $loading.style.display = 'none';
+      $grid.style.display    = '';
       $empty.style.display   = 'none';
       $pag.style.display     = 'none';
       $grid.innerHTML        = '';
 
+      /* Show skeleton cards */
+      if (!showOriginals) {
+        const skelGrid = document.createElement('div');
+        skelGrid.className = 'skeleton-grid';
+        skelGrid.id = 'skeletonGrid';
+        skelGrid.style.gridColumn = '1 / -1';
+        for (let i = 0; i < 12; i++) {
+          skelGrid.innerHTML += `
+            <div class="skeleton-card">
+              <div class="skeleton-cover"></div>
+              <div class="skeleton-body">
+                <div class="skeleton-line genre"></div>
+                <div class="skeleton-line title"></div>
+                <div class="skeleton-line title2"></div>
+                <div class="skeleton-line author"></div>
+                <div class="skeleton-footer">
+                  <div class="skeleton-line dl"></div>
+                  <div class="skeleton-btn"></div>
+                </div>
+              </div>
+            </div>`;
+        }
+        $grid.appendChild(skelGrid);
+      }
+
       if (showOriginals) {
         const originals = filterMyBooks();
-        $loading.style.display = 'none';
+        const skel = document.getElementById('skeletonGrid');
+        if (skel) skel.remove();
         totalCount = originals.length;
         nextUrl = null; prevUrl = null;
         renderBooks(originals, true);
@@ -1382,6 +1485,10 @@
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
         const data = await res.json();
 
+        /* Remove skeleton */
+        const skel = document.getElementById('skeletonGrid');
+        if (skel) skel.remove();
+
         totalCount = data.count    || 0;
         nextUrl    = data.next     || null;
         prevUrl    = data.previous || null;
@@ -1398,6 +1505,8 @@
 
         renderBooks(results);
       } catch(err) {
+        const skel = document.getElementById('skeletonGrid');
+        if (skel) skel.remove();
         $loading.style.display = 'none';
         $empty.style.display   = 'flex';
         $count.textContent     = 'Failed to load — check your connection and try again.';
@@ -1979,10 +2088,20 @@
     })();
 
   
+    /* ── BACK TO TOP ── */
+    (function() {
+      const btn = document.getElementById('backToTop');
+      window.addEventListener('scroll', () => {
+        btn.classList.toggle('visible', window.scrollY > 400);
+      }, { passive: true });
+      btn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    })();
+
   </script>
   <script src="nav.js"></script>
   <script src="terms.js"></script>
   <script src="archer-bubble.js"></script>
-  <script src="archer-search.js"></script>
 </body>
 </html>

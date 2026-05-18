@@ -8,15 +8,18 @@
   var SUPABASE_FUNCTION_URL =
     "https://wgcpuohwyarhjlndmnlj.supabase.co/functions/v1/archer";
 
-  /* ── Styles ── */
   var style = document.createElement("style");
   style.textContent = `
-    /* Toggle button — injected into .search-inner */
+
+    /* ── Toggle button ────────────────────────────────
+       Sits inline inside .search-inner on desktop.
+       On mobile the search-inner stacks, so we style
+       the button to match the Search button width.    */
     #as-toggle-btn {
-      display: flex; align-items: center; gap: 7px;
+      display: inline-flex; align-items: center; gap: 7px;
       background: var(--brown); color: var(--cream);
-      border: none; padding: 0 1.4rem;
-      height: 44px; border-radius: 50px;
+      border: none; border-radius: 50px;
+      padding: 0 1.4rem; height: 44px;
       font-family: 'DM Sans', sans-serif;
       font-size: .88rem; font-weight: 500;
       cursor: pointer; white-space: nowrap; flex-shrink: 0;
@@ -25,75 +28,96 @@
     #as-toggle-btn:hover { background: var(--gold); transform: translateY(-1px); }
     #as-toggle-btn.active { background: var(--gold); }
     #as-toggle-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
-    @media (max-width: 560px) {
-      #as-toggle-btn span { display: none; }
-      #as-toggle-btn { padding: 0 14px; }
+
+    /* On narrow screens the search-inner becomes a column —
+       make the button full-width like the Search button   */
+    @media (max-width: 640px) {
+      #as-toggle-btn {
+        width: 100%; justify-content: center; height: 46px;
+      }
     }
 
-    /* Collapsible panel — sits between search-section and toolbar */
+    /* ── Collapsible panel ─────────────────────────── */
     #as-panel {
       background: var(--warm);
       border-bottom: 1px solid var(--border);
       max-height: 0; overflow: hidden; opacity: 0;
       transition: max-height .4s cubic-bezier(.4,0,.2,1), opacity .3s ease;
     }
-    #as-panel.open { max-height: 520px; opacity: 1; }
+    #as-panel.open {
+      max-height: 680px; /* enough for all content */
+      opacity: 1;
+    }
 
     #as-panel-inner {
       max-width: 1360px; margin: 0 auto;
-      padding: 1.4rem 2.5rem;
+      padding: 1.25rem 2.5rem;
     }
+    @media (max-width: 860px) { #as-panel-inner { padding: 1.1rem 1.5rem; } }
+    @media (max-width: 560px) { #as-panel-inner { padding: 1rem 1.1rem; } }
 
-    /* ARCHER header row */
+    /* ARCHER label row */
     #as-hdr {
-      display: flex; align-items: center; gap: 10px;
-      margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 9px;
+      margin-bottom: .9rem;
     }
     #as-avatar {
-      width: 30px; height: 30px; border-radius: 50%;
+      width: 28px; height: 28px; border-radius: 50%;
       background: var(--brown);
       border: 1.5px solid rgba(200,150,62,.45);
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-    #as-avatar svg { width: 15px; height: 15px; }
+    #as-avatar svg { width: 14px; height: 14px; }
     #as-hdr-title {
       font-family: 'Playfair Display', serif;
-      font-size: 13px; font-weight: 700;
+      font-size: 12.5px; font-weight: 700;
       color: var(--brown); letter-spacing: .06em; text-transform: uppercase;
     }
     #as-hdr-sub {
-      font-size: 11.5px; color: var(--muted);
+      font-size: 11px; color: var(--muted);
       font-style: italic; margin-left: auto;
     }
+    @media (max-width: 480px) { #as-hdr-sub { display: none; } }
 
-    /* Chips */
+    /* Chips — horizontal scroll on mobile, wrap on desktop */
     #as-chips {
-      display: flex; flex-wrap: wrap; gap: 7px;
-      margin-bottom: 1rem;
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-bottom: .9rem;
+    }
+    @media (max-width: 640px) {
+      #as-chips {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding-bottom: 4px;
+      }
+      #as-chips::-webkit-scrollbar { display: none; }
     }
     .as-chip {
-      font-size: 11.5px; padding: 5px 14px;
+      font-size: 11.5px; padding: 5px 13px;
       border-radius: 20px; border: 1px solid var(--border);
       background: var(--white); color: var(--muted);
       cursor: pointer; font-family: 'DM Sans', sans-serif;
-      transition: all .2s; white-space: nowrap;
+      transition: all .2s; white-space: nowrap; flex-shrink: 0;
     }
-    .as-chip:hover {
+    .as-chip:hover, .as-chip:active {
       border-color: var(--gold); color: var(--gold);
-      background: rgba(200,150,62,.06);
+      background: rgba(200,150,62,.07);
     }
 
     /* Input row */
     #as-input-row {
-      display: flex; gap: 10px; align-items: center;
-      margin-bottom: 1rem;
+      display: flex; gap: 9px; align-items: center;
+      margin-bottom: .9rem;
     }
     #as-input {
-      flex: 1; padding: 11px 18px;
+      flex: 1; padding: 10px 16px;
       border: 1.5px solid var(--border); border-radius: 50px;
       background: var(--white); font-family: 'DM Sans', sans-serif;
-      font-size: .92rem; color: var(--text); outline: none;
+      font-size: .9rem; color: var(--text); outline: none;
+      min-width: 0; /* flex fix */
       transition: border-color .2s, box-shadow .2s;
     }
     #as-input:focus {
@@ -101,28 +125,37 @@
       box-shadow: 0 0 0 3px rgba(200,150,62,.12);
     }
     #as-input::placeholder { color: var(--muted); }
+
     #as-ask-btn {
       background: var(--gold); color: var(--white);
-      border: none; padding: 11px 22px; border-radius: 50px;
+      border: none; padding: 10px 20px; border-radius: 50px;
       font-family: 'DM Sans', sans-serif;
-      font-size: .88rem; font-weight: 500;
+      font-size: .85rem; font-weight: 500;
       cursor: pointer; white-space: nowrap; flex-shrink: 0;
       transition: background .2s, transform .15s;
     }
     #as-ask-btn:hover { background: var(--rust); transform: translateY(-1px); }
     #as-ask-btn:disabled { opacity: .5; cursor: default; transform: none; }
 
-    /* Response box */
+    @media (max-width: 480px) {
+      #as-input-row { flex-direction: column; gap: 8px; }
+      #as-ask-btn { width: 100%; text-align: center; padding: 11px 20px; }
+    }
+
+    /* Response box — scrollable, max-height on mobile */
     #as-response {
       background: var(--white); border: 1px solid var(--border);
-      border-radius: 14px; padding: 1.1rem 1.4rem;
+      border-radius: 14px; overflow: hidden;
       display: none;
     }
     #as-response.show { display: block; }
+
     #as-resp-header {
       display: flex; align-items: center; gap: 8px;
-      margin-bottom: .75rem; padding-bottom: .75rem;
+      padding: .85rem 1.2rem;
       border-bottom: 1px solid var(--border);
+      background: var(--white);
+      position: sticky; top: 0; z-index: 1;
     }
     #as-resp-av {
       width: 24px; height: 24px; border-radius: 50%;
@@ -141,23 +174,33 @@
       margin-left: auto; background: none; border: none;
       cursor: pointer; color: var(--muted); font-size: 16px;
       line-height: 1; padding: 2px 6px; border-radius: 6px;
-      transition: color .2s;
+      transition: color .2s; flex-shrink: 0;
     }
     #as-resp-close:hover { color: var(--brown); }
-    #as-resp-text {
-      font-size: .88rem; line-height: 1.75;
-      color: var(--text); font-family: 'DM Sans', sans-serif;
+
+    /* Scrollable body */
+    #as-resp-body {
+      padding: 1rem 1.2rem;
+      max-height: 220px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(200,150,62,.3) transparent;
+    }
+    @media (max-width: 560px) {
+      #as-resp-body { max-height: 180px; }
+    }
+    #as-resp-body::-webkit-scrollbar { width: 4px; }
+    #as-resp-body::-webkit-scrollbar-thumb {
+      background: rgba(200,150,62,.3); border-radius: 4px;
     }
 
-    /* Typing */
     #as-typing {
-      display: none; gap: 5px; align-items: center; padding: 3px 0;
+      display: none; gap: 5px; align-items: center; padding: 2px 0;
     }
     #as-typing.show { display: flex; }
     #as-typing span {
       width: 6px; height: 6px; border-radius: 50%;
-      background: var(--gold);
-      animation: as-dot 1.3s infinite;
+      background: var(--gold); animation: as-dot 1.3s infinite;
     }
     #as-typing span:nth-child(2) { animation-delay: .18s; }
     #as-typing span:nth-child(3) { animation-delay: .36s; }
@@ -166,13 +209,9 @@
       40% { transform: translateY(-6px); opacity: 1; }
     }
 
-    @media (max-width: 860px) {
-      #as-panel-inner { padding: 1.2rem 1.25rem; }
-    }
-    @media (max-width: 560px) {
-      #as-input-row { flex-direction: column; }
-      #as-ask-btn { width: 100%; text-align: center; }
-      #as-hdr-sub { display: none; }
+    #as-resp-text {
+      font-size: .875rem; line-height: 1.75;
+      color: var(--text); font-family: 'DM Sans', sans-serif;
     }
   `;
   document.head.appendChild(style);
@@ -180,11 +219,10 @@
   var isOpen = false;
   var isAsking = false;
 
-  /* ── Toggle ── */
   function togglePanel() {
     isOpen = !isOpen;
     var panel = document.getElementById("as-panel");
-    var btn = document.getElementById("as-toggle-btn");
+    var btn   = document.getElementById("as-toggle-btn");
     if (!panel || !btn) return;
     panel.classList.toggle("open", isOpen);
     btn.classList.toggle("active", isOpen);
@@ -197,12 +235,11 @@
     }
   }
 
-  /* ── Inject toggle button into .search-inner ── */
+  /* Inject button into .search-inner */
   function injectBtn() {
-    var searchInner = document.querySelector(".search-inner");
-    if (!searchInner) { setTimeout(injectBtn, 200); return; }
+    var si = document.querySelector(".search-inner");
+    if (!si) { setTimeout(injectBtn, 200); return; }
     if (document.getElementById("as-toggle-btn")) return;
-
     var btn = document.createElement("button");
     btn.id = "as-toggle-btn";
     btn.setAttribute("aria-expanded", "false");
@@ -214,10 +251,10 @@
       <span>Ask ARCHER</span>
     `;
     btn.addEventListener("click", togglePanel);
-    searchInner.appendChild(btn);
+    si.appendChild(btn);
   }
 
-  /* ── Build panel between search-section and toolbar ── */
+  /* Build panel between search-section and toolbar */
   function buildPanel() {
     var toolbar = document.querySelector(".toolbar");
     if (!toolbar) { setTimeout(buildPanel, 200); return; }
@@ -244,15 +281,15 @@
           <div class="as-chip" data-q="Classic science fiction from the 1800s">Classic Sci-Fi</div>
           <div class="as-chip" data-q="Philosophy books for beginners">Philosophy for beginners</div>
           <div class="as-chip" data-q="Thrilling mystery with strong female leads">Mystery — female leads</div>
-          <div class="as-chip" data-q="Books about resilience and overcoming adversity">Resilience & strength</div>
+          <div class="as-chip" data-q="Books about resilience and overcoming adversity">Resilience &amp; strength</div>
           <div class="as-chip" data-q="Tell me about MindStark Original books">MindStark Originals</div>
-          <div class="as-chip" data-q="Books about cosmology and space exploration">Cosmology & Space</div>
+          <div class="as-chip" data-q="Books about cosmology and space exploration">Cosmology &amp; Space</div>
           <div class="as-chip" data-q="Short novels I can finish in one sitting">Quick reads</div>
         </div>
 
         <div id="as-input-row">
           <input type="text" id="as-input"
-            placeholder="e.g. 'A dark psychological thriller set in Africa' or 'Something about space and the cosmos'…"/>
+            placeholder="e.g. 'A dark thriller set in Africa'…"/>
           <button id="as-ask-btn">Ask ARCHER</button>
         </div>
 
@@ -262,8 +299,10 @@
             <span id="as-resp-label">ARCHER's Recommendation</span>
             <button id="as-resp-close" title="Dismiss">&#x2715;</button>
           </div>
-          <div id="as-typing"><span></span><span></span><span></span></div>
-          <div id="as-resp-text"></div>
+          <div id="as-resp-body">
+            <div id="as-typing"><span></span><span></span><span></span></div>
+            <div id="as-resp-text"></div>
+          </div>
         </div>
       </div>
     `;
@@ -272,10 +311,9 @@
     bindEvents();
   }
 
-  /* ── Events ── */
   function bindEvents() {
-    var inp = document.getElementById("as-input");
-    var askBtn = document.getElementById("as-ask-btn");
+    var inp     = document.getElementById("as-input");
+    var askBtn  = document.getElementById("as-ask-btn");
     var closeBtn = document.getElementById("as-resp-close");
 
     if (inp) {
@@ -295,7 +333,6 @@
         if (r) r.classList.remove("show");
       });
     }
-
     document.querySelectorAll(".as-chip").forEach(function (chip) {
       chip.addEventListener("click", function () {
         var q = chip.getAttribute("data-q");
@@ -306,7 +343,6 @@
     });
   }
 
-  /* ── Format ── */
   function fmt(t) {
     return t
       .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
@@ -314,15 +350,15 @@
       .replace(/\n/g, "<br>");
   }
 
-  /* ── Ask ── */
   async function ask(query) {
     if (!query || isAsking) return;
     isAsking = true;
 
-    var resp = document.getElementById("as-response");
-    var typing = document.getElementById("as-typing");
+    var resp     = document.getElementById("as-response");
+    var typing   = document.getElementById("as-typing");
     var respText = document.getElementById("as-resp-text");
-    var askBtn = document.getElementById("as-ask-btn");
+    var respBody = document.getElementById("as-resp-body");
+    var askBtn   = document.getElementById("as-ask-btn");
     if (!resp || !typing || !respText || !askBtn) { isAsking = false; return; }
 
     respText.innerHTML = "";
@@ -330,16 +366,15 @@
     typing.classList.add("show");
     askBtn.disabled = true;
 
-    // Get user context
     var currentUser = null;
     try {
       var raw = sessionStorage.getItem("ms_current_user");
       currentUser = raw ? JSON.parse(raw) : null;
     } catch (e) {}
 
-    var prompt = "I am browsing MindStark Library's collection and looking for book recommendations. " +
+    var prompt = "I am browsing MindStark Library and looking for book recommendations. " +
       query +
-      ". Please suggest 3-5 specific books that match this description. For each book, give the title, author, and one sentence on why it fits. If any MindStark Originals match — Margaret by Onaraku Valeria (psychological thriller, Nigerian), or Survival's Rage by Anthony C. C. Osuji (conspiracy thriller) — list them first and highlight their exclusivity to MindStark.";
+      ". Please suggest 3-5 specific books that match this description. For each book give the title, author, and one sentence on why it fits. If any MindStark Originals match — Margaret by Onaraku Valeria (psychological thriller, Nigerian), or Survival's Rage by Anthony C. C. Osuji (conspiracy thriller) — list them first and note they are exclusively available on MindStark Library.";
 
     try {
       var res = await fetch(SUPABASE_FUNCTION_URL, {
@@ -348,11 +383,13 @@
         body: JSON.stringify({
           messages: [{ role: "user", content: prompt }],
           currentDateTime: new Date().toLocaleString("en-NG", {
-            weekday: "long", year: "numeric", month: "long", day: "numeric",
-            hour: "2-digit", minute: "2-digit", timeZoneName: "short"
+            weekday: "long", year: "numeric", month: "long",
+            day: "numeric", hour: "2-digit", minute: "2-digit",
+            timeZoneName: "short"
           }),
           currentUser: (currentUser && !currentUser.guest)
-            ? { name: currentUser.name, membership: currentUser.membership ? currentUser.membership.planName : "Free" }
+            ? { name: currentUser.name, membership: currentUser.membership
+                ? currentUser.membership.planName : "Free" }
             : null
         })
       });
@@ -361,6 +398,7 @@
       typing.classList.remove("show");
       var reply = data.reply || "I encountered an issue. Please try again.";
       respText.innerHTML = fmt(reply);
+      if (respBody) respBody.scrollTop = 0;
 
     } catch (e) {
       typing.classList.remove("show");
@@ -371,14 +409,11 @@
     isAsking = false;
   }
 
-  /* ── Init ── */
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function () {
-      injectBtn();
-      buildPanel();
+      injectBtn(); buildPanel();
     });
   } else {
-    injectBtn();
-    buildPanel();
+    injectBtn(); buildPanel();
   }
 })();
