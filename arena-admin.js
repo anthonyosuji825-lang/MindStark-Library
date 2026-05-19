@@ -199,10 +199,13 @@
     $('comment-text').addEventListener('keydown', e => {
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendComment(); }
     });
+    $('post-ann-btn').addEventListener('click', handlePostAnnouncement);
+    $('refresh-ann-btn').addEventListener('click', loadAnnouncements);
 
     // Load requests on boot
     await loadRequests();
     await loadQueue();
+    await loadAnnouncements();
   }
 
   /* ── CREATE EVENT ─────────────────────────────────────────── */
@@ -733,6 +736,98 @@
     $('create-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     showToast('Request loaded into Create Event form.', 'ok');
     log(`Request "${title}" loaded into form.`, 'info');
+  };
+
+  /* ── POST ANNOUNCEMENT ────────────────────────────────────── */
+  async function handlePostAnnouncement() {
+    const title = $('ann-title')?.value.trim();
+    const desc  = $('ann-desc')?.value.trim();
+    const type  = $('ann-type')?.value;
+    const date  = $('ann-date')?.value;
+    const fee   = parseInt($('ann-fee')?.value) || 0;
+
+    if (!title) { showToast('Enter an event title.', 'err'); return; }
+    if (!date)  { showToast('Set an event date.', 'err'); return; }
+
+    const btn = $('post-ann-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Posting…'; }
+
+    const { data: { session } } = await window._sb.auth.getSession();
+    const token = session?.access_token || sessionToken;
+
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/event_announcements`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON,
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({
+        title, description: desc || null,
+        event_type: type,
+        event_date: new Date(date).toISOString(),
+        entry_fee: fee, status: 'upcoming',
+      }),
+    });
+
+    if (btn) { btn.disabled = false; btn.textContent = '📢 Post Announcement'; }
+
+    if (res.ok) {
+      $('ann-title').value = '';
+      $('ann-desc').value  = '';
+      $('ann-date').value  = '';
+      log(`Announcement posted: "${title}"`, 'ok');
+      showToast('Announcement posted!', 'ok');
+      await loadAnnouncements();
+    } else {
+      showToast('Failed to post announcement.', 'err');
+    }
+  }
+
+  /* ── LOAD ANNOUNCEMENTS ───────────────────────────────────── */
+  async function loadAnnouncements() {
+    const container = $('announcements-list');
+    if (!container) return;
+
+    const { data: { session } } = await window._sb.auth.getSession();
+    const token = session?.access_token || sessionToken;
+
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/event_announcements?order=event_date.asc&limit=10`,
+      { headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + token } }
+    );
+
+    const data = await res.json();
+    if (!Array.isArray(data) || !data.length) {
+      container.innerHTML = '<p style="font-size:.82rem;color:var(--arena-muted);">No announcements yet.</p>';
+      return;
+    }
+
+    const icons = { gauntlet: '⚔️', grand_hall: '🏛', hot_seat: '🎤', tournament: '🏆' };
+
+    container.innerHTML = data.map(a => `
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.75rem .9rem;background:var(--arena-surface);border:1px solid var(--arena-border);border-radius:8px;font-size:.83rem;">
+        <div style="flex:1;">
+          <div style="color:var(--cream);font-weight:600;">${icons[a.event_type] || '⚔️'} ${esc(a.title)}</div>
+          <div style="color:var(--arena-muted);margin-top:.2rem;">${a.event_date ? new Date(a.event_date).toLocaleString() : '—'} · ${a.entry_fee > 0 ? a.entry_fee + 'tr entry' : 'Free'}</div>
+        </div>
+        <button onclick="deleteAnnouncement('${a.id}')" style="background:none;border:none;color:var(--arena-muted);cursor:pointer;font-size:.85rem;padding:.2rem;" title="Delete">✕</button>
+      </div>
+    `).join('');
+  }
+
+  /* ── DELETE ANNOUNCEMENT ──────────────────────────────────── */
+  window.deleteAnnouncement = async function(id) {
+    const { data: { session } } = await window._sb.auth.getSession();
+    const token = session?.access_token || sessionToken;
+    await fetch(`${SUPABASE_URL}/rest/v1/event_announcements?id=eq.${id}`, {
+      method: 'DELETE',
+      headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + token },
+    });
+    log('Announcement deleted.', 'info');
+    showToast('Announcement removed.', 'ok');
+    await loadAnnouncements();
   };
 
   /* ── Log ──────────────────────────────────────────────────── */

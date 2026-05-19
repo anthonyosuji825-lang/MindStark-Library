@@ -503,6 +503,50 @@
         </div>
       </div>
 
+      <!-- ── EVENT ANNOUNCEMENTS ────────────────────── -->
+      <div class="card full-width">
+        <div class="card-header">
+          <span class="card-title">Post Announcement</span>
+          <div style="display:flex;align-items:center;gap:.75rem;">
+            <span style="font-size:.75rem;color:var(--arena-muted);">Appears on public Events page</span>
+            <button class="btn btn-outline" style="padding:.3rem .75rem;font-size:.75rem;" id="refresh-ann-btn">↻</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Event Title</label>
+              <input type="text" id="ann-title" placeholder="e.g. Saturday Night Gauntlet"/>
+            </div>
+            <div class="form-group">
+              <label>Event Type</label>
+              <select id="ann-type">
+                <option value="gauntlet">⚔️ Gauntlet</option>
+                <option value="grand_hall">🏛 Grand Hall</option>
+                <option value="hot_seat">🎤 Hot Seat</option>
+                <option value="tournament">🏆 Tournament</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea id="ann-desc" placeholder="What's this event about?" style="min-height:70px;"></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Event Date & Time</label>
+              <input type="datetime-local" id="ann-date"/>
+            </div>
+            <div class="form-group">
+              <label>Entry Fee (tr)</label>
+              <input type="number" id="ann-fee" value="0" min="0"/>
+            </div>
+          </div>
+          <button class="btn btn-gold btn-full" id="post-ann-btn">📢 Post Announcement</button>
+          <div id="announcements-list" style="margin-top:1.25rem;display:flex;flex-direction:column;gap:.6rem;"></div>
+        </div>
+      </div>
+
       <!-- ── ADMIN COMMENTS ─────────────────────────── -->
       <div class="card full-width">
         <div class="card-header">
