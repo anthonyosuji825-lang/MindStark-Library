@@ -199,7 +199,11 @@
     .nav-profile-wrap.open .nav-chevron{transform:rotate(180deg)}
     .streak-badge{position:absolute;top:-4px;right:28px;background:#e53e3e;color:#fff;font-size:.58rem;font-weight:700;padding:.1rem .35rem;border-radius:50px;border:1.5px solid #fff;white-space:nowrap;pointer-events:none}
     .bm-badge{position:absolute;top:-5px;right:-5px;background:#c8963e;color:#fff;font-size:.58rem;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff;pointer-events:none}
-    .nav-dropdown{position:absolute;top:calc(100% + .65rem);right:0;background:#fff;border:1px solid rgba(200,150,62,.18);border-radius:16px;box-shadow:0 16px 48px rgba(59,42,26,.18);min-width:270px;overflow:hidden;display:none;z-index:9999;animation:dropIn .2s ease}
+    .nav-dropdown{position:absolute;top:calc(100% + .65rem);right:0;background:#fff;border:1px solid rgba(200,150,62,.18);border-radius:16px;box-shadow:0 16px 48px rgba(59,42,26,.18);min-width:270px;overflow:hidden;display:none;z-index:9999;animation:dropIn .2s ease;max-height:85vh;overflow-y:auto}
+    .nav-dropdown::-webkit-scrollbar{width:3px}
+    .nav-dropdown::-webkit-scrollbar-track{background:transparent}
+    .nav-dropdown::-webkit-scrollbar-thumb{background:rgba(200,150,62,.3);border-radius:3px}
+    .nav-dropdown::-webkit-scrollbar-thumb:hover{background:rgba(200,150,62,.6)}
     @keyframes dropIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
     .nav-profile-wrap.open .nav-dropdown{display:block}
     .dd-header{padding:1.1rem 1.25rem .9rem;background:linear-gradient(135deg,#3b2a1a,#5c3d20);display:flex;align-items:center;gap:.85rem}
@@ -381,6 +385,7 @@
         <a href="browse.html" class="dd-item"><span class="dd-icon">📚</span> Browse Books</a>
         <a href="book.html" class="dd-item"><span class="dd-icon">🔖</span> My Books ${bmCount>0?`<span class="dd-badge">${bmCount}</span>`:''}</a>
         <a href="arena.html" class="dd-item" id="nav-arena-link"><span class="dd-icon">⚔️</span> The Arena</a>
+        <a href="my-requests.html" class="dd-item" id="nav-requests-link"><span class="dd-icon">📋</span> My Event Requests</a>
         <div class="dd-section">Account</div>
         <a href="profile.html" class="dd-item"><span class="dd-icon">👤</span> My Profile</a>
         <a href="membership.html" class="dd-item"><span class="dd-icon">💳</span> Membership</a>
@@ -448,6 +453,7 @@
       <a href="membership.html" class="ms-mob-link"><span class="ms-mob-link-icon">💎</span> Membership</a>
       <a href="feeds.html" class="ms-mob-link"><span class="ms-mob-link-icon">📰</span> Feeds</a>
       <a href="arena.html" class="ms-mob-link" id="mob-arena-link"><span class="ms-mob-link-icon">⚔️</span> The Arena</a>
+      <a href="my-requests.html" class="ms-mob-link" id="mob-requests-link"><span class="ms-mob-link-icon">📋</span> My Event Requests</a>
       <a href="about.html" class="ms-mob-link"><span class="ms-mob-link-icon">ℹ️</span> About</a>`;
 
     let accountSection = '';
@@ -574,6 +580,28 @@
 
           const mobLink = document.getElementById('mob-arena-link');
           if (mobLink) mobLink.innerHTML += mobBadge;
+        }
+      } catch(e) {}
+    });
+  }
+
+  /* ── USER BADGE: unseen approved/rejected requests ──────────── */
+  if (isSignedIn && currentUser?.id !== TONY_ID) {
+    document.addEventListener('supabase:ready', async () => {
+      try {
+        const { count } = await window._sb
+          .from('event_requests')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', currentUser.id)
+          .eq('seen_by_user', false)
+          .neq('status', 'pending');
+
+        if (count > 0) {
+          const badge = `<span style="background:#e05c5c;color:#fff;font-size:.6rem;padding:.1rem .35rem;border-radius:50px;margin-left:.3rem;font-weight:800;">${count}</span>`;
+          const desktopLink = document.getElementById('nav-requests-link');
+          if (desktopLink) desktopLink.innerHTML += badge;
+          const mobLink = document.getElementById('mob-requests-link');
+          if (mobLink) mobLink.innerHTML += badge;
         }
       } catch(e) {}
     });
