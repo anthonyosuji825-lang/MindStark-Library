@@ -453,6 +453,7 @@
       <a href="membership.html" class="ms-mob-link"><span class="ms-mob-link-icon">💎</span> Membership</a>
       <a href="feeds.html" class="ms-mob-link"><span class="ms-mob-link-icon">📰</span> Feeds</a>
       <a href="arena.html" class="ms-mob-link" id="mob-arena-link"><span class="ms-mob-link-icon">⚔️</span> The Arena</a>
+      <a href="inkwell.html" class="ms-mob-link"><span class="ms-mob-link-icon">✍️</span> Inkwell</a>
       <a href="my-requests.html" class="ms-mob-link" id="mob-requests-link"><span class="ms-mob-link-icon">📋</span> My Event Requests</a>
       <a href="about.html" class="ms-mob-link"><span class="ms-mob-link-icon">ℹ️</span> About</a>`;
 
