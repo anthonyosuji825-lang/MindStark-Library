@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="icon" type="image/png" href="logo.png"/>
+<title>Write — MindStark Inkwell</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ── VARIABLES ─────────────────────────────────────────────── */
+:root {
+  --cream: #f5f0e8;
+  --warm: #ede5d5;
+  --warm2: #e4d9c4;
+  --brown: #3b2a1a;
+  --gold: #c8963e;
+  --rust: #a0522d;
+  --text: #2c1e0f;
+  --muted: #7a6652;
+  --white: #ffffff;
+  --border: rgba(200,150,62,.18);
+  --border-bright: rgba(200,150,62,.38);
+  --shadow: 0 4px 32px rgba(59,42,26,.1);
+  --card-bg: #ffffff;
+  --surface: #faf6ef;
+  --green: #4a7c59;
+}
+body.dark-mode {
+  --cream: #0d0905;
+  --warm: #17100a;
+  --warm2: #1e1510;
+  --brown: #f5f0e8;
+  --gold: #c8963e;
+  --text: rgba(245,240,232,.92);
+  --muted: rgba(245,240,232,.42);
+  --border: rgba(200,150,62,.14);
+  --border-bright: rgba(200,150,62,.38);
+  --card-bg: #1e1510;
+  --surface: #17100a;
+  --shadow: 0 4px 32px rgba(0,0,0,.3);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background .3s, color .3s;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(200,150,62,.07) 0%, transparent 60%);
+  pointer-events: none; z-index: 0;
+}
+
+/* ── NAVBAR ─────────────────────────────────────────────────── */
+nav {
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(245,240,232,.95);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  transition: background .3s;
+}
+body.dark-mode nav { background: rgba(13,9,5,.94); }
+.nav-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.25rem; max-width: 1400px; margin: 0 auto;
+}
+.logo { display: flex; flex-direction: column; line-height: 1; text-decoration: none; }
+.logo-main { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 900; color: var(--brown); }
+.logo-sub { font-size: .58rem; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); }
+.nav-center {
+  display: flex; align-items: center; gap: .75rem;
+  flex: 1; max-width: 360px; margin: 0 1.5rem;
+}
+.book-title-input {
+  flex: 1; background: transparent; border: none; outline: none;
+  font-family: 'Playfair Display', serif; font-size: 1rem;
+  font-weight: 700; color: var(--brown);
+  border-bottom: 1.5px solid var(--border);
+  padding: .3rem 0; transition: border-color .2s;
+  min-width: 0;
+}
+.book-title-input::placeholder { color: var(--muted); font-weight: 400; font-style: italic; }
+.book-title-input:focus { border-color: var(--gold); }
+.save-status {
+  font-size: .72rem; color: var(--muted); white-space: nowrap;
+  font-family: 'DM Mono', monospace; flex-shrink: 0;
+}
+.save-status.saved { color: var(--green); }
+.nav-right { display: flex; align-items: center; gap: .65rem; flex-shrink: 0; }
+.dark-toggle {
+  width: 36px; height: 20px; border-radius: 10px;
+  background: var(--border-bright); border: none; cursor: pointer;
+  position: relative; transition: background .3s; flex-shrink: 0; padding: 0;
+}
+.dark-toggle::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--gold); transition: transform .3s;
+}
+body.dark-mode .dark-toggle::after { transform: translateX(16px); }
+.btn-sm {
+  padding: .45rem 1rem; border-radius: 50px;
+  font-family: 'DM Sans', sans-serif; font-size: .8rem; font-weight: 600;
+  cursor: pointer; transition: all .2s; border: none; white-space: nowrap;
+}
+.btn-outline-sm {
+  background: transparent; color: var(--brown);
+  border: 1.5px solid var(--border-bright);
+}
+.btn-outline-sm:hover { border-color: var(--gold); color: var(--gold); }
+.btn-gold-sm { background: var(--gold); color: var(--white); }
+.btn-gold-sm:hover { background: var(--brown); }
+.btn-brown-sm { background: var(--brown); color: var(--cream); }
+.btn-brown-sm:hover { background: var(--gold); }
+.hamburger {
+  display: none; flex-direction: column; gap: 5px;
+  cursor: pointer; padding: .4rem; background: none; border: none;
+}
+.hamburger span { display: block; width: 22px; height: 2px; background: var(--brown); border-radius: 2px; transition: all .3s; }
+body.dark-mode .hamburger span { background: var(--cream); }
+.hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ── MOBILE SHEET ────────────────────────────────────────────── */
+.mobile-sheet-overlay {
+  display: none; position: fixed; inset: 0; z-index: 150;
+  background: rgba(59,42,26,.45); backdrop-filter: blur(3px);
+}
+.mobile-sheet-overlay.open { display: block; }
+.mobile-sheet {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 151;
+  background: var(--cream); border-top: 1px solid var(--border-bright);
+  border-radius: 20px 20px 0 0; padding: 1rem 1.75rem 2.5rem;
+  transform: translateY(100%); transition: transform .35s cubic-bezier(.4,0,.2,1);
+}
+body.dark-mode .mobile-sheet { background: var(--warm2); }
+.mobile-sheet.open { transform: translateY(0); }
+.sheet-handle { width: 40px; height: 4px; background: var(--border-bright); border-radius: 2px; margin: 0 auto 1.25rem; }
+.mob-sheet-actions { display: flex; flex-direction: column; gap: .75rem; margin-bottom: 1rem; }
+.mob-sheet-btn {
+  display: block; text-align: center; padding: .85rem;
+  border-radius: 50px; font-family: 'DM Sans', sans-serif;
+  font-size: .9rem; font-weight: 600; cursor: pointer; border: none;
+  transition: all .2s; text-decoration: none;
+}
+.mob-gold { background: var(--gold); color: var(--white); }
+.mob-outline { background: transparent; color: var(--brown); border: 1.5px solid var(--border-bright); }
+.mob-back { background: transparent; color: var(--muted); font-size: .85rem; text-align: center; display: block; padding: .5rem; }
+
+/* ── LAYOUT ──────────────────────────────────────────────────── */
+.write-layout {
+  display: flex; height: calc(100vh - 62px);
+  position: relative; z-index: 1; overflow: hidden;
+}
+
+/* ── SIDEBAR PANEL ───────────────────────────────────────────── */
+.sidebar-panel {
+  width: 260px; flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden; transition: transform .3s cubic-bezier(.4,0,.2,1);
+}
+
+/* Scrollable middle section of sidebar */
+.sidebar-scroll {
+  flex: 1; overflow-y: auto; display: flex; flex-direction: column;
+}
+/* Invisible scrollbar */
+.sidebar-scroll::-webkit-scrollbar { width: 0px; background: transparent; }
+.sidebar-scroll { scrollbar-width: none; -ms-overflow-style: none; }
+.sidebar-panel.collapsed { transform: translateX(-100%); position: absolute; z-index: 10; height: 100%; }
+
+.panel-head {
+  padding: 1.25rem 1.1rem .85rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.panel-title {
+  font-size: .68rem; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--gold); font-weight: 600;
+}
+.panel-toggle {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: .85rem; padding: .2rem;
+  transition: color .2s;
+}
+.panel-toggle:hover { color: var(--brown); }
+
+/* Book meta */
+.book-meta { padding: 1rem 1.1rem; border-bottom: 1px solid var(--border); }
+.meta-field { margin-bottom: .85rem; }
+.meta-label { font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: .35rem; }
+.meta-input, .meta-select, .meta-textarea {
+  width: 100%; background: var(--card-bg);
+  border: 1.5px solid var(--border); border-radius: 8px;
+  padding: .55rem .75rem; font-family: 'DM Sans', sans-serif;
+  font-size: .82rem; color: var(--text); outline: none; transition: border-color .2s;
+}
+.meta-input::placeholder, .meta-textarea::placeholder { color: var(--muted); }
+.meta-input:focus, .meta-select:focus, .meta-textarea:focus { border-color: var(--gold); }
+.meta-textarea { resize: none; min-height: 72px; line-height: 1.5; font-size: .8rem; }
+.meta-select option { background: var(--card-bg); }
+
+/* Cover upload */
+.cover-upload {
+  width: 100%; aspect-ratio: 2/3; border-radius: 10px;
+  border: 1.5px dashed var(--border);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; position: relative; overflow: hidden;
+  transition: border-color .2s, background .2s; background: var(--card-bg);
+  margin-bottom: .85rem;
+}
+.cover-upload:hover { border-color: var(--gold); background: rgba(200,150,62,.04); }
+.cover-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.cover-upload-icon { font-size: 1.5rem; margin-bottom: .4rem; }
+.cover-upload-text { font-size: .75rem; color: var(--muted); text-align: center; padding: 0 .5rem; line-height: 1.4; }
+.cover-upload-text span { color: var(--gold); }
+.cover-preview {
+  position: absolute; inset: 0; object-fit: cover;
+  width: 100%; height: 100%; display: none; border-radius: 8px;
+}
+
+/* Chapter list */
+.chapter-list-wrap {
+  padding: .75rem .85rem;
+}
+
+.chapter-list { display: flex; flex-direction: column; gap: .4rem; }
+.chapter-item {
+  display: flex; align-items: center; gap: .6rem;
+  padding: .6rem .75rem; border-radius: 10px;
+  cursor: pointer; transition: background .2s, border-color .2s;
+  border: 1px solid transparent;
+}
+.chapter-item:hover { background: var(--warm2); }
+.chapter-item.active { background: var(--warm2); border-color: var(--border-bright); }
+.chapter-num {
+  font-family: 'DM Mono', monospace; font-size: .7rem;
+  color: var(--gold); flex-shrink: 0; min-width: 20px;
+}
+.chapter-name {
+  flex: 1; font-size: .82rem; color: var(--brown);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.chapter-status {
+  width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  background: var(--border-bright);
+}
+.chapter-status.saved { background: var(--green); }
+.chapter-delete {
+  display: none; background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: .75rem; padding: .15rem .3rem;
+  border-radius: 4px; line-height: 1; transition: all .2s; flex-shrink: 0;
+}
+.chapter-delete:hover { color: var(--rust); background: rgba(160,82,45,.1); }
+.chapter-item:hover .chapter-delete { display: block; }
+.chapter-item:hover .chapter-status { display: none; }
+
+.add-chapter-btn {
+  width: 100%; margin-top: .6rem; padding: .65rem;
+  background: transparent; border: 1.5px dashed var(--border);
+  border-radius: 10px; color: var(--muted);
+  font-family: 'DM Sans', sans-serif; font-size: .8rem;
+  cursor: pointer; transition: all .2s; display: flex;
+  align-items: center; justify-content: center; gap: .4rem;
+}
+.add-chapter-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+/* Panel footer */
+.panel-footer { padding: .85rem 1.1rem; border-top: 1px solid var(--border); }
+.word-count-display {
+  font-family: 'DM Mono', monospace; font-size: .72rem;
+  color: var(--muted); text-align: center; margin-bottom: .6rem;
+}
+.word-count-display span { color: var(--gold); }
+
+/* ── EDITOR AREA ─────────────────────────────────────────────── */
+.editor-area {
+  flex: 1; display: flex; flex-direction: column;
+  overflow: hidden; min-width: 0;
+}
+
+/* Toolbar */
+.toolbar {
+  padding: .65rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: .35rem;
+  flex-wrap: wrap; background: var(--card-bg);
+}
+.toolbar-group { display: flex; gap: .2rem; align-items: center; }
+.toolbar-divider {
+  width: 1px; height: 18px; background: var(--border);
+  margin: 0 .35rem; flex-shrink: 0;
+}
+.tool-btn {
+  width: 32px; height: 32px; border-radius: 7px;
+  background: transparent; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .85rem; color: var(--muted); transition: all .2s;
+  font-family: 'DM Sans', sans-serif; font-weight: 700;
+  flex-shrink: 0;
+}
+.tool-btn:hover { background: var(--warm2); color: var(--brown); }
+.tool-btn.active { background: var(--warm2); color: var(--gold); }
+.tool-btn-wide {
+  padding: 0 .75rem; width: auto; font-size: .75rem; font-weight: 600;
+}
+.sidebar-toggle-btn {
+  width: 32px; height: 32px; border-radius: 7px;
+  background: transparent; border: none; cursor: pointer;
+  color: var(--muted); font-size: 1rem; transition: all .2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.sidebar-toggle-btn:hover { color: var(--gold); background: var(--warm2); }
+.toolbar-right { margin-left: auto; display: flex; align-items: center; gap: .5rem; }
+.chapter-title-input {
+  background: transparent; border: none; outline: none;
+  font-family: 'Playfair Display', serif; font-size: .9rem;
+  font-weight: 700; color: var(--brown);
+  border-bottom: 1px solid var(--border); padding: .2rem .4rem;
+  width: 160px; transition: border-color .2s;
+}
+.chapter-title-input:focus { border-color: var(--gold); }
+
+/* Editor */
+.editor-wrap {
+  flex: 1; overflow-y: auto; padding: 2.5rem 1.5rem;
+  display: flex; justify-content: center;
+}
+.editor-wrap::-webkit-scrollbar { width: 5px; }
+.editor-wrap::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 3px; }
+
+.editor-inner { width: 100%; max-width: 680px; }
+#editor {
+  min-height: calc(100vh - 220px);
+  outline: none;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem; line-height: 1.9;
+  color: var(--text); caret-color: var(--gold);
+}
+#editor:empty::before {
+  content: attr(data-placeholder);
+  color: var(--muted); pointer-events: none;
+  font-style: italic;
+}
+#editor p { margin-bottom: 1em; }
+#editor h1 { font-size: 1.8rem; font-weight: 900; margin-bottom: .75em; line-height: 1.2; }
+#editor h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: .6em; line-height: 1.3; }
+#editor h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: .5em; }
+#editor blockquote {
+  border-left: 3px solid var(--gold); padding-left: 1rem;
+  margin: 1.25em 0; color: var(--muted); font-style: italic;
+}
+#editor strong { font-weight: 700; }
+#editor em { font-style: italic; }
+#editor u { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Word count bar */
+.editor-footer {
+  padding: .5rem 1.5rem;
+  border-top: 1px solid var(--border);
+  background: var(--card-bg);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.editor-wc {
+  font-family: 'DM Mono', monospace; font-size: .72rem; color: var(--muted);
+}
+.editor-wc span { color: var(--gold); }
+.editor-hint { font-size: .72rem; color: var(--muted); }
+
+/* ── SUBMIT MODAL ────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(59,42,26,.55); backdrop-filter: blur(5px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .25s;
+  padding: 1.5rem;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.submit-modal {
+  background: var(--card-bg); border: 1px solid var(--border-bright);
+  border-radius: 24px; width: 100%; max-width: 480px;
+  transform: translateY(20px) scale(.97);
+  transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+  overflow: hidden;
+}
+.modal-overlay.open .submit-modal { transform: translateY(0) scale(1); }
+
+@media (max-width: 640px) {
+  .modal-overlay { align-items: flex-end; padding: 0; }
+  .submit-modal { border-radius: 20px 20px 0 0; }
+}
+
+.submit-modal-header {
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.submit-modal-handle {
+  display: none; width: 40px; height: 4px;
+  background: var(--border-bright); border-radius: 2px; margin: 0 auto .85rem;
+}
+@media (max-width: 640px) { .submit-modal-handle { display: block; } }
+.submit-modal-label {
+  font-size: .68rem; letter-spacing: .15em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: .3rem;
+}
+.submit-modal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem; font-weight: 900; color: var(--brown);
+}
+.modal-close {
+  position: absolute; top: 1.25rem; right: 1.25rem;
+  background: none; border: none; color: var(--muted);
+  font-size: 1rem; cursor: pointer; padding: .3rem; transition: color .2s;
+}
+.modal-close:hover { color: var(--brown); }
+
+.submit-modal-body { padding: 1.25rem 1.5rem; }
+.submit-checklist { display: flex; flex-direction: column; gap: .65rem; margin-bottom: 1.25rem; }
+.check-item {
+  display: flex; align-items: center; gap: .75rem;
+  padding: .75rem; border-radius: 10px; background: var(--surface);
+  border: 1px solid var(--border);
+}
+.check-icon {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .8rem;
+}
+.check-icon.ok { background: rgba(74,124,89,.12); color: var(--green); }
+.check-icon.warn { background: rgba(200,150,62,.12); color: var(--gold); }
+.check-text { font-size: .82rem; color: var(--brown); }
+.check-sub { font-size: .72rem; color: var(--muted); margin-top: .1rem; }
+
+.submit-note {
+  font-size: .8rem; color: var(--muted); line-height: 1.65;
+  background: var(--warm); border: 1px solid var(--border);
+  border-radius: 10px; padding: .85rem; margin-bottom: 1.25rem;
+}
+
+.submit-modal-footer {
+  padding: 1rem 1.5rem 1.5rem;
+  display: flex; gap: .75rem;
+  border-top: 1px solid var(--border);
+}
+.modal-cancel {
+  flex: 1; padding: .85rem; border-radius: 50px;
+  background: transparent; border: 1.5px solid var(--border);
+  color: var(--muted); font-family: 'DM Sans', sans-serif;
+  font-size: .9rem; cursor: pointer; transition: all .2s;
+}
+.modal-cancel:hover { border-color: var(--brown); color: var(--brown); }
+.modal-submit {
+  flex: 2; padding: .85rem; border-radius: 50px;
+  background: var(--brown); border: none; color: var(--cream);
+  font-family: 'DM Sans', sans-serif; font-size: .9rem; font-weight: 600;
+  cursor: pointer; transition: all .2s;
+}
+.modal-submit:hover { background: var(--gold); }
+.modal-submit:disabled { opacity: .4; cursor: not-allowed; }
+
+/* Submit success */
+.submit-success { display: none; text-align: center; padding: 2.5rem 1.5rem; }
+.submit-success.visible { display: block; }
+.submit-success-icon { font-size: 2.75rem; margin-bottom: 1rem; }
+.submit-success h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.35rem; color: var(--brown); margin-bottom: .6rem;
+}
+.submit-success p { font-size: .85rem; color: var(--muted); line-height: 1.7; }
+
+/* ── NEW BOOK MODAL ──────────────────────────────────────────── */
+.new-book-modal {
+  background: var(--card-bg); border: 1px solid var(--border-bright);
+  border-radius: 24px; width: 100%; max-width: 440px;
+  transform: translateY(20px) scale(.97);
+  transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+  overflow: hidden;
+}
+.modal-overlay.open .new-book-modal { transform: translateY(0) scale(1); }
+@media (max-width: 640px) {
+  .new-book-modal { border-radius: 20px 20px 0 0; }
+}
+.nbm-header {
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--border); position: relative;
+}
+.nbm-handle { display: none; width: 40px; height: 4px; background: var(--border-bright); border-radius: 2px; margin: 0 auto .85rem; }
+@media (max-width: 640px) { .nbm-handle { display: block; } }
+.nbm-label { font-size: .68rem; letter-spacing: .15em; text-transform: uppercase; color: var(--gold); margin-bottom: .3rem; }
+.nbm-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 900; color: var(--brown); }
+.nbm-body { padding: 1.25rem 1.5rem; }
+.form-group { margin-bottom: 1rem; }
+.form-label { display: block; font-size: .75rem; color: var(--muted); margin-bottom: .4rem; }
+.form-input, .form-select {
+  width: 100%; background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 9px; padding: .75rem .9rem;
+  font-family: 'DM Sans', sans-serif; font-size: .88rem;
+  color: var(--text); outline: none; transition: border-color .2s;
+}
+.form-input::placeholder { color: var(--muted); }
+.form-input:focus, .form-select:focus { border-color: var(--gold); }
+.form-select option { background: var(--card-bg); }
+.nbm-footer {
+  padding: .85rem 1.5rem 1.5rem;
+  display: flex; gap: .75rem; border-top: 1px solid var(--border);
+}
+.nbm-cancel {
+  flex: 1; padding: .75rem; border-radius: 50px;
+  background: transparent; border: 1.5px solid var(--border);
+  color: var(--muted); font-family: 'DM Sans', sans-serif;
+  font-size: .88rem; cursor: pointer; transition: all .2s;
+}
+.nbm-cancel:hover { border-color: var(--brown); color: var(--brown); }
+.nbm-create {
+  flex: 2; padding: .75rem; border-radius: 50px;
+  background: var(--brown); border: none; color: var(--cream);
+  font-family: 'DM Sans', sans-serif; font-size: .88rem; font-weight: 600;
+  cursor: pointer; transition: all .2s;
+}
+.nbm-create:hover { background: var(--gold); }
+
+/* ── TOAST ───────────────────────────────────────────────────── */
+.toast {
+  position: fixed; bottom: 2rem; left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--brown); color: var(--cream);
+  padding: .7rem 1.4rem; border-radius: 50px;
+  font-size: .85rem; font-weight: 500;
+  box-shadow: 0 8px 24px rgba(59,42,26,.25);
+  transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+  z-index: 999; white-space: nowrap; pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── MOBILE ──────────────────────────────────────────────────── */
+/* Mobile: sidebar hidden by default, editor full width */
+.sidebar-panel {
+  position: absolute; z-index: 10; height: 100%;
+  transform: translateX(-100%);
+  box-shadow: 4px 0 24px rgba(59,42,26,.12);
+}
+.sidebar-panel.open { transform: translateX(0); }
+.sidebar-overlay {
+  display: none; position: absolute; inset: 0; z-index: 9;
+  background: rgba(59,42,26,.3);
+}
+.sidebar-overlay.open { display: block; }
+
+/* Hide mobile-only action buttons on desktop */
+.mob-only { display: none; }
+
+@media (min-width: 768px) {
+  .nav-inner { padding: 1rem 2rem; }
+  /* On tablet+, sidebar is in-flow */
+  .sidebar-panel {
+    position: relative; transform: none !important;
+    box-shadow: none; height: auto;
+  }
+  .sidebar-panel.collapsed { transform: translateX(-100%) !important; position: absolute; }
+  .sidebar-overlay { display: none !important; }
+  .hamburger { display: none; }
+  .mob-only { display: flex; }
+  .editor-wrap { padding: 3rem 2rem; }
+  #editor { font-size: 1.1rem; }
+}
+
+@media (max-width: 767px) {
+  .hamburger { display: flex; }
+  .nav-center { max-width: 180px; }
+  .chapter-title-input { width: 100px; }
+  .toolbar { padding: .5rem .75rem; gap: .25rem; }
+  .editor-wrap { padding: 1.5rem 1rem; }
+  #editor { font-size: 1rem; line-height: 1.85; }
+  .book-title-input { font-size: .9rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAVBAR ─────────────────────────────────────────────────── -->
+<nav>
+  <div class="nav-inner">
+    <a class="logo" href="inkwell.html">
+      <span class="logo-main">MindStark</span>
+      <span class="logo-sub">Inkwell</span>
+    </a>
+    <div class="nav-center">
+      <input class="book-title-input" id="book-title" placeholder="Untitled Book…" maxlength="100" autocomplete="off"/>
+      <span class="save-status" id="save-status">—</span>
+    </div>
+    <div class="nav-right">
+      <button class="dark-toggle" id="dark-toggle" title="Toggle dark mode" aria-label="Toggle dark mode"></button>
+      <button class="btn-sm btn-outline-sm mob-only" id="nav-save-btn">Save Draft</button>
+      <button class="btn-sm btn-brown-sm mob-only" id="nav-submit-btn">Submit →</button>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ── MOBILE BOTTOM SHEET ────────────────────────────────────── -->
+<div class="mobile-sheet-overlay" id="sheetOverlay">
+  <div class="mobile-sheet" id="mobileSheet">
+    <div class="sheet-handle"></div>
+    <div class="mob-sheet-actions">
+      <button class="mob-sheet-btn mob-gold" id="mob-submit-btn">Submit for Publishing</button>
+      <button class="mob-sheet-btn mob-outline" id="mob-save-btn">Save Draft</button>
+      <button class="mob-sheet-btn mob-outline" id="mob-new-book-btn">+ New Book</button>
+    </div>
+    <a href="inkwell.html" class="mob-back">← Back to Inkwell</a>
+  </div>
+</div>
+
+<!-- ── SIDEBAR OVERLAY (mobile tap-to-close) ─────────────────── -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ── WRITE LAYOUT ───────────────────────────────────────────── -->
+<div class="write-layout">
+
+  <!-- SIDEBAR PANEL -->
+  <div class="sidebar-panel" id="sidebarPanel">
+
+    <div class="panel-head">
+      <span class="panel-title">Your Book</span>
+      <button class="panel-toggle" id="panel-close" title="Close panel">✕</button>
+    </div>
+
+    <!-- Scrollable content -->
+    <div class="sidebar-scroll">
+
+    <!-- Book Meta -->
+    <div class="book-meta">
+      <!-- Cover -->
+      <div class="meta-field">
+        <div class="meta-label">Cover</div>
+        <div class="cover-upload" id="cover-upload">
+          <input type="file" id="cover-input" accept="image/*"/>
+          <img class="cover-preview" id="cover-preview" alt="Cover preview"/>
+          <div class="cover-upload-icon" id="cover-icon">🖼️</div>
+          <div class="cover-upload-text" id="cover-text">Upload cover<br/><span>Browse image</span></div>
+        </div>
+      </div>
+      <!-- Synopsis -->
+      <div class="meta-field">
+        <div class="meta-label">Synopsis</div>
+        <textarea class="meta-textarea" id="book-synopsis" placeholder="A short description of your story…"></textarea>
+      </div>
+      <!-- Genre -->
+      <div class="meta-field">
+        <div class="meta-label">Genre</div>
+        <select class="meta-select" id="book-genre">
+          <option value="">Select genre…</option>
+          <option>Romance</option>
+          <option>Thriller</option>
+          <option>Sci-Fi</option>
+          <option>Fantasy</option>
+          <option>Mystery</option>
+          <option>Horror</option>
+          <option>Adventure</option>
+          <option>Historical</option>
+          <option>Literary Fiction</option>
+          <option>Drama</option>
+          <option>Comedy</option>
+          <option>Young Adult</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Chapters -->
+    <div class="chapter-list-wrap">
+      <div class="panel-title" style="margin-bottom:.75rem;padding:0 .1rem">Chapters</div>
+      <div class="chapter-list" id="chapter-list">
+        <!-- Populated by JS -->
+      </div>
+      <button class="add-chapter-btn" id="add-chapter-btn">
+        <span>+</span> Add Chapter
+      </button>
+    </div>
+
+    </div><!-- /sidebar-scroll -->
+
+    <!-- Panel Footer -->
+    <div class="panel-footer">
+      <div class="word-count-display">
+        Total: <span id="total-words">0</span> words
+      </div>
+      <button class="btn-sm btn-brown-sm" style="width:100%;margin-bottom:.5rem" id="panel-submit-btn">
+        Submit for Publishing
+      </button>
+      <button class="btn-sm btn-outline-sm" style="width:100%" id="panel-save-btn">
+        Save Draft
+      </button>
+    </div>
+
+  </div><!-- /sidebar-panel -->
+
+  <!-- EDITOR AREA -->
+  <div class="editor-area">
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <!-- Sidebar toggle -->
+      <button class="sidebar-toggle-btn" id="sidebar-toggle-btn" title="Toggle chapters panel">☰</button>
+      <div class="toolbar-divider"></div>
+
+      <!-- Text format -->
+      <div class="toolbar-group">
+        <button class="tool-btn" id="tool-bold" title="Bold" onclick="fmt('bold')"><b>B</b></button>
+        <button class="tool-btn" id="tool-italic" title="Italic" onclick="fmt('italic')"><i>I</i></button>
+        <button class="tool-btn" id="tool-underline" title="Underline" onclick="fmt('underline')"><u>U</u></button>
+      </div>
+      <div class="toolbar-divider"></div>
+
+      <!-- Headings -->
+      <div class="toolbar-group">
+        <button class="tool-btn tool-btn-wide" title="Heading 1" onclick="fmtBlock('h1')">H1</button>
+        <button class="tool-btn tool-btn-wide" title="Heading 2" onclick="fmtBlock('h2')">H2</button>
+      </div>
+      <div class="toolbar-divider"></div>
+
+      <!-- Block -->
+      <div class="toolbar-group">
+        <button class="tool-btn tool-btn-wide" title="Blockquote" onclick="fmtBlock('blockquote')" style="font-style:italic">❝</button>
+        <button class="tool-btn tool-btn-wide" title="Paragraph" onclick="fmtBlock('p')">¶</button>
+      </div>
+      <div class="toolbar-divider"></div>
+
+      <!-- Align -->
+      <div class="toolbar-group">
+        <button class="tool-btn" title="Align Left" onclick="fmt('justifyLeft')">⬅</button>
+        <button class="tool-btn" title="Align Center" onclick="fmt('justifyCenter')">↔</button>
+      </div>
+
+      <!-- Right side: chapter title + word count -->
+      <div class="toolbar-right">
+        <input class="chapter-title-input" id="chapter-title" placeholder="Chapter title…" autocomplete="off"/>
+      </div>
+    </div>
+
+    <!-- Editor -->
+    <div class="editor-wrap">
+      <div class="editor-inner">
+        <div id="editor"
+          contenteditable="true"
+          data-placeholder="Begin your story here… Let the words flow."
+          spellcheck="true">
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="editor-footer">
+      <div class="editor-wc">Chapter: <span id="chapter-words">0</span> words</div>
+      <div class="editor-hint">Auto-saves every 30s</div>
+    </div>
+
+  </div><!-- /editor-area -->
+
+</div><!-- /write-layout -->
+
+<!-- ── SUBMIT MODAL ───────────────────────────────────────────── -->
+<div class="modal-overlay" id="submit-modal-overlay">
+  <div class="submit-modal">
+    <div class="submit-modal-header">
+      <div class="submit-modal-handle"></div>
+      <div class="submit-modal-label">Ready to publish?</div>
+      <div class="submit-modal-title">Submit for Editorial Review</div>
+      <button class="modal-close" id="submit-modal-close">✕</button>
+    </div>
+
+    <div class="submit-modal-body" id="submit-modal-body">
+      <div class="submit-checklist" id="submit-checklist">
+        <!-- Populated by JS -->
+      </div>
+      <div class="submit-note">
+        Once submitted, your book goes to the MindStark editorial team for review. They may suggest edits before it goes live. You'll hear back soon — keep writing in the meantime.
+      </div>
+    </div>
+
+    <div class="submit-success" id="submit-success">
+      <div class="submit-success-icon">📬</div>
+      <h2>Submitted!</h2>
+      <p>Your book is now with the editorial team. They'll review it carefully and reach out. Not quite ready yet just means keep going — great writing takes time.</p>
+    </div>
+
+    <div class="submit-modal-footer" id="submit-modal-footer">
+      <button class="modal-cancel" id="submit-cancel-btn">Cancel</button>
+      <button class="modal-submit" id="submit-confirm-btn">Submit Book →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── NEW BOOK MODAL ──────────────────────────────────────────── -->
+<div class="modal-overlay" id="new-book-overlay">
+  <div class="new-book-modal">
+    <div class="nbm-header">
+      <div class="nbm-handle"></div>
+      <div class="nbm-label">Start fresh</div>
+      <div class="nbm-title">Create a New Book</div>
+      <button class="modal-close" id="nbm-close">✕</button>
+    </div>
+    <div class="nbm-body">
+      <div class="form-group">
+        <label class="form-label">Book Title</label>
+        <input type="text" class="form-input" id="new-book-title" placeholder="Enter your book title…" maxlength="100"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Genre</label>
+        <select class="form-select" id="new-book-genre">
+          <option value="">Select genre…</option>
+          <option>Romance</option><option>Thriller</option><option>Sci-Fi</option>
+          <option>Fantasy</option><option>Mystery</option><option>Horror</option>
+          <option>Adventure</option><option>Historical</option>
+          <option>Literary Fiction</option><option>Drama</option>
+          <option>Comedy</option><option>Young Adult</option>
+        </select>
+      </div>
+    </div>
+    <div class="nbm-footer">
+      <button class="nbm-cancel" id="nbm-cancel">Cancel</button>
+      <button class="nbm-create" id="nbm-create">Create Book →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ── SCRIPTS ────────────────────────────────────────────────── -->
+<script src="supabase.js"></script>
+<script>
+
+// ── DARK MODE ──────────────────────────────────────────────────
+const darkToggle = document.getElementById('dark-toggle');
+if (localStorage.getItem('inkwell-theme') === 'dark') document.body.classList.add('dark-mode');
+darkToggle.addEventListener('click', () => {
+  document.body.classList.toggle('dark-mode');
+  localStorage.setItem('inkwell-theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+});
+
+// ── TOAST ──────────────────────────────────────────────────────
+function showToast(msg, duration = 3000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+// ── MOBILE NAV SHEET ───────────────────────────────────────────
+const hamburger = document.getElementById('hamburger');
+const sheetOverlay = document.getElementById('sheetOverlay');
+const mobileSheet = document.getElementById('mobileSheet');
+hamburger.addEventListener('click', () => {
+  hamburger.classList.toggle('open');
+  sheetOverlay.classList.toggle('open');
+  mobileSheet.classList.toggle('open');
+  document.body.style.overflow = mobileSheet.classList.contains('open') ? 'hidden' : '';
+});
+sheetOverlay.addEventListener('click', e => { if (e.target === sheetOverlay) closeSheet(); });
+function closeSheet() {
+  hamburger.classList.remove('open');
+  sheetOverlay.classList.remove('open');
+  mobileSheet.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ── SIDEBAR PANEL ──────────────────────────────────────────────
+const sidebarPanel = document.getElementById('sidebarPanel');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+function openSidebar() {
+  sidebarPanel.classList.add('open');
+  sidebarOverlay.classList.add('open');
+}
+function closeSidebar() {
+  sidebarPanel.classList.remove('open');
+  sidebarOverlay.classList.remove('open');
+}
+
+document.getElementById('sidebar-toggle-btn').addEventListener('click', () => {
+  if (sidebarPanel.classList.contains('open')) closeSidebar();
+  else openSidebar();
+});
+document.getElementById('panel-close').addEventListener('click', closeSidebar);
+sidebarOverlay.addEventListener('click', closeSidebar);
+
+// ── STATE ──────────────────────────────────────────────────────
+let currentUser = null;
+let currentCreator = null;
+let currentBook = null;
+let chapters = [];
+let activeChapterIdx = 0;
+let autoSaveTimer = null;
+let isDirty = false;
+
+// ── AUTH CHECK ─────────────────────────────────────────────────
+async function checkAuth() {
+  try {
+    if (typeof supabase === 'undefined') return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { window.location.href = 'signin.html'; return; }
+    currentUser = user;
+
+    // Check if approved creator
+    const { data: creator } = await supabase
+      .from('inkwell_creators')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
+
+    if (!creator) {
+      showToast('You need to be an approved creator to write here.', 5000);
+      setTimeout(() => window.location.href = 'inkwell.html', 3000);
+      return;
+    }
+    currentCreator = creator;
+    loadUserBooks();
+  } catch(e) { console.log('Auth:', e); }
+}
+
+// ── LOAD USER BOOKS ────────────────────────────────────────────
+async function loadUserBooks() {
+  try {
+    if (typeof supabase === 'undefined') { initFreshBook(); return; }
+    const { data: books } = await supabase
+      .from('inkwell_books')
+      .select('*')
+      .eq('creator_id', currentCreator.id)
+      .in('status', ['draft', 'submitted', 'under_review'])
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (books && books.length > 0) {
+      currentBook = books[0];
+      document.getElementById('book-title').value = currentBook.title || '';
+      document.getElementById('book-synopsis').value = currentBook.synopsis || '';
+      document.getElementById('book-genre').value = currentBook.genre || '';
+      loadChapters();
+    } else {
+      initFreshBook();
+    }
+  } catch(e) { initFreshBook(); }
+}
+
+function initFreshBook() {
+  chapters = [{ id: null, chapter_number: 1, title: 'Chapter 1', content: '', words: 0 }];
+  renderChapterList();
+  loadChapter(0);
+}
+
+// ── LOAD CHAPTERS ──────────────────────────────────────────────
+async function loadChapters() {
+  try {
+    if (typeof supabase === 'undefined' || !currentBook) return;
+    const { data } = await supabase
+      .from('inkwell_chapters')
+      .select('*')
+      .eq('book_id', currentBook.id)
+      .order('chapter_number', { ascending: true });
+
+    if (data && data.length > 0) {
+      chapters = data.map(c => ({
+        id: c.id,
+        chapter_number: c.chapter_number,
+        title: c.title || `Chapter ${c.chapter_number}`,
+        content: c.content || '',
+        words: countWords(c.content || '')
+      }));
+    } else {
+      chapters = [{ id: null, chapter_number: 1, title: 'Chapter 1', content: '', words: 0 }];
+    }
+    renderChapterList();
+    loadChapter(0);
+  } catch(e) { initFreshBook(); }
+}
+
+// ── CHAPTER RENDERING ──────────────────────────────────────────
+function renderChapterList() {
+  const list = document.getElementById('chapter-list');
+  list.innerHTML = chapters.map((ch, i) => `
+    <div class="chapter-item ${i === activeChapterIdx ? 'active' : ''}" data-idx="${i}">
+      <div class="chapter-num">${String(ch.chapter_number).padStart(2,'0')}</div>
+      <div class="chapter-name">${ch.title}</div>
+      <div class="chapter-status ${ch.id ? 'saved' : ''}"></div>
+      ${chapters.length > 1 ? `<button class="chapter-delete" data-del="${i}" title="Remove chapter">✕</button>` : ''}
+    </div>
+  `).join('');
+
+  list.querySelectorAll('.chapter-item').forEach(item => {
+    item.addEventListener('click', e => {
+      // Don't trigger if delete button was clicked
+      if (e.target.classList.contains('chapter-delete')) return;
+      const idx = parseInt(item.dataset.idx);
+      if (idx !== activeChapterIdx) {
+        saveCurrentChapterLocally();
+        activeChapterIdx = idx;
+        loadChapter(idx);
+        renderChapterList();
+        if (window.innerWidth < 768) closeSidebar();
+      }
+    });
+  });
+
+  list.querySelectorAll('.chapter-delete').forEach(btn => {
+    btn.addEventListener('click', async e => {
+      e.stopPropagation();
+      const idx = parseInt(btn.dataset.del);
+      const ch = chapters[idx];
+      if (!confirm(`Remove "${ch.title}"? This cannot be undone.`)) return;
+
+      // Delete from Supabase if saved
+      if (ch.id && typeof supabase !== 'undefined') {
+        try { await supabase.from('inkwell_chapters').delete().eq('id', ch.id); } catch(e) {}
+      }
+
+      chapters.splice(idx, 1);
+      // Re-number chapters
+      chapters.forEach((c, i) => c.chapter_number = i + 1);
+      // Adjust active index
+      if (activeChapterIdx >= chapters.length) activeChapterIdx = chapters.length - 1;
+      renderChapterList();
+      loadChapter(activeChapterIdx);
+      showToast('Chapter removed');
+    });
+  });
+
+  updateTotalWordCount();
+}
+
+function loadChapter(idx) {
+  const ch = chapters[idx];
+  if (!ch) return;
+  const editor = document.getElementById('editor');
+  editor.innerHTML = ch.content || '';
+  document.getElementById('chapter-title').value = ch.title || '';
+  updateChapterWordCount();
+}
+
+function saveCurrentChapterLocally() {
+  const editor = document.getElementById('editor');
+  const title = document.getElementById('chapter-title').value.trim();
+  if (chapters[activeChapterIdx]) {
+    chapters[activeChapterIdx].content = editor.innerHTML;
+    chapters[activeChapterIdx].title = title || `Chapter ${chapters[activeChapterIdx].chapter_number}`;
+    chapters[activeChapterIdx].words = countWords(editor.innerText || editor.textContent);
+  }
+}
+
+// ── ADD CHAPTER ────────────────────────────────────────────────
+document.getElementById('add-chapter-btn').addEventListener('click', () => {
+  saveCurrentChapterLocally();
+  const num = chapters.length + 1;
+  chapters.push({ id: null, chapter_number: num, title: `Chapter ${num}`, content: '', words: 0 });
+  activeChapterIdx = chapters.length - 1;
+  renderChapterList();
+  loadChapter(activeChapterIdx);
+  document.getElementById('chapter-title').focus();
+  if (window.innerWidth < 768) closeSidebar();
+});
+
+// ── EDITOR EVENTS ──────────────────────────────────────────────
+const editor = document.getElementById('editor');
+
+editor.addEventListener('input', () => {
+  updateChapterWordCount();
+  markDirty();
+});
+
+editor.addEventListener('keydown', e => {
+  // Tab = indent
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    document.execCommand('insertHTML', false, '&nbsp;&nbsp;&nbsp;&nbsp;');
+  }
+  // Enter in empty blockquote = exit
+  if (e.key === 'Enter') {
+    const sel = window.getSelection();
+    if (sel.rangeCount) {
+      const node = sel.getRangeAt(0).startContainer;
+      const bq = node.closest ? node.closest('blockquote') : null;
+      if (bq && bq.textContent.trim() === '') {
+        e.preventDefault();
+        document.execCommand('formatBlock', false, 'p');
+      }
+    }
+  }
+});
+
+// Chapter title
+document.getElementById('chapter-title').addEventListener('input', function() {
+  if (chapters[activeChapterIdx]) {
+    chapters[activeChapterIdx].title = this.value || `Chapter ${chapters[activeChapterIdx].chapter_number}`;
+    renderChapterList();
+  }
+  markDirty();
+});
+
+// Book title
+document.getElementById('book-title').addEventListener('input', markDirty);
+document.getElementById('book-synopsis').addEventListener('input', markDirty);
+document.getElementById('book-genre').addEventListener('change', markDirty);
+
+// ── WORD COUNT ─────────────────────────────────────────────────
+function countWords(text) {
+  return text.trim().split(/\s+/).filter(w => w.length > 0).length;
+}
+function updateChapterWordCount() {
+  const text = editor.innerText || editor.textContent || '';
+  const count = countWords(text);
+  if (chapters[activeChapterIdx]) chapters[activeChapterIdx].words = count;
+  document.getElementById('chapter-words').textContent = count.toLocaleString();
+}
+function updateTotalWordCount() {
+  const total = chapters.reduce((s, c) => s + (c.words || 0), 0);
+  document.getElementById('total-words').textContent = total.toLocaleString();
+}
+
+// ── FORMATTING ─────────────────────────────────────────────────
+function fmt(cmd) {
+  document.execCommand(cmd, false, null);
+  editor.focus();
+  updateToolbarState();
+}
+function fmtBlock(tag) {
+  document.execCommand('formatBlock', false, tag);
+  editor.focus();
+}
+function updateToolbarState() {
+  document.getElementById('tool-bold').classList.toggle('active', document.queryCommandState('bold'));
+  document.getElementById('tool-italic').classList.toggle('active', document.queryCommandState('italic'));
+  document.getElementById('tool-underline').classList.toggle('active', document.queryCommandState('underline'));
+}
+editor.addEventListener('keyup', updateToolbarState);
+editor.addEventListener('mouseup', updateToolbarState);
+
+// ── COVER UPLOAD ───────────────────────────────────────────────
+document.getElementById('cover-input').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const preview = document.getElementById('cover-preview');
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+    document.getElementById('cover-icon').style.display = 'none';
+    document.getElementById('cover-text').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+  markDirty();
+});
+
+// ── DIRTY STATE ────────────────────────────────────────────────
+function markDirty() {
+  isDirty = true;
+  setSaveStatus('Unsaved changes');
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(saveAll, 30000); // auto-save every 30s
+}
+function setSaveStatus(msg, isSaved = false) {
+  const el = document.getElementById('save-status');
+  el.textContent = msg;
+  el.className = 'save-status' + (isSaved ? ' saved' : '');
+}
+
+// ── SAVE ───────────────────────────────────────────────────────
+async function saveAll() {
+  saveCurrentChapterLocally();
+  setSaveStatus('Saving…');
+
+  const title = document.getElementById('book-title').value.trim() || 'Untitled';
+  const synopsis = document.getElementById('book-synopsis').value.trim();
+  const genre = document.getElementById('book-genre').value;
+
+  try {
+    if (typeof supabase === 'undefined') {
+      setSaveStatus('Saved locally', true);
+      isDirty = false;
+      renderChapterList();
+      return;
+    }
+
+    // Upsert book
+    let bookId = currentBook?.id;
+    if (!bookId) {
+      const { data: newBook, error: bookErr } = await supabase
+        .from('inkwell_books')
+        .insert({
+          creator_id: currentCreator.id,
+          title, synopsis, genre, status: 'draft'
+        })
+        .select().single();
+      if (bookErr) throw bookErr;
+      currentBook = newBook;
+      bookId = newBook.id;
+    } else {
+      await supabase.from('inkwell_books')
+        .update({ title, synopsis, genre })
+        .eq('id', bookId);
+    }
+
+    // Save chapters
+    for (let i = 0; i < chapters.length; i++) {
+      const ch = chapters[i];
+      if (ch.id) {
+        await supabase.from('inkwell_chapters')
+          .update({ title: ch.title, content: ch.content, updated_at: new Date().toISOString() })
+          .eq('id', ch.id);
+      } else {
+        const { data: newCh } = await supabase.from('inkwell_chapters')
+          .insert({ book_id: bookId, chapter_number: ch.chapter_number, title: ch.title, content: ch.content })
+          .select().single();
+        if (newCh) chapters[i].id = newCh.id;
+      }
+    }
+
+    setSaveStatus('Saved ✓', true);
+    isDirty = false;
+    renderChapterList();
+    showToast('Draft saved');
+  } catch(e) {
+    setSaveStatus('Save failed');
+    showToast('Could not save. Please try again.');
+  }
+}
+
+// Save buttons
+document.getElementById('nav-save-btn').addEventListener('click', saveAll);
+document.getElementById('panel-save-btn').addEventListener('click', saveAll);
+document.getElementById('mob-save-btn').addEventListener('click', () => { saveAll(); closeSheet(); });
+
+// ── SUBMIT MODAL ───────────────────────────────────────────────
+function openSubmitModal() {
+  saveCurrentChapterLocally();
+  const title = document.getElementById('book-title').value.trim();
+  const genre = document.getElementById('book-genre').value;
+  const synopsis = document.getElementById('book-synopsis').value.trim();
+  const totalWords = chapters.reduce((s,c) => s+(c.words||0), 0);
+  const chapterCount = chapters.length;
+
+  const checklist = [
+    {
+      ok: !!title,
+      label: 'Book has a title',
+      sub: title || 'Add a title to continue'
+    },
+    {
+      ok: !!genre,
+      label: 'Genre selected',
+      sub: genre || 'Select a genre for your book'
+    },
+    {
+      ok: !!synopsis,
+      label: 'Synopsis written',
+      sub: synopsis ? synopsis.substring(0,60)+'…' : 'Write a short synopsis'
+    },
+    {
+      ok: chapterCount >= 1,
+      label: `${chapterCount} chapter${chapterCount !== 1 ? 's' : ''} written`,
+      sub: totalWords.toLocaleString() + ' total words'
+    },
+  ];
+
+  document.getElementById('submit-checklist').innerHTML = checklist.map(item => `
+    <div class="check-item">
+      <div class="check-icon ${item.ok ? 'ok' : 'warn'}">${item.ok ? '✓' : '!'}</div>
+      <div>
+        <div class="check-text">${item.label}</div>
+        <div class="check-sub">${item.sub}</div>
+      </div>
+    </div>
+  `).join('');
+
+  const allGood = checklist.every(c => c.ok);
+  document.getElementById('submit-confirm-btn').disabled = !allGood;
+  if (!allGood) document.getElementById('submit-confirm-btn').title = 'Complete all checklist items to submit';
+
+  document.getElementById('submit-modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSubmitModal() {
+  document.getElementById('submit-modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Submit buttons
+[
+  'nav-submit-btn', 'panel-submit-btn'
+].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('click', openSubmitModal);
+});
+
+document.getElementById('mob-submit-btn').addEventListener('click', () => { closeSheet(); openSubmitModal(); });
+document.getElementById('submit-modal-close').addEventListener('click', closeSubmitModal);
+document.getElementById('submit-cancel-btn').addEventListener('click', closeSubmitModal);
+document.getElementById('submit-modal-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('submit-modal-overlay')) closeSubmitModal();
+});
+
+// Confirm submit
+document.getElementById('submit-confirm-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('submit-confirm-btn');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+
+  try {
+    await saveAll();
+    if (currentBook?.id && typeof supabase !== 'undefined') {
+      await supabase.from('inkwell_books')
+        .update({ status: 'submitted' })
+        .eq('id', currentBook.id);
+    }
+    document.getElementById('submit-modal-body').style.display = 'none';
+    document.getElementById('submit-modal-footer').style.display = 'none';
+    document.getElementById('submit-success').classList.add('visible');
+    showToast('Book submitted for review!');
+  } catch(e) {
+    showToast('Something went wrong. Please try again.');
+    btn.disabled = false; btn.textContent = 'Submit Book →';
+  }
+});
+
+// ── NEW BOOK MODAL ─────────────────────────────────────────────
+function openNewBookModal() {
+  document.getElementById('new-book-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeNewBookModal() {
+  document.getElementById('new-book-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('mob-new-book-btn').addEventListener('click', () => { closeSheet(); openNewBookModal(); });
+document.getElementById('nbm-close').addEventListener('click', closeNewBookModal);
+document.getElementById('nbm-cancel').addEventListener('click', closeNewBookModal);
+document.getElementById('new-book-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('new-book-overlay')) closeNewBookModal();
+});
+
+document.getElementById('nbm-create').addEventListener('click', async () => {
+  const title = document.getElementById('new-book-title').value.trim();
+  const genre = document.getElementById('new-book-genre').value;
+  if (!title) { showToast('Please enter a book title'); return; }
+
+  const btn = document.getElementById('nbm-create');
+  btn.disabled = true; btn.textContent = 'Creating…';
+
+  try {
+    if (typeof supabase !== 'undefined' && currentCreator) {
+      const { data: newBook, error } = await supabase
+        .from('inkwell_books')
+        .insert({ creator_id: currentCreator.id, title, genre, status: 'draft' })
+        .select().single();
+      if (error) throw error;
+      currentBook = newBook;
+    }
+    document.getElementById('book-title').value = title;
+    document.getElementById('book-genre').value = genre;
+    document.getElementById('book-synopsis').value = '';
+    chapters = [{ id: null, chapter_number: 1, title: 'Chapter 1', content: '', words: 0 }];
+    activeChapterIdx = 0;
+    renderChapterList();
+    loadChapter(0);
+    closeNewBookModal();
+    showToast(`"${title}" created`);
+    document.getElementById('editor').focus();
+  } catch(e) {
+    showToast('Could not create book. Please try again.');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Create Book →';
+  }
+});
+
+// ── KEYBOARD SHORTCUTS ─────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  const isMac = navigator.platform.toUpperCase().includes('MAC');
+  const mod = isMac ? e.metaKey : e.ctrlKey;
+  if (mod && e.key === 's') { e.preventDefault(); saveAll(); }
+});
+
+// ── BEFORE UNLOAD ──────────────────────────────────────────────
+window.addEventListener('beforeunload', e => {
+  if (isDirty) { e.preventDefault(); e.returnValue = ''; }
+});
+
+// ── INIT ───────────────────────────────────────────────────────
+(async () => {
+  await checkAuth();
+  setSaveStatus('Ready');
+})();
+
+</script>
+</body>
+</html>

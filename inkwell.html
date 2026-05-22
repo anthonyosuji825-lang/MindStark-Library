@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="icon" type="image/png" href="logo.png"/>
+<meta property="og:title" content="MindStark Inkwell"/>
+<meta property="og:description" content="Where stories are born. Write, publish, and connect."/>
+<title>MindStark Inkwell</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ── VARIABLES ─────────────────────────────────────────────── */
+:root {
+  --cream: #f5f0e8;
+  --warm: #ede5d5;
+  --warm2: #e4d9c4;
+  --brown: #3b2a1a;
+  --gold: #c8963e;
+  --rust: #a0522d;
+  --text: #2c1e0f;
+  --muted: #7a6652;
+  --white: #ffffff;
+  --border: rgba(200,150,62,.18);
+  --border-bright: rgba(200,150,62,.38);
+  --shadow: 0 4px 32px rgba(59,42,26,.1);
+  --card-bg: #ffffff;
+  --surface: #faf6ef;
+
+  /* Dark mode variables */
+  --ink-bg: #0d0905;
+  --ink-surface: #17100a;
+  --ink-card: #1e1510;
+  --ink-border: rgba(200,150,62,.14);
+  --ink-border-bright: rgba(200,150,62,.38);
+  --ink-text: rgba(245,240,232,.92);
+  --ink-muted: rgba(245,240,232,.42);
+}
+
+/* ── DARK MODE ──────────────────────────────────────────────── */
+body.dark-mode {
+  --cream: #0d0905;
+  --warm: #17100a;
+  --warm2: #1e1510;
+  --brown: #f5f0e8;
+  --gold: #c8963e;
+  --text: rgba(245,240,232,.92);
+  --muted: rgba(245,240,232,.42);
+  --border: rgba(200,150,62,.14);
+  --border-bright: rgba(200,150,62,.38);
+  --card-bg: #1e1510;
+  --surface: #17100a;
+  --shadow: 0 4px 32px rgba(0,0,0,.3);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background .3s, color .3s;
+}
+
+/* ── AMBIENT BACKGROUND ─────────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 45% at 60% 0%, rgba(200,150,62,.09) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 5% 80%, rgba(160,82,45,.06) 0%, transparent 55%);
+  pointer-events: none; z-index: 0;
+}
+
+/* ── NAVBAR ─────────────────────────────────────────────────── */
+nav {
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(245,240,232,.95);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  transition: background .3s;
+}
+body.dark-mode nav {
+  background: rgba(13,9,5,.94);
+}
+.nav-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.1rem 2rem; max-width: 1280px; margin: 0 auto;
+}
+.logo { display: flex; flex-direction: column; line-height: 1; text-decoration: none; }
+.logo-main { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900; color: var(--brown); }
+.logo-sub { font-size: .62rem; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); }
+.nav-links { display: flex; gap: 2rem; list-style: none; }
+.nav-links a { text-decoration: none; color: var(--muted); font-size: .9rem; font-weight: 500; transition: color .2s; }
+.nav-links a:hover, .nav-links a.active { color: var(--gold); }
+.nav-right { display: flex; align-items: center; gap: .85rem; }
+.nav-user {
+  display: none; align-items: center; gap: .55rem;
+  font-size: .82rem; color: var(--muted); font-weight: 500;
+}
+.nav-user-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); }
+
+/* Dark mode toggle */
+.dark-toggle {
+  width: 36px; height: 20px; border-radius: 10px;
+  background: var(--border-bright); border: none; cursor: pointer;
+  position: relative; transition: background .3s; flex-shrink: 0;
+  padding: 0;
+}
+.dark-toggle::after {
+  content: '';
+  position: absolute; top: 3px; left: 3px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--gold);
+  transition: transform .3s;
+}
+body.dark-mode .dark-toggle::after { transform: translateX(16px); }
+
+.nav-cta {
+  background: var(--brown); color: var(--cream);
+  padding: .5rem 1.25rem; border-radius: 50px;
+  font-size: .88rem; font-weight: 500; text-decoration: none;
+  transition: background .2s; display: inline-block;
+}
+.nav-cta:hover { background: var(--gold); }
+.hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: .4rem; background: none; border: none; z-index: 300; }
+.hamburger span { display: block; width: 24px; height: 2px; background: var(--brown); border-radius: 2px; transition: all .3s; }
+body.dark-mode .hamburger span { background: var(--cream); }
+.hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ── MOBILE BOTTOM SHEET NAV ────────────────────────────────── */
+.mobile-sheet-overlay {
+  display: none; position: fixed; inset: 0; z-index: 150;
+  background: rgba(59,42,26,.45); backdrop-filter: blur(3px);
+}
+.mobile-sheet-overlay.open { display: block; }
+.mobile-sheet {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 151;
+  background: var(--cream);
+  border-top: 1px solid var(--border-bright);
+  border-radius: 20px 20px 0 0;
+  padding: 1rem 1.75rem 2.5rem;
+  transform: translateY(100%);
+  transition: transform .35s cubic-bezier(.4,0,.2,1);
+}
+body.dark-mode .mobile-sheet { background: var(--ink-card); }
+.mobile-sheet.open { transform: translateY(0); }
+.sheet-handle { width: 40px; height: 4px; background: var(--border-bright); border-radius: 2px; margin: 0 auto 1.5rem; }
+.mobile-sheet a {
+  display: block; font-family: 'Playfair Display', serif;
+  font-size: 1.3rem; font-weight: 700; color: var(--brown);
+  text-decoration: none; padding: .7rem 0;
+  border-bottom: 1px solid var(--border); transition: color .2s;
+}
+.mobile-sheet a:hover { color: var(--gold); }
+.mobile-sheet a:last-child { border-bottom: none; }
+.mobile-sheet .mob-cta {
+  display: block; text-align: center;
+  background: var(--brown); color: var(--cream);
+  border-radius: 50px; padding: .85rem; margin-top: 1.25rem;
+  font-family: 'DM Sans', sans-serif; font-size: .95rem; font-weight: 500;
+  text-decoration: none; transition: background .2s;
+}
+.mobile-sheet .mob-cta:hover { background: var(--gold); color: var(--white); }
+
+/* ── PAGE WRAP ──────────────────────────────────────────────── */
+.page-wrap {
+  position: relative; z-index: 1;
+  max-width: 1280px; margin: 0 auto;
+  padding: 0 2.5rem 6rem;
+}
+
+/* ── HERO ───────────────────────────────────────────────────── */
+.inkwell-hero {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 4rem; align-items: center;
+  padding: 6rem 0 5rem;
+  min-height: 72vh;
+}
+.hero-eyebrow {
+  display: flex; align-items: center; gap: .75rem;
+  margin-bottom: 1.5rem;
+}
+.hero-eyebrow::before { content: ''; display: block; width: 36px; height: 2px; background: var(--gold); }
+.hero-eyebrow span { font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); }
+.hero-text h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.6rem, 5vw, 4rem);
+  font-weight: 900; line-height: 1.1;
+  color: var(--brown); margin-bottom: 1.25rem;
+}
+.hero-text h1 em { font-style: italic; color: var(--gold); }
+.hero-text p {
+  font-size: 1.08rem; color: var(--muted);
+  max-width: 480px; margin-bottom: 2.75rem; line-height: 1.85;
+}
+.hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+.btn-primary {
+  background: var(--brown); color: var(--cream);
+  padding: .88rem 2rem; border-radius: 50px;
+  font-family: 'DM Sans', sans-serif; font-size: .95rem; font-weight: 500;
+  border: none; cursor: pointer; transition: all .25s; display: inline-block; text-decoration: none;
+}
+.btn-primary:hover { background: var(--gold); transform: translateY(-2px); }
+.btn-secondary {
+  background: transparent; color: var(--brown);
+  padding: .88rem 2rem; border-radius: 50px;
+  font-family: 'DM Sans', sans-serif; font-size: .95rem; font-weight: 500;
+  border: 2px solid var(--brown); cursor: pointer; transition: all .25s;
+  display: inline-block; text-decoration: none;
+}
+.btn-secondary:hover { background: var(--brown); color: var(--cream); transform: translateY(-2px); }
+
+/* ── HERO VISUAL ────────────────────────────────────────────── */
+.hero-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+.hero-badges {
+  display: flex;
+  gap: .75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.quill-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 2.25rem;
+  width: 100%; max-width: 400px;
+  box-shadow: var(--shadow);
+  position: relative;
+}
+.quill-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  border-radius: 24px 24px 0 0;
+}
+.qc-label {
+  font-size: .68rem; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 1rem; font-weight: 600;
+}
+.qc-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem; font-weight: 900; color: var(--brown);
+  margin-bottom: .4rem; line-height: 1.3;
+}
+.qc-author { font-size: .78rem; color: var(--muted); margin-bottom: 1.25rem; }
+.qc-excerpt {
+  font-family: 'Playfair Display', serif;
+  font-size: .88rem; color: var(--muted); line-height: 1.75;
+  font-style: italic; border-left: 2px solid var(--gold);
+  padding-left: .85rem; margin-bottom: 1.25rem;
+}
+.qc-meta { display: flex; align-items: center; justify-content: space-between; }
+.qc-stats { display: flex; gap: .85rem; }
+.qc-stat { font-size: .75rem; color: var(--muted); display: flex; align-items: center; gap: .3rem; }
+.qc-genre {
+  font-size: .65rem; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--gold); background: rgba(200,150,62,.1);
+  border: 1px solid var(--border); padding: .25rem .7rem; border-radius: 50px;
+}
+
+/* floating badges */
+.hero-badge {
+  background: var(--brown); color: var(--cream);
+  border-radius: 14px; padding: .65rem .9rem;
+  font-size: .72rem; font-weight: 600; box-shadow: var(--shadow);
+  white-space: nowrap;
+}
+.hero-badge.b2 { color: var(--brown); background: var(--warm2); border: 1px solid var(--border); }
+.hero-badge span { color: var(--gold); }
+
+/* ── STATS BAR ──────────────────────────────────────────────── */
+.stats-bar {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  background: var(--brown); border-radius: 20px;
+  overflow: hidden; margin-bottom: 4.5rem;
+}
+.stat-item {
+  padding: 2.25rem 1.5rem; text-align: center;
+  border-right: 1px solid rgba(245,240,232,.08);
+}
+.stat-item:last-child { border-right: none; }
+.stat-num {
+  display: block; font-family: 'Playfair Display', serif;
+  font-size: 2.25rem; font-weight: 900; color: var(--gold); line-height: 1;
+}
+.stat-lbl {
+  display: block; font-size: .72rem; text-transform: uppercase;
+  letter-spacing: .14em; color: rgba(245,240,232,.45); margin-top: .5rem;
+}
+
+/* ── MAIN GRID ──────────────────────────────────────────────── */
+.inkwell-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 2.5rem; align-items: start;
+}
+
+/* ── SECTION HEAD ───────────────────────────────────────────── */
+.section-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-eyebrow { font-size: .68rem; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-bottom: .3rem; }
+.section-title { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 900; color: var(--brown); }
+.see-all { font-size: .8rem; color: var(--gold); text-decoration: none; font-weight: 500; transition: opacity .2s; padding-bottom: .25rem; }
+.see-all:hover { opacity: .7; }
+
+/* ── STORY CARDS ────────────────────────────────────────────── */
+.trending-section { margin-bottom: 3.5rem; }
+.story-list { display: flex; flex-direction: column; gap: .75rem; }
+.story-item {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  text-decoration: none; color: inherit;
+  transition: border-color .25s, transform .25s, box-shadow .25s;
+}
+.story-item:hover {
+  border-color: var(--border-bright);
+  transform: translateX(5px);
+  box-shadow: var(--shadow);
+}
+.story-rank {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem; font-weight: 900;
+  color: rgba(200,150,62,.2); min-width: 28px; text-align: center; line-height: 1;
+}
+.story-cover {
+  width: 48px; height: 64px; border-radius: 6px 10px 10px 6px;
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  writing-mode: vertical-rl; font-size: .48rem; font-weight: 700;
+  color: rgba(255,255,255,.7); font-family: 'Playfair Display', serif;
+  text-align: center; padding: .3rem; box-shadow: 3px 3px 12px rgba(59,42,26,.18);
+}
+.story-info { flex: 1; min-width: 0; }
+.story-genre { font-size: .65rem; letter-spacing: .15em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-bottom: .2rem; }
+.story-title {
+  font-family: 'Playfair Display', serif;
+  font-size: .95rem; font-weight: 700; color: var(--brown);
+  margin-bottom: .2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.story-author { font-size: .75rem; color: var(--muted); }
+.story-meta { display: flex; flex-direction: column; align-items: flex-end; gap: .3rem; flex-shrink: 0; }
+.story-reads { font-size: .72rem; color: var(--muted); font-family: 'DM Mono', monospace; }
+.story-likes { font-size: .72rem; color: var(--gold); }
+
+/* ── COMMUNITY FEED ─────────────────────────────────────────── */
+.feed-section { margin-bottom: 3.5rem; }
+.feed-list { display: flex; flex-direction: column; gap: .75rem; }
+.feed-item {
+  padding: 1.1rem 1.25rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  transition: border-color .2s, box-shadow .2s;
+}
+.feed-item:hover { border-color: var(--border-bright); box-shadow: var(--shadow); }
+.feed-top { display: flex; align-items: center; gap: .65rem; margin-bottom: .6rem; }
+.feed-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--warm2); border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .7rem; font-weight: 700; color: var(--gold);
+  text-transform: uppercase; flex-shrink: 0;
+}
+.feed-author { font-size: .82rem; color: var(--brown); font-weight: 600; }
+.feed-action { font-size: .82rem; color: var(--muted); }
+.feed-time { font-size: .72rem; color: var(--muted); margin-left: auto; font-family: 'DM Mono', monospace; }
+.feed-content {
+  font-family: 'Playfair Display', serif;
+  font-size: .92rem; color: var(--text); line-height: 1.5;
+}
+.feed-content span { color: var(--rust); font-style: italic; }
+.feed-tag {
+  display: inline-block; margin-top: .6rem;
+  font-size: .65rem; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--gold); background: rgba(200,150,62,.08);
+  border: 1px solid var(--border); padding: .2rem .65rem; border-radius: 50px;
+}
+
+/* ── SIDEBAR ────────────────────────────────────────────────── */
+.sidebar {
+  display: flex; flex-direction: column; gap: 1.5rem;
+  position: sticky; top: 5rem;
+}
+
+/* Featured Writer */
+.featured-writer {
+  background: var(--brown);
+  border-radius: 20px; padding: 2rem;
+  text-align: center; position: relative; overflow: hidden;
+}
+.featured-writer::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.featured-writer::after {
+  content: '';
+  position: absolute; bottom: -40px; right: -40px;
+  width: 120px; height: 120px; border-radius: 50%;
+  background: rgba(200,150,62,.06);
+}
+.fw-label { font-size: .65rem; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.1rem; }
+.fw-avatar {
+  width: 68px; height: 68px; border-radius: 50%;
+  background: rgba(200,150,62,.15); border: 2px solid var(--gold);
+  margin: 0 auto .85rem;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif; font-size: 1.5rem;
+  font-weight: 900; color: var(--gold);
+}
+.fw-name { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 900; color: var(--cream); margin-bottom: .25rem; }
+.fw-type { font-size: .75rem; color: var(--gold); margin-bottom: .6rem; }
+.fw-bio { font-size: .8rem; color: rgba(245,240,232,.5); line-height: 1.65; margin-bottom: 1.1rem; }
+.fw-stats { display: flex; justify-content: center; gap: 1.75rem; margin-bottom: 1.1rem; }
+.fw-stat-val { font-family: 'DM Mono', monospace; font-size: .95rem; color: var(--gold); display: block; }
+.fw-stat-lbl { font-size: .65rem; color: rgba(245,240,232,.4); text-transform: uppercase; letter-spacing: .1em; }
+.fw-btn {
+  width: 100%; padding: .65rem;
+  background: rgba(200,150,62,.12); border: 1px solid rgba(200,150,62,.4);
+  color: var(--gold); border-radius: 50px;
+  font-family: 'DM Sans', sans-serif; font-size: .82rem; font-weight: 600;
+  cursor: pointer; transition: all .2s;
+}
+.fw-btn:hover { background: var(--gold); color: var(--brown); }
+
+/* Ink cards for sidebar sections */
+.ink-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px; padding: 1.6rem;
+}
+.ink-card .section-eyebrow { margin-bottom: .2rem; }
+.ink-card .section-title { margin-bottom: 0; }
+
+/* Leaderboard */
+.lb-list { display: flex; flex-direction: column; gap: .55rem; margin-top: 1rem; }
+.lb-row {
+  display: flex; align-items: center; gap: .75rem;
+  padding: .7rem .9rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; transition: border-color .2s, transform .2s;
+}
+.lb-row:hover { border-color: var(--border-bright); transform: translateX(3px); }
+.lb-rank { font-family: 'DM Mono', monospace; font-size: .78rem; color: var(--muted); min-width: 20px; text-align: center; }
+.lb-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--warm2); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .65rem; font-weight: 700; color: var(--gold);
+  text-transform: uppercase; flex-shrink: 0;
+}
+.lb-name { flex: 1; font-size: .82rem; color: var(--brown); font-weight: 500; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.lb-score { font-family: 'DM Mono', monospace; font-size: .8rem; color: var(--gold); flex-shrink: 0; }
+
+/* New Voices */
+.nv-list { display: flex; flex-direction: column; gap: .6rem; margin-top: 1rem; }
+.nv-item {
+  display: flex; align-items: center; gap: .75rem;
+  padding: .65rem .85rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.nv-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .72rem; font-weight: 700; color: var(--white);
+  flex-shrink: 0; font-family: 'Playfair Display', serif;
+}
+.nv-info { flex: 1; min-width: 0; }
+.nv-name { font-size: .82rem; color: var(--brown); font-weight: 600; }
+.nv-type { font-size: .68rem; color: var(--muted); }
+.nv-follow {
+  font-size: .7rem; color: var(--gold);
+  background: rgba(200,150,62,.08); border: 1px solid var(--border-bright);
+  padding: .28rem .7rem; border-radius: 50px;
+  cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600;
+  transition: all .2s; flex-shrink: 0;
+}
+.nv-follow:hover { background: var(--gold); color: var(--white); }
+
+/* ── QUOTE BANNER ───────────────────────────────────────────── */
+.quote-banner {
+  background: var(--warm); border: 1px solid var(--border);
+  border-radius: 20px; padding: 3rem 3.5rem;
+  text-align: center; margin-bottom: 3.5rem;
+  position: relative; overflow: hidden;
+}
+.quote-banner::before {
+  content: '\201C';
+  position: absolute; top: -20px; left: 20px;
+  font-family: 'Playfair Display', serif;
+  font-size: 8rem; color: rgba(200,150,62,.08);
+  line-height: 1; font-weight: 900;
+}
+.quote-banner blockquote {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1rem, 2vw, 1.25rem); font-style: italic;
+  color: var(--brown); line-height: 1.7; position: relative; z-index: 1;
+  max-width: 600px; margin: 0 auto .75rem;
+}
+.quote-banner cite { font-size: .82rem; color: var(--gold); letter-spacing: .08em; }
+
+/* ── EMPTY STATE ────────────────────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 2.5rem 1.5rem;
+  color: var(--muted); font-size: .88rem;
+}
+.empty-state span { display: block; font-size: 1.8rem; margin-bottom: .6rem; opacity: .5; }
+
+/* ── APPLICATION MODAL ──────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(59,42,26,.55); backdrop-filter: blur(5px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .25s;
+  padding: 1.5rem;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.apply-modal {
+  background: var(--card-bg);
+  border: 1px solid var(--border-bright);
+  border-radius: 24px; width: 100%; max-width: 520px;
+  max-height: 90vh; overflow-y: auto;
+  transform: translateY(24px) scale(.97);
+  transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+  position: relative;
+}
+.modal-overlay.open .apply-modal { transform: translateY(0) scale(1); }
+
+@media (max-width: 640px) {
+  .modal-overlay { align-items: flex-end; padding: 0; }
+  .apply-modal { border-radius: 20px 20px 0 0; max-height: 92vh; transform: translateY(100%); }
+  .modal-overlay.open .apply-modal { transform: translateY(0); }
+}
+
+.modal-header {
+  padding: 1.5rem 1.5rem 1rem;
+  position: sticky; top: 0; background: var(--card-bg);
+  z-index: 1; border-bottom: 1px solid var(--border);
+}
+.modal-sheet-handle { display: none; width: 40px; height: 4px; background: var(--border-bright); border-radius: 2px; margin: 0 auto .85rem; }
+@media (max-width: 640px) { .modal-sheet-handle { display: block; } }
+
+.modal-progress { display: flex; gap: .4rem; margin-bottom: .85rem; }
+.progress-dot { flex: 1; height: 3px; border-radius: 2px; background: var(--border); transition: background .3s; }
+.progress-dot.active { background: var(--gold); }
+.progress-dot.done { background: rgba(200,150,62,.4); }
+
+.modal-step-label { font-size: .68rem; letter-spacing: .15em; text-transform: uppercase; color: var(--gold); margin-bottom: .3rem; }
+.modal-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 900; color: var(--brown); }
+.modal-close { position: absolute; top: 1.25rem; right: 1.25rem; background: none; border: none; color: var(--muted); font-size: 1.1rem; cursor: pointer; padding: .3rem; transition: color .2s; }
+.modal-close:hover { color: var(--brown); }
+
+.modal-body { padding: 1.5rem; }
+
+/* Form */
+.form-group { margin-bottom: 1.25rem; }
+.form-label { display: block; font-size: .78rem; color: var(--muted); margin-bottom: .45rem; letter-spacing: .03em; }
+.form-input, .form-textarea {
+  width: 100%; background: var(--surface);
+  border: 1.5px solid var(--border); border-radius: 10px;
+  padding: .85rem 1rem; font-family: 'DM Sans', sans-serif;
+  font-size: .9rem; color: var(--text); outline: none; transition: border-color .2s;
+}
+.form-input::placeholder, .form-textarea::placeholder { color: var(--muted); }
+.form-input:focus, .form-textarea:focus { border-color: var(--gold); }
+.form-textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+.char-count { font-size: .7rem; color: var(--muted); text-align: right; margin-top: .3rem; font-family: 'DM Mono', monospace; }
+
+.type-toggle { display: flex; gap: .6rem; }
+.type-btn {
+  flex: 1; padding: .75rem .5rem; border-radius: 10px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  color: var(--muted); font-family: 'DM Sans', sans-serif;
+  font-size: .85rem; font-weight: 500; cursor: pointer; transition: all .2s; text-align: center;
+}
+.type-btn.selected { border-color: var(--gold); color: var(--gold); background: rgba(200,150,62,.08); }
+
+.genre-grid { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .5rem; }
+.genre-tag {
+  padding: .35rem .85rem; border-radius: 50px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  color: var(--muted); font-size: .78rem; cursor: pointer;
+  transition: all .2s; user-select: none;
+}
+.genre-tag.selected { border-color: var(--gold); color: var(--gold); background: rgba(200,150,62,.08); }
+.genre-tag.disabled { opacity: .35; cursor: not-allowed; }
+.genre-hint { font-size: .72rem; color: var(--muted); margin-top: .5rem; }
+
+.file-upload {
+  border: 1.5px dashed var(--border); border-radius: 10px;
+  padding: 1.75rem; text-align: center; cursor: pointer;
+  transition: border-color .2s, background .2s; position: relative;
+}
+.file-upload:hover { border-color: var(--gold); background: rgba(200,150,62,.04); }
+.file-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+.file-upload-icon { font-size: 1.6rem; margin-bottom: .5rem; }
+.file-upload-text { font-size: .82rem; color: var(--muted); }
+.file-upload-text span { color: var(--gold); text-decoration: underline; }
+.file-name { font-size: .78rem; color: var(--gold); margin-top: .5rem; display: none; font-weight: 500; }
+
+.guidelines-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem;
+}
+.guidelines-box h4 { font-family: 'Playfair Display', serif; font-size: .95rem; color: var(--brown); margin-bottom: .75rem; font-weight: 700; }
+.guidelines-box ul { font-size: .82rem; color: var(--muted); line-height: 1.85; padding-left: 1rem; }
+
+.agree-row {
+  display: flex; align-items: flex-start; gap: .75rem;
+  padding: .85rem; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; cursor: pointer; transition: border-color .2s;
+}
+.agree-row:hover { border-color: var(--gold); }
+.agree-box {
+  width: 20px; height: 20px; border-radius: 5px;
+  border: 1.5px solid var(--border); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s; margin-top: .1rem;
+}
+.agree-text { font-size: .84rem; color: var(--muted); line-height: 1.6; }
+
+.modal-footer {
+  padding: 1rem 1.5rem 1.5rem;
+  display: flex; gap: .75rem;
+  border-top: 1px solid var(--border);
+  position: sticky; bottom: 0; background: var(--card-bg);
+}
+.modal-back {
+  flex: 1; padding: .85rem; border-radius: 50px;
+  background: transparent; border: 1.5px solid var(--border);
+  color: var(--muted); font-family: 'DM Sans', sans-serif;
+  font-size: .9rem; cursor: pointer; transition: all .2s;
+}
+.modal-back:hover { border-color: var(--brown); color: var(--brown); }
+.modal-next {
+  flex: 2; padding: .85rem; border-radius: 50px;
+  background: var(--brown); border: none; color: var(--cream);
+  font-family: 'DM Sans', sans-serif; font-size: .9rem; font-weight: 500;
+  cursor: pointer; transition: all .2s;
+}
+.modal-next:hover { background: var(--gold); }
+.modal-next:disabled { opacity: .4; cursor: not-allowed; }
+
+.modal-success { display: none; text-align: center; padding: 2.75rem 1.75rem; }
+.modal-success.visible { display: block; }
+.success-icon { font-size: 3rem; margin-bottom: 1.25rem; }
+.modal-success h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--brown); margin-bottom: .6rem; }
+.modal-success p { font-size: .88rem; color: var(--muted); line-height: 1.75; max-width: 340px; margin: 0 auto; }
+
+/* ── TOAST ──────────────────────────────────────────────────── */
+.toast {
+  position: fixed; bottom: 2rem; left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--brown); color: var(--cream);
+  padding: .75rem 1.5rem; border-radius: 50px;
+  font-size: .88rem; font-weight: 500;
+  box-shadow: 0 8px 24px rgba(59,42,26,.25);
+  transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+  z-index: 999; white-space: nowrap; pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── REVEAL ─────────────────────────────────────────────────── */
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity .55s ease, transform .55s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── RESPONSIVE ─────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .inkwell-grid { grid-template-columns: 1fr 300px; gap: 2rem; }
+}
+@media (max-width: 900px) {
+  .inkwell-grid { grid-template-columns: 1fr; }
+  .sidebar { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; position: static; }
+  .featured-writer { grid-column: 1 / -1; }
+}
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .hamburger { display: flex; }
+  .inkwell-hero { grid-template-columns: 1fr; gap: 2.5rem; padding: 4rem 0 3rem; min-height: auto; }
+  .hero-visual { display: none; }
+  .stats-bar { grid-template-columns: repeat(2, 1fr); }
+  .stat-item:nth-child(2) { border-right: none; }
+  .stat-item:nth-child(3) { border-right: 1px solid rgba(245,240,232,.08); }
+  .section-head { padding-bottom: .75rem; }
+}
+@media (max-width: 600px) {
+  .page-wrap { padding: 0 1.25rem 4rem; }
+  .sidebar { grid-template-columns: 1fr; }
+  .hero-actions { flex-direction: column; }
+  .btn-primary, .btn-secondary { text-align: center; }
+  .stats-bar { grid-template-columns: 1fr 1fr; border-radius: 16px; }
+  .stat-item { padding: 1.5rem 1rem; }
+  .stat-num { font-size: 1.6rem; }
+  .type-toggle { flex-direction: column; }
+}
+@media (max-width: 400px) {
+  .stats-bar { grid-template-columns: 1fr; }
+  .stat-item { border-right: none !important; border-bottom: 1px solid rgba(245,240,232,.08); }
+  .stat-item:last-child { border-bottom: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAVBAR ─────────────────────────────────────────────────── -->
+<nav>
+  <div class="nav-inner">
+    <a class="logo" href="index.html">
+      <span class="logo-main">MindStark</span>
+      <span class="logo-sub">Inkwell</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Library</a></li>
+      <li><a href="browse.html">Browse</a></li>
+      <li><a href="arena.html">Arena</a></li>
+      <li><a href="inkwell.html" class="active">Inkwell</a></li>
+    </ul>
+    <div class="nav-right">
+      <div class="nav-user" id="nav-user">
+        <div class="nav-user-dot"></div>
+        <span id="nav-username">Writer</span>
+      </div>
+      <button class="dark-toggle" id="dark-toggle" title="Toggle dark mode" aria-label="Toggle dark mode"></button>
+      <a href="signin.html" class="nav-cta" id="nav-signin">Sign In</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ── MOBILE SHEET ────────────────────────────────────────────── -->
+<div class="mobile-sheet-overlay" id="sheetOverlay">
+  <div class="mobile-sheet" id="mobileSheet">
+    <div class="sheet-handle"></div>
+    <a href="index.html" onclick="closeSheet()">Library</a>
+    <a href="browse.html" onclick="closeSheet()">Browse</a>
+    <a href="arena.html" onclick="closeSheet()">Arena</a>
+    <a href="inkwell.html" onclick="closeSheet()">Inkwell</a>
+    <a href="signin.html" class="mob-cta" onclick="closeSheet()">Sign In</a>
+  </div>
+</div>
+
+<!-- ── PAGE ───────────────────────────────────────────────────── -->
+<div class="page-wrap">
+
+  <!-- HERO -->
+  <section class="inkwell-hero">
+    <div class="hero-text reveal">
+      <div class="hero-eyebrow"><span>MindStark Inkwell</span></div>
+      <h1>Where Stories<br/>Come <em>Alive.</em></h1>
+      <p>A world built for writers. Apply, write your story, and publish to the MindStark community — all in one place.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" id="become-creator-btn">✍️ Become a Creator</button>
+        <a href="browse.html" class="btn-secondary">Explore Stories</a>
+      </div>
+    </div>
+    <div class="hero-visual reveal">
+      <div class="quill-card">
+        <div class="qc-label">✦ Featured Story</div>
+        <div class="qc-title">The Last Kingdom of Ashara</div>
+        <div class="qc-author">by Amara Osei · Novelist</div>
+        <div class="qc-excerpt">"She had not planned to start a revolution. But then again, no one ever does."</div>
+        <div class="qc-meta">
+          <div class="qc-stats">
+            <span class="qc-stat">👁 4.2k</span>
+            <span class="qc-stat">♥ 318</span>
+          </div>
+          <span class="qc-genre">Fantasy</span>
+        </div>
+      </div>
+      <div class="hero-badges">
+        <div class="hero-badge b1">✨ <span>142</span> New chapters this week</div>
+        <div class="hero-badge b2">🏆 <span>Top Writer</span> this month</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-bar reveal">
+    <div class="stat-item">
+      <span class="stat-num" id="stat-creators">—</span>
+      <span class="stat-lbl">Active Creators</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" id="stat-stories">—</span>
+      <span class="stat-lbl">Published Stories</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" id="stat-blogs">—</span>
+      <span class="stat-lbl">Blog Posts</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" id="stat-reads">—</span>
+      <span class="stat-lbl">Total Reads</span>
+    </div>
+  </div>
+
+  <!-- QUOTE BANNER -->
+  <div class="quote-banner reveal">
+    <blockquote>"There is no greater agony than bearing an untold story inside you."</blockquote>
+    <cite>— Maya Angelou</cite>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="inkwell-grid">
+    <div>
+
+      <!-- TRENDING -->
+      <div class="trending-section reveal">
+        <div class="section-head">
+          <div>
+            <div class="section-eyebrow">Community</div>
+            <div class="section-title">Trending Stories</div>
+          </div>
+          <a href="#" class="see-all">See all →</a>
+        </div>
+        <div class="story-list" id="trending-list">
+          <div class="empty-state"><span>📖</span>Stories loading...</div>
+        </div>
+      </div>
+
+      <!-- FEED -->
+      <div class="feed-section reveal">
+        <div class="section-head">
+          <div>
+            <div class="section-eyebrow">Live</div>
+            <div class="section-title">Community Feed</div>
+          </div>
+        </div>
+        <div class="feed-list" id="feed-list">
+          <div class="empty-state"><span>✨</span>Feed loading...</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+      <div class="featured-writer reveal" id="featured-writer">
+        <div class="fw-label">✦ Featured Writer</div>
+        <div class="fw-avatar" id="fw-avatar">?</div>
+        <div class="fw-name" id="fw-name">Loading...</div>
+        <div class="fw-type" id="fw-type">—</div>
+        <div class="fw-bio" id="fw-bio">—</div>
+        <div class="fw-stats">
+          <div><span class="fw-stat-val" id="fw-reads">—</span><span class="fw-stat-lbl">Reads</span></div>
+          <div><span class="fw-stat-val" id="fw-followers">—</span><span class="fw-stat-lbl">Followers</span></div>
+        </div>
+        <button class="fw-btn" id="fw-follow-btn">+ Follow</button>
+      </div>
+
+      <div class="ink-card reveal">
+        <div class="section-eyebrow">Rankings</div>
+        <div class="section-title">Top Writers</div>
+        <div class="lb-list" id="lb-list">
+          <div class="empty-state" style="padding:1.25rem 0"><span>🏆</span>Loading...</div>
+        </div>
+      </div>
+
+      <div class="ink-card reveal">
+        <div class="section-eyebrow">Just Joined</div>
+        <div class="section-title">New Voices</div>
+        <div class="nv-list" id="nv-list">
+          <div class="empty-state" style="padding:1.25rem 0"><span>🌱</span>Loading...</div>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+</div>
+
+<!-- ── APPLICATION MODAL ──────────────────────────────────────── -->
+<div class="modal-overlay" id="apply-modal-overlay">
+  <div class="apply-modal">
+    <div class="modal-header">
+      <div class="modal-sheet-handle"></div>
+      <div class="modal-progress">
+        <div class="progress-dot active" id="dot-1"></div>
+        <div class="progress-dot" id="dot-2"></div>
+        <div class="progress-dot" id="dot-3"></div>
+        <div class="progress-dot" id="dot-4"></div>
+      </div>
+      <div class="modal-step-label" id="step-label">Step 1 of 4</div>
+      <div class="modal-title" id="step-title">Who are you?</div>
+      <button class="modal-close" id="modal-close-btn">✕</button>
+    </div>
+
+    <!-- Step 1 -->
+    <div class="modal-body" id="step-1">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" class="form-input" id="app-name" placeholder="Your full name"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">MindStark ID</label>
+        <input type="text" class="form-input" id="app-mindstark-id" placeholder="Your MindStark ID" readonly/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Short Bio <span style="color:var(--muted);font-size:.72rem">(max 150 words)</span></label>
+        <textarea class="form-textarea" id="app-bio" placeholder="Tell the Inkwell community who you are..."></textarea>
+        <div class="char-count" id="bio-count">0 / 150 words</div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="modal-body" id="step-2" style="display:none">
+      <div class="form-group">
+        <label class="form-label">What do you create?</label>
+        <div class="type-toggle">
+          <button class="type-btn" data-type="novelist">📚 Novelist</button>
+          <button class="type-btn" data-type="blogger">✍️ Blogger</button>
+          <button class="type-btn" data-type="both">🌟 Both</button>
+        </div>
+      </div>
+      <div class="form-group" id="genre-section" style="display:none">
+        <label class="form-label">Genres you write <span style="color:var(--muted);font-size:.72rem">(up to 5)</span></label>
+        <div class="genre-grid" id="genre-grid"></div>
+        <div class="genre-hint" id="genre-hint">0 / 5 selected</div>
+      </div>
+      <div class="form-group" id="topic-section" style="display:none">
+        <label class="form-label">Blog topics <span style="color:var(--muted);font-size:.72rem">(up to 3)</span></label>
+        <div class="genre-grid" id="topic-grid"></div>
+        <div class="genre-hint" id="topic-hint">0 / 3 selected</div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="modal-body" id="step-3" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Your pitch <span style="color:var(--muted);font-size:.72rem">(what's the first project you'll publish?)</span></label>
+        <textarea class="form-textarea" id="app-pitch" placeholder="Give us one compelling paragraph about your first project on MindStark Inkwell..." style="min-height:130px"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Writing sample <span style="color:var(--muted);font-size:.72rem">(PDF or Word doc)</span></label>
+        <div class="file-upload" id="file-upload-area">
+          <input type="file" id="app-sample" accept=".pdf,.doc,.docx"/>
+          <div class="file-upload-icon">📄</div>
+          <div class="file-upload-text">Drop your file here or <span>browse</span></div>
+          <div class="file-name" id="file-name-display"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="modal-body" id="step-4" style="display:none">
+      <div class="guidelines-box">
+        <h4>MindStark Inkwell Content Guidelines</h4>
+        <ul>
+          <li>All content must be original and your own work.</li>
+          <li>No plagiarism, hate speech, or harmful content.</li>
+          <li>Your work goes through editorial review before publishing.</li>
+          <li>MindStark reserves the right to decline any submission.</li>
+          <li>You retain full ownership of your work.</li>
+        </ul>
+      </div>
+      <div class="agree-row" id="agree-row">
+        <div class="agree-box" id="agree-box"></div>
+        <div class="agree-text">I agree to the MindStark Inkwell content guidelines and understand my application will be reviewed by the editorial team.</div>
+      </div>
+    </div>
+
+    <!-- Success -->
+    <div class="modal-success" id="modal-success">
+      <div class="success-icon">✍️</div>
+      <h2>Application Submitted!</h2>
+      <p>Your application is with the MindStark editorial team. We'll review your writing sample and pitch carefully. Keep writing — we'll be in touch soon.</p>
+    </div>
+
+    <div class="modal-footer" id="modal-footer">
+      <button class="modal-back" id="modal-back-btn" style="display:none">← Back</button>
+      <button class="modal-next" id="modal-next-btn">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="supabase.js"></script>
+<script src="nav.js"></script>
+<script>
+
+// ── DARK MODE ──────────────────────────────────────────────────
+const darkToggle = document.getElementById('dark-toggle');
+const savedTheme = localStorage.getItem('inkwell-theme');
+if (savedTheme === 'dark') document.body.classList.add('dark-mode');
+darkToggle.addEventListener('click', () => {
+  document.body.classList.toggle('dark-mode');
+  localStorage.setItem('inkwell-theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+});
+
+// ── MOBILE NAV ─────────────────────────────────────────────────
+const hamburger = document.getElementById('hamburger');
+const sheetOverlay = document.getElementById('sheetOverlay');
+const mobileSheet = document.getElementById('mobileSheet');
+hamburger.addEventListener('click', () => {
+  hamburger.classList.toggle('open');
+  sheetOverlay.classList.toggle('open');
+  mobileSheet.classList.toggle('open');
+  document.body.style.overflow = mobileSheet.classList.contains('open') ? 'hidden' : '';
+});
+sheetOverlay.addEventListener('click', e => { if (e.target === sheetOverlay) closeSheet(); });
+function closeSheet() {
+  hamburger.classList.remove('open');
+  sheetOverlay.classList.remove('open');
+  mobileSheet.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ── TOAST ──────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── SCROLL REVEAL ──────────────────────────────────────────────
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); } });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// ── AUTH ───────────────────────────────────────────────────────
+let currentUser = null;
+async function checkAuth() {
+  try {
+    if (typeof supabase === 'undefined') return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      currentUser = user;
+      document.getElementById('nav-signin').style.display = 'none';
+      document.getElementById('nav-user').style.display = 'flex';
+      const { data: profile } = await supabase.from('profiles').select('mindstark_id, full_name').eq('id', user.id).single();
+      if (profile) {
+        document.getElementById('nav-username').textContent = profile.mindstark_id || profile.full_name || 'Writer';
+        document.getElementById('app-mindstark-id').value = profile.mindstark_id || '';
+        document.getElementById('app-name').value = profile.full_name || '';
+      }
+    }
+  } catch(e) {}
+}
+
+// ── HELPERS ────────────────────────────────────────────────────
+function formatNum(n) { if (n >= 1000) return (n/1000).toFixed(1) + 'k'; return String(n); }
+function timeAgo(d) {
+  if (!d) return '—';
+  const diff = Date.now() - new Date(d).getTime();
+  const m = Math.floor(diff/60000);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m/60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h/24)}d ago`;
+}
+const COVER_COLORS = [
+  'linear-gradient(145deg,#8b3a2a,#c05840)',
+  'linear-gradient(145deg,#2a4a6b,#3a7abf)',
+  'linear-gradient(145deg,#4a6741,#6a9b5e)',
+  'linear-gradient(145deg,#5c3a5c,#9b5c9b)',
+  'linear-gradient(145deg,#7a5c2a,#b08a42)',
+];
+const NV_COLORS = ['#c8963e','#4a6741','#2a4a6b','#7a5c2a','#5c3a5c'];
+
+// ── STATS ──────────────────────────────────────────────────────
+async function loadStats() {
+  try {
+    if (typeof supabase === 'undefined') { ['stat-creators','stat-stories','stat-blogs','stat-reads'].forEach(id => document.getElementById(id).textContent = '0'); return; }
+    const [c, b, bl] = await Promise.all([
+      supabase.from('inkwell_creators').select('id', { count: 'exact', head: true }),
+      supabase.from('inkwell_books').select('id,total_reads').eq('status','published'),
+      supabase.from('inkwell_blogs').select('id,total_reads').eq('status','published'),
+    ]);
+    document.getElementById('stat-creators').textContent = formatNum(c.count || 0);
+    document.getElementById('stat-stories').textContent = formatNum(b.data?.length || 0);
+    document.getElementById('stat-blogs').textContent = formatNum(bl.data?.length || 0);
+    const reads = (b.data||[]).reduce((s,x)=>s+(x.total_reads||0),0) + (bl.data||[]).reduce((s,x)=>s+(x.total_reads||0),0);
+    document.getElementById('stat-reads').textContent = formatNum(reads);
+  } catch(e) {}
+}
+
+// ── TRENDING ───────────────────────────────────────────────────
+async function loadTrending() {
+  const list = document.getElementById('trending-list');
+  try {
+    if (typeof supabase === 'undefined') { list.innerHTML = '<div class="empty-state"><span>📖</span>No published stories yet.</div>'; return; }
+    const { data: books } = await supabase
+      .from('inkwell_books')
+      .select('id,title,genre,total_reads,total_likes,inkwell_creators(display_name)')
+      .eq('status','published')
+      .order('total_reads', { ascending: false })
+      .limit(5);
+    if (!books?.length) { list.innerHTML = '<div class="empty-state"><span>📖</span>No published stories yet. Be the first!</div>'; return; }
+    list.innerHTML = books.map((b,i) => `
+      <a class="story-item" href="inkwell-story.html?id=${b.id}">
+        <div class="story-rank">${i+1}</div>
+        <div class="story-cover" style="background:${COVER_COLORS[i%COVER_COLORS.length]}">${b.title}</div>
+        <div class="story-info">
+          <div class="story-genre">${b.genre||'Fiction'}</div>
+          <div class="story-title">${b.title}</div>
+          <div class="story-author">by ${b.inkwell_creators?.display_name||'Unknown'}</div>
+        </div>
+        <div class="story-meta">
+          <div class="story-reads">👁 ${formatNum(b.total_reads||0)}</div>
+          <div class="story-likes">♥ ${formatNum(b.total_likes||0)}</div>
+        </div>
+      </a>`).join('');
+  } catch(e) { list.innerHTML = '<div class="empty-state"><span>📖</span>Could not load stories.</div>'; }
+}
+
+// ── FEED ───────────────────────────────────────────────────────
+async function loadFeed() {
+  const list = document.getElementById('feed-list');
+  try {
+    if (typeof supabase === 'undefined') { list.innerHTML = '<div class="empty-state"><span>✨</span>Feed coming soon.</div>'; return; }
+    const [bRes, blRes] = await Promise.all([
+      supabase.from('inkwell_books').select('id,title,published_at,inkwell_creators(display_name)').eq('status','published').order('published_at',{ascending:false}).limit(3),
+      supabase.from('inkwell_blogs').select('id,title,published_at,topic,inkwell_creators(display_name)').eq('status','published').order('published_at',{ascending:false}).limit(3),
+    ]);
+    const combined = [
+      ...(bRes.data||[]).map(b=>({...b,type:'book'})),
+      ...(blRes.data||[]).map(b=>({...b,type:'blog'})),
+    ].sort((a,b)=>new Date(b.published_at)-new Date(a.published_at)).slice(0,6);
+    if (!combined.length) { list.innerHTML = '<div class="empty-state"><span>✨</span>The Inkwell awaits its first creators.</div>'; return; }
+    list.innerHTML = combined.map(item => `
+      <div class="feed-item">
+        <div class="feed-top">
+          <div class="feed-avatar">${(item.inkwell_creators?.display_name||'U')[0].toUpperCase()}</div>
+          <span class="feed-author">${item.inkwell_creators?.display_name||'A Creator'}</span>
+          <span class="feed-action">&nbsp;${item.type==='book'?'published a story':'published a blog'}</span>
+          <span class="feed-time">${timeAgo(item.published_at)}</span>
+        </div>
+        <div class="feed-content"><span>${item.title}</span></div>
+        <span class="feed-tag">${item.type==='book'?'📚 Story':'✍️ Blog'}</span>
+      </div>`).join('');
+  } catch(e) { list.innerHTML = '<div class="empty-state"><span>✨</span>Could not load feed.</div>'; }
+}
+
+// ── FEATURED WRITER ────────────────────────────────────────────
+async function loadFeaturedWriter() {
+  try {
+    if (typeof supabase === 'undefined') return;
+    const { data } = await supabase.from('inkwell_creators').select('*').order('total_reads',{ascending:false}).limit(1);
+    if (!data?.length) {
+      document.getElementById('fw-name').textContent = 'No creators yet';
+      document.getElementById('fw-bio').textContent = 'Be the first to apply and become a MindStark Inkwell creator.';
+      return;
+    }
+    const c = data[0];
+    document.getElementById('fw-avatar').textContent = (c.display_name||'U')[0].toUpperCase();
+    document.getElementById('fw-name').textContent = c.display_name||'Unknown';
+    document.getElementById('fw-type').textContent = c.creator_type ? c.creator_type.charAt(0).toUpperCase()+c.creator_type.slice(1) : '—';
+    document.getElementById('fw-bio').textContent = c.bio ? c.bio.substring(0,100)+(c.bio.length>100?'...':'') : '—';
+    document.getElementById('fw-reads').textContent = formatNum(c.total_reads||0);
+    document.getElementById('fw-followers').textContent = formatNum(c.follower_count||0);
+    document.getElementById('fw-follow-btn').addEventListener('click', async () => {
+      if (!currentUser) { showToast('Sign in to follow creators'); return; }
+      try {
+        await supabase.from('inkwell_follows').insert({follower_id:currentUser.id,creator_id:c.id});
+        showToast(`Now following ${c.display_name}`);
+        document.getElementById('fw-follow-btn').textContent = '✓ Following';
+      } catch(e) { showToast('Already following this creator'); }
+    });
+  } catch(e) {}
+}
+
+// ── LEADERBOARD ────────────────────────────────────────────────
+async function loadLeaderboard() {
+  const list = document.getElementById('lb-list');
+  try {
+    if (typeof supabase === 'undefined') { list.innerHTML = '<div class="empty-state" style="padding:1rem 0">No data yet</div>'; return; }
+    const { data } = await supabase.from('inkwell_creators').select('id,display_name,total_reads').order('total_reads',{ascending:false}).limit(5);
+    if (!data?.length) { list.innerHTML = '<div class="empty-state" style="padding:1rem 0"><span>🏆</span>Rankings coming soon.</div>'; return; }
+    list.innerHTML = data.map((c,i) => `
+      <div class="lb-row">
+        <div class="lb-rank">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div>
+        <div class="lb-avatar">${(c.display_name||'U')[0].toUpperCase()}</div>
+        <div class="lb-name">${c.display_name||'Unknown'}</div>
+        <div class="lb-score">${formatNum(c.total_reads||0)}</div>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+// ── NEW VOICES ─────────────────────────────────────────────────
+async function loadNewVoices() {
+  const list = document.getElementById('nv-list');
+  try {
+    if (typeof supabase === 'undefined') { list.innerHTML = ''; return; }
+    const { data } = await supabase.from('inkwell_creators').select('id,display_name,creator_type').order('created_at',{ascending:false}).limit(4);
+    if (!data?.length) { list.innerHTML = '<div class="empty-state" style="padding:1rem 0"><span>🌱</span>New voices coming soon.</div>'; return; }
+    list.innerHTML = data.map((c,i) => `
+      <div class="nv-item">
+        <div class="nv-avatar" style="background:${NV_COLORS[i%NV_COLORS.length]}">${(c.display_name||'U')[0].toUpperCase()}</div>
+        <div class="nv-info">
+          <div class="nv-name">${c.display_name||'New Creator'}</div>
+          <div class="nv-type">${c.creator_type||'Creator'}</div>
+        </div>
+        <button class="nv-follow" data-id="${c.id}" data-name="${c.display_name}">Follow</button>
+      </div>`).join('');
+    list.querySelectorAll('.nv-follow').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!currentUser) { showToast('Sign in to follow creators'); return; }
+        try {
+          await supabase.from('inkwell_follows').insert({follower_id:currentUser.id,creator_id:btn.dataset.id});
+          showToast(`Now following ${btn.dataset.name}`); btn.textContent = '✓';
+        } catch(e) { showToast('Already following'); }
+      });
+    });
+  } catch(e) {}
+}
+
+// ── APPLICATION MODAL ──────────────────────────────────────────
+let currentStep = 1, selectedType = null, selectedGenres = [], selectedTopics = [], agreed = false;
+const GENRES = ['Romance','Thriller','Sci-Fi','Fantasy','Mystery','Horror','Adventure','Historical','Literary Fiction','Drama','Comedy','Young Adult'];
+const TOPICS = ['Writing Tips','Book Reviews','Opinion','Culture','Lifestyle','Tech','Personal Essays','Interviews'];
+
+function renderGenreGrid() {
+  const grid = document.getElementById('genre-grid');
+  grid.innerHTML = GENRES.map(g => `<div class="genre-tag" data-genre="${g}">${g}</div>`).join('');
+  grid.querySelectorAll('.genre-tag').forEach(tag => {
+    tag.addEventListener('click', () => {
+      const g = tag.dataset.genre;
+      if (selectedGenres.includes(g)) { selectedGenres = selectedGenres.filter(x=>x!==g); tag.classList.remove('selected'); }
+      else if (selectedGenres.length < 5) { selectedGenres.push(g); tag.classList.add('selected'); }
+      else { showToast('Maximum 5 genres'); return; }
+      document.getElementById('genre-hint').textContent = `${selectedGenres.length} / 5 selected`;
+      grid.querySelectorAll('.genre-tag').forEach(t => {
+        if (!t.classList.contains('selected') && selectedGenres.length >= 5) t.classList.add('disabled');
+        else t.classList.remove('disabled');
+      });
+    });
+  });
+}
+
+function renderTopicGrid() {
+  const grid = document.getElementById('topic-grid');
+  grid.innerHTML = TOPICS.map(t => `<div class="genre-tag" data-topic="${t}">${t}</div>`).join('');
+  grid.querySelectorAll('.genre-tag').forEach(tag => {
+    tag.addEventListener('click', () => {
+      const t = tag.dataset.topic;
+      if (selectedTopics.includes(t)) { selectedTopics = selectedTopics.filter(x=>x!==t); tag.classList.remove('selected'); }
+      else if (selectedTopics.length < 3) { selectedTopics.push(t); tag.classList.add('selected'); }
+      else { showToast('Maximum 3 topics'); return; }
+      document.getElementById('topic-hint').textContent = `${selectedTopics.length} / 3 selected`;
+    });
+  });
+}
+
+function openModal() {
+  document.getElementById('apply-modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderGenreGrid(); renderTopicGrid();
+}
+function closeModal() {
+  document.getElementById('apply-modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function goToStep(step) {
+  for (let i=1;i<=4;i++) { const el=document.getElementById(`step-${i}`); if(el) el.style.display=i===step?'block':'none'; }
+  currentStep = step;
+  const titles = ['Who are you?','What do you create?','Prove your craft','Almost there'];
+  const stepLabels = ['Step 1 of 4','Step 2 of 4','Step 3 of 4','Step 4 of 4'];
+  document.getElementById('step-title').textContent = titles[step-1];
+  document.getElementById('step-label').textContent = stepLabels[step-1];
+  for (let i=1;i<=4;i++) {
+    const dot=document.getElementById(`dot-${i}`);
+    dot.classList.remove('active','done');
+    if(i<step) dot.classList.add('done');
+    else if(i===step) dot.classList.add('active');
+  }
+  document.getElementById('modal-back-btn').style.display = step>1?'block':'none';
+  document.getElementById('modal-next-btn').textContent = step===4?'Submit Application':'Continue →';
+}
+
+document.querySelectorAll('.type-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected'); selectedType = btn.dataset.type;
+    document.getElementById('genre-section').style.display = (selectedType==='novelist'||selectedType==='both')?'block':'none';
+    document.getElementById('topic-section').style.display = (selectedType==='blogger'||selectedType==='both')?'block':'none';
+  });
+});
+
+document.getElementById('app-bio').addEventListener('input', function() {
+  const words = this.value.trim().split(/\s+/).filter(w=>w).length;
+  document.getElementById('bio-count').textContent = `${words} / 150 words`;
+});
+
+document.getElementById('app-sample').addEventListener('change', function() {
+  if (this.files[0]) { const d=document.getElementById('file-name-display'); d.textContent=this.files[0].name; d.style.display='block'; }
+});
+
+document.getElementById('agree-row').addEventListener('click', () => {
+  agreed = !agreed;
+  const box = document.getElementById('agree-box');
+  box.style.background = agreed ? 'var(--gold)' : '';
+  box.style.borderColor = agreed ? 'var(--gold)' : '';
+  box.innerHTML = agreed ? '<span style="color:var(--white);font-size:.75rem;font-weight:700">✓</span>' : '';
+});
+
+document.getElementById('modal-next-btn').addEventListener('click', async () => {
+  if (currentStep===1) {
+    if (!document.getElementById('app-name').value.trim() || !document.getElementById('app-bio').value.trim()) { showToast('Please fill in all fields'); return; }
+    goToStep(2);
+  } else if (currentStep===2) {
+    if (!selectedType) { showToast('Please select what you create'); return; }
+    goToStep(3);
+  } else if (currentStep===3) {
+    if (!document.getElementById('app-pitch').value.trim()) { showToast('Please write your pitch'); return; }
+    goToStep(4);
+  } else if (currentStep===4) {
+    if (!agreed) { showToast('Please agree to the content guidelines'); return; }
+    await submitApplication();
+  }
+});
+
+document.getElementById('modal-back-btn').addEventListener('click', () => { if(currentStep>1) goToStep(currentStep-1); });
+document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+document.getElementById('apply-modal-overlay').addEventListener('click', e => { if(e.target===document.getElementById('apply-modal-overlay')) closeModal(); });
+
+document.getElementById('become-creator-btn').addEventListener('click', () => {
+  if (!currentUser) { showToast('Please sign in first'); setTimeout(()=>window.location.href='signin.html',1500); return; }
+  openModal();
+});
+
+async function submitApplication() {
+  const btn = document.getElementById('modal-next-btn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+  try {
+    if (typeof supabase !== 'undefined') {
+      const { error } = await supabase.from('inkwell_applications').insert({
+        user_id: currentUser?.id||null,
+        mindstark_id: document.getElementById('app-mindstark-id').value,
+        full_name: document.getElementById('app-name').value.trim(),
+        bio: document.getElementById('app-bio').value.trim(),
+        creator_type: selectedType,
+        genres: selectedGenres,
+        blog_topics: selectedTopics,
+        pitch: document.getElementById('app-pitch').value.trim(),
+        status: 'pending',
+      });
+      if (error) throw error;
+    }
+    for(let i=1;i<=4;i++){const el=document.getElementById(`step-${i}`);if(el)el.style.display='none';}
+    document.getElementById('modal-footer').style.display='none';
+    document.getElementById('modal-success').classList.add('visible');
+    document.getElementById('step-label').textContent='Application Sent ✦';
+    document.getElementById('step-title').textContent='You\'re on your way';
+  } catch(e) { showToast('Something went wrong. Please try again.'); btn.disabled=false; btn.textContent='Submit Application'; }
+}
+
+// ── INIT ───────────────────────────────────────────────────────
+(async () => {
+  await checkAuth();
+  await Promise.all([loadStats(), loadTrending(), loadFeed(), loadFeaturedWriter(), loadLeaderboard(), loadNewVoices()]);
+})();
+
+</script>
+</body>
+</html>
