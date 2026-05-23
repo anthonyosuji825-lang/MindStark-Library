@@ -734,6 +734,7 @@ body.dark-mode .mobile-sheet { background: var(--ink-card); }
       <li><a href="inkwell.html" class="active">Inkwell</a></li>
     </ul>
     <div class="nav-right">
+      <a href="inkwell-admin.html" id="nav-admin-link" style="display:none;font-size:.78rem;color:var(--gold);text-decoration:none;font-weight:600;letter-spacing:.04em;border:1px solid var(--border-bright);padding:.3rem .85rem;border-radius:50px;transition:all .2s;" onmouseover="this.style.background='rgba(200,150,62,.1)'" onmouseout="this.style.background='transparent'">Editorial</a>
       <div class="nav-user" id="nav-user">
         <div class="nav-user-dot"></div>
         <span id="nav-username">Writer</span>
@@ -1045,13 +1046,13 @@ async function checkAuth() {
   try {
     const btn = document.getElementById('become-creator-btn');
 
-    if (typeof supabase === 'undefined') {
+    if (typeof window._sb === 'undefined') {
       btn.disabled = false; btn.style.opacity = '1';
       btn.onclick = () => openModal();
       return;
     }
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await window._sb.auth.getUser();
 
     if (!user) {
       // Not signed in
@@ -1064,12 +1065,17 @@ async function checkAuth() {
     document.getElementById('nav-signin').style.display = 'none';
     document.getElementById('nav-user').style.display = 'flex';
 
-    const { data: profile } = await supabase.from('profiles').select('mindstark_id, full_name').eq('id', user.id).single();
+    const { data: profile } = await window._sb.from('profiles').select('mindstark_id, full_name').eq('id', user.id).single();
     if (profile) {
       document.getElementById('nav-username').textContent = profile.mindstark_id || profile.full_name || 'Writer';
       document.getElementById('app-mindstark-id').value = profile.mindstark_id || '';
       document.getElementById('app-name').value = profile.full_name || '';
     }
+
+    // Check if admin
+    const { data: adminRow } = await window._sb
+      .from('inkwell_admins').select('id').eq('user_id', user.id).single();
+    if (adminRow) document.getElementById('nav-admin-link').style.display = 'inline-block';
 
     // Check if approved creator
     const { data: creator } = await supabase
@@ -1127,11 +1133,11 @@ const NV_COLORS = ['#c8963e','#4a6741','#2a4a6b','#7a5c2a','#5c3a5c'];
 // ── STATS ──────────────────────────────────────────────────────
 async function loadStats() {
   try {
-    if (typeof supabase === 'undefined') { ['stat-creators','stat-stories','stat-blogs','stat-reads'].forEach(id => document.getElementById(id).textContent = '0'); return; }
+    if (typeof window._sb === 'undefined') { ['stat-creators','stat-stories','stat-blogs','stat-reads'].forEach(id => document.getElementById(id).textContent = '0'); return; }
     const [c, b, bl] = await Promise.all([
-      supabase.from('inkwell_creators').select('id', { count: 'exact', head: true }),
-      supabase.from('inkwell_books').select('id,total_reads').eq('status','published'),
-      supabase.from('inkwell_blogs').select('id,total_reads').eq('status','published'),
+      window._sb.from('inkwell_creators').select('id', { count: 'exact', head: true }),
+      window._sb.from('inkwell_books').select('id,total_reads').eq('status','published'),
+      window._sb.from('inkwell_blogs').select('id,total_reads').eq('status','published'),
     ]);
     document.getElementById('stat-creators').textContent = formatNum(c.count || 0);
     document.getElementById('stat-stories').textContent = formatNum(b.data?.length || 0);
@@ -1145,7 +1151,7 @@ async function loadStats() {
 async function loadTrending() {
   const list = document.getElementById('trending-list');
   try {
-    if (typeof supabase === 'undefined') { list.innerHTML = '<div class="empty-state"><span>📖</span>No published stories yet.</div>'; return; }
+    if (typeof window._sb === 'undefined') { list.innerHTML = '<div class="empty-state"><span>📖</span>No published stories yet.</div>'; return; }
     const { data: books } = await supabase
       .from('inkwell_books')
       .select('id,title,genre,total_reads,total_likes,inkwell_creators(display_name)')
@@ -1174,10 +1180,10 @@ async function loadTrending() {
 async function loadFeed() {
   const list = document.getElementById('feed-list');
   try {
-    if (typeof supabase === 'undefined') { list.innerHTML = '<div class="empty-state"><span>✨</span>Feed coming soon.</div>'; return; }
+    if (typeof window._sb === 'undefined') { list.innerHTML = '<div class="empty-state"><span>✨</span>Feed coming soon.</div>'; return; }
     const [bRes, blRes] = await Promise.all([
-      supabase.from('inkwell_books').select('id,title,published_at,inkwell_creators(display_name)').eq('status','published').order('published_at',{ascending:false}).limit(3),
-      supabase.from('inkwell_blogs').select('id,title,published_at,topic,inkwell_creators(display_name)').eq('status','published').order('published_at',{ascending:false}).limit(3),
+      window._sb.from('inkwell_books').select('id,title,published_at,inkwell_creators(display_name)').eq('status','published').order('published_at',{ascending:false}).limit(3),
+      window._sb.from('inkwell_blogs').select('id,title,published_at,topic,inkwell_creators(display_name)').eq('status','published').order('published_at',{ascending:false}).limit(3),
     ]);
     const combined = [
       ...(bRes.data||[]).map(b=>({...b,type:'book'})),
@@ -1201,8 +1207,8 @@ async function loadFeed() {
 // ── FEATURED WRITER ────────────────────────────────────────────
 async function loadFeaturedWriter() {
   try {
-    if (typeof supabase === 'undefined') return;
-    const { data } = await supabase.from('inkwell_creators').select('*').order('total_reads',{ascending:false}).limit(1);
+    if (typeof window._sb === 'undefined') return;
+    const { data } = await window._sb.from('inkwell_creators').select('*').order('total_reads',{ascending:false}).limit(1);
     if (!data?.length) {
       document.getElementById('fw-name').textContent = 'No creators yet';
       document.getElementById('fw-bio').textContent = 'Be the first to apply and become a MindStark Inkwell creator.';
@@ -1218,7 +1224,7 @@ async function loadFeaturedWriter() {
     document.getElementById('fw-follow-btn').addEventListener('click', async () => {
       if (!currentUser) { showToast('Sign in to follow creators'); return; }
       try {
-        await supabase.from('inkwell_follows').insert({follower_id:currentUser.id,creator_id:c.id});
+        await window._sb.from('inkwell_follows').insert({follower_id:currentUser.id,creator_id:c.id});
         showToast(`Now following ${c.display_name}`);
         document.getElementById('fw-follow-btn').textContent = '✓ Following';
       } catch(e) { showToast('Already following this creator'); }
@@ -1230,8 +1236,8 @@ async function loadFeaturedWriter() {
 async function loadLeaderboard() {
   const list = document.getElementById('lb-list');
   try {
-    if (typeof supabase === 'undefined') { list.innerHTML = '<div class="empty-state" style="padding:1rem 0">No data yet</div>'; return; }
-    const { data } = await supabase.from('inkwell_creators').select('id,display_name,total_reads').order('total_reads',{ascending:false}).limit(5);
+    if (typeof window._sb === 'undefined') { list.innerHTML = '<div class="empty-state" style="padding:1rem 0">No data yet</div>'; return; }
+    const { data } = await window._sb.from('inkwell_creators').select('id,display_name,total_reads').order('total_reads',{ascending:false}).limit(5);
     if (!data?.length) { list.innerHTML = '<div class="empty-state" style="padding:1rem 0"><span>🏆</span>Rankings coming soon.</div>'; return; }
     list.innerHTML = data.map((c,i) => `
       <div class="lb-row">
@@ -1247,8 +1253,8 @@ async function loadLeaderboard() {
 async function loadNewVoices() {
   const list = document.getElementById('nv-list');
   try {
-    if (typeof supabase === 'undefined') { list.innerHTML = ''; return; }
-    const { data } = await supabase.from('inkwell_creators').select('id,display_name,creator_type').order('created_at',{ascending:false}).limit(4);
+    if (typeof window._sb === 'undefined') { list.innerHTML = ''; return; }
+    const { data } = await window._sb.from('inkwell_creators').select('id,display_name,creator_type').order('created_at',{ascending:false}).limit(4);
     if (!data?.length) { list.innerHTML = '<div class="empty-state" style="padding:1rem 0"><span>🌱</span>New voices coming soon.</div>'; return; }
     list.innerHTML = data.map((c,i) => `
       <div class="nv-item">
@@ -1263,7 +1269,7 @@ async function loadNewVoices() {
       btn.addEventListener('click', async () => {
         if (!currentUser) { showToast('Sign in to follow creators'); return; }
         try {
-          await supabase.from('inkwell_follows').insert({follower_id:currentUser.id,creator_id:btn.dataset.id});
+          await window._sb.from('inkwell_follows').insert({follower_id:currentUser.id,creator_id:btn.dataset.id});
           showToast(`Now following ${btn.dataset.name}`); btn.textContent = '✓';
         } catch(e) { showToast('Already following'); }
       });
@@ -1391,7 +1397,7 @@ async function submitApplication() {
   btn.disabled = true; btn.textContent = 'Submitting...';
   try {
     if (typeof supabase !== 'undefined') {
-      const { error } = await supabase.from('inkwell_applications').insert({
+      const { error } = await window._sb.from('inkwell_applications').insert({
         user_id: currentUser?.id||null,
         mindstark_id: document.getElementById('app-mindstark-id').value,
         full_name: document.getElementById('app-name').value.trim(),
@@ -1413,10 +1419,10 @@ async function submitApplication() {
 }
 
 // ── INIT ───────────────────────────────────────────────────────
-(async () => {
+document.addEventListener('supabase:ready', async () => {
   await checkAuth();
   await Promise.all([loadStats(), loadTrending(), loadFeed(), loadFeaturedWriter(), loadLeaderboard(), loadNewVoices()]);
-})();
+});
 
 </script>
 </body>

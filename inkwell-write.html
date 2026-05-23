@@ -906,8 +906,8 @@ let isDirty = false;
 // ── AUTH CHECK ─────────────────────────────────────────────────
 async function checkAuth() {
   try {
-    if (typeof supabase === 'undefined') return;
-    const { data: { user } } = await supabase.auth.getUser();
+    if (typeof window._sb === 'undefined') return;
+    const { data: { user } } = await window._sb.auth.getUser();
     if (!user) { window.location.href = 'signin.html'; return; }
     currentUser = user;
 
@@ -931,7 +931,7 @@ async function checkAuth() {
 // ── LOAD USER BOOKS ────────────────────────────────────────────
 async function loadUserBooks() {
   try {
-    if (typeof supabase === 'undefined') { initFreshBook(); return; }
+    if (typeof window._sb === 'undefined') { initFreshBook(); return; }
     const { data: books } = await supabase
       .from('inkwell_books')
       .select('*')
@@ -961,7 +961,7 @@ function initFreshBook() {
 // ── LOAD CHAPTERS ──────────────────────────────────────────────
 async function loadChapters() {
   try {
-    if (typeof supabase === 'undefined' || !currentBook) return;
+    if (typeof window._sb === 'undefined' || !currentBook) return;
     const { data } = await supabase
       .from('inkwell_chapters')
       .select('*')
@@ -1020,7 +1020,7 @@ function renderChapterList() {
 
       // Delete from Supabase if saved
       if (ch.id && typeof supabase !== 'undefined') {
-        try { await supabase.from('inkwell_chapters').delete().eq('id', ch.id); } catch(e) {}
+        try { await window._sb.from('inkwell_chapters').delete().eq('id', ch.id); } catch(e) {}
       }
 
       chapters.splice(idx, 1);
@@ -1182,7 +1182,7 @@ async function saveAll() {
   const genre = document.getElementById('book-genre').value;
 
   try {
-    if (typeof supabase === 'undefined') {
+    if (typeof window._sb === 'undefined') {
       setSaveStatus('Saved locally', true);
       isDirty = false;
       renderChapterList();
@@ -1203,7 +1203,7 @@ async function saveAll() {
       currentBook = newBook;
       bookId = newBook.id;
     } else {
-      await supabase.from('inkwell_books')
+      await window._sb.from('inkwell_books')
         .update({ title, synopsis, genre })
         .eq('id', bookId);
     }
@@ -1212,11 +1212,11 @@ async function saveAll() {
     for (let i = 0; i < chapters.length; i++) {
       const ch = chapters[i];
       if (ch.id) {
-        await supabase.from('inkwell_chapters')
+        await window._sb.from('inkwell_chapters')
           .update({ title: ch.title, content: ch.content, updated_at: new Date().toISOString() })
           .eq('id', ch.id);
       } else {
-        const { data: newCh } = await supabase.from('inkwell_chapters')
+        const { data: newCh } = await window._sb.from('inkwell_chapters')
           .insert({ book_id: bookId, chapter_number: ch.chapter_number, title: ch.title, content: ch.content })
           .select().single();
         if (newCh) chapters[i].id = newCh.id;
@@ -1316,7 +1316,7 @@ document.getElementById('submit-confirm-btn').addEventListener('click', async ()
   try {
     await saveAll();
     if (currentBook?.id && typeof supabase !== 'undefined') {
-      await supabase.from('inkwell_books')
+      await window._sb.from('inkwell_books')
         .update({ status: 'submitted' })
         .eq('id', currentBook.id);
     }
@@ -1394,10 +1394,10 @@ window.addEventListener('beforeunload', e => {
 });
 
 // ── INIT ───────────────────────────────────────────────────────
-(async () => {
+document.addEventListener('supabase:ready', async () => {
   await checkAuth();
   setSaveStatus('Ready');
-})();
+});
 
 </script>
 </body>

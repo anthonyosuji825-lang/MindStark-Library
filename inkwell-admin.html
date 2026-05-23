@@ -606,8 +606,8 @@ function pillLabel(status) {
 let currentUser = null;
 async function checkAuth() {
   try {
-    if (typeof supabase === 'undefined') { loadAll(); return; }
-    const { data: { user } } = await supabase.auth.getUser();
+    if (typeof window._sb === 'undefined') { loadAll(); return; }
+    const { data: { user } } = await window._sb.auth.getUser();
     if (!user) { window.location.href = 'signin.html'; return; }
     currentUser = user;
 
@@ -647,12 +647,12 @@ async function loadAll() {
 // ── STATS ──────────────────────────────────────────────────────
 async function loadStats() {
   try {
-    if (typeof supabase === 'undefined') return;
+    if (typeof window._sb === 'undefined') return;
     const [pendingApps, pendingBooks, creators, published] = await Promise.all([
-      supabase.from('inkwell_applications').select('id', {count:'exact',head:true}).eq('status','pending'),
-      supabase.from('inkwell_books').select('id', {count:'exact',head:true}).in('status',['submitted','under_review']),
-      supabase.from('inkwell_creators').select('id', {count:'exact',head:true}),
-      supabase.from('inkwell_books').select('id', {count:'exact',head:true}).eq('status','published'),
+      window._sb.from('inkwell_applications').select('id', {count:'exact',head:true}).eq('status','pending'),
+      window._sb.from('inkwell_books').select('id', {count:'exact',head:true}).in('status',['submitted','under_review']),
+      window._sb.from('inkwell_creators').select('id', {count:'exact',head:true}),
+      window._sb.from('inkwell_books').select('id', {count:'exact',head:true}).eq('status','published'),
     ]);
     document.getElementById('stat-pending-apps').textContent = formatNum(pendingApps.count);
     document.getElementById('stat-pending-books').textContent = formatNum(pendingBooks.count);
@@ -670,7 +670,7 @@ async function loadApplications() {
   const rejectedList = document.getElementById('rejected-list');
 
   try {
-    if (typeof supabase === 'undefined') {
+    if (typeof window._sb === 'undefined') {
       list.innerHTML = `<div class="queue-empty"><span>📬</span>Connect Supabase to load applications.</div>`;
       return;
     }
@@ -759,7 +759,7 @@ function renderAppCard(app) {
 async function loadBooks() {
   const list = document.getElementById('books-list');
   try {
-    if (typeof supabase === 'undefined') {
+    if (typeof window._sb === 'undefined') {
       list.innerHTML = `<div class="queue-empty"><span>📚</span>Connect Supabase to load books.</div>`;
       return;
     }
@@ -945,11 +945,11 @@ document.getElementById('modal-confirm-btn').addEventListener('click', async () 
   const { action, id, type, name } = pendingAction;
 
   try {
-    if (typeof supabase === 'undefined') throw new Error('Supabase not connected');
+    if (typeof window._sb === 'undefined') throw new Error('Supabase not connected');
 
     if (action === 'approve') {
       // 1. Update application status
-      await supabase.from('inkwell_applications')
+      await window._sb.from('inkwell_applications')
         .update({ status: 'approved', rejection_note: note || null })
         .eq('id', id);
 
@@ -960,7 +960,7 @@ document.getElementById('modal-confirm-btn').addEventListener('click', async () 
 
       // 3. Create inkwell_creators entry
       if (app) {
-        await supabase.from('inkwell_creators').insert({
+        await window._sb.from('inkwell_creators').insert({
           user_id: app.user_id,
           mindstark_id: app.mindstark_id,
           display_name: app.full_name,
@@ -973,31 +973,31 @@ document.getElementById('modal-confirm-btn').addEventListener('click', async () 
       showToast(`✓ ${name} approved as a creator`);
 
     } else if (action === 'review') {
-      await supabase.from('inkwell_applications')
+      await window._sb.from('inkwell_applications')
         .update({ status: 'under_review', rejection_note: note || null })
         .eq('id', id);
       showToast(`Marked as under review`);
 
     } else if (action === 'reject') {
-      await supabase.from('inkwell_applications')
+      await window._sb.from('inkwell_applications')
         .update({ status: 'rejected', rejection_note: note || null })
         .eq('id', id);
       showToast(`Application declined`);
 
     } else if (action === 'publish') {
-      await supabase.from('inkwell_books')
+      await window._sb.from('inkwell_books')
         .update({ status: 'published', published_at: new Date().toISOString(), rejection_note: note || null })
         .eq('id', id);
       showToast(`✓ "${name}" is now live`);
 
     } else if (action === 'under_review') {
-      await supabase.from('inkwell_books')
+      await window._sb.from('inkwell_books')
         .update({ status: 'under_review', rejection_note: note || null })
         .eq('id', id);
       showToast(`Book marked as under review`);
 
     } else if (action === 'reject-book') {
-      await supabase.from('inkwell_books')
+      await window._sb.from('inkwell_books')
         .update({ status: 'draft', rejection_note: note || null })
         .eq('id', id);
       showToast(`Book sent back for revision`);
@@ -1015,7 +1015,7 @@ document.getElementById('modal-confirm-btn').addEventListener('click', async () 
 });
 
 // ── INIT ───────────────────────────────────────────────────────
-(async () => { await checkAuth(); })();
+document.addEventListener('supabase:ready', async () => { await checkAuth(); });
 
 </script>
 </body>
