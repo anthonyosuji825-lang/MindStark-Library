@@ -1420,42 +1420,26 @@ async function submitApplication() {
 }
 
 // ── INIT ───────────────────────────────────────────────────────
+// Poll for window._sb to be ready — works regardless of event timing
+function waitForSupabase(cb, tries = 0) {
+  if (window._sb) { cb(); return; }
+  if (tries > 20) return; // give up after 10s
+  setTimeout(() => waitForSupabase(cb, tries + 1), 500);
+}
+
 document.addEventListener('supabase:ready', async () => {
   await checkAuth();
   await Promise.all([loadStats(), loadTrending(), loadFeed(), loadFeaturedWriter(), loadLeaderboard(), loadNewVoices()]);
 });
 
-// Fallback: retry after 2s in case supabase:ready fired before listener attached
-setTimeout(async () => {
-  if (!window._sb) return;
-  const { data: { user } } = await window._sb.auth.getUser();
-  if (!user) return;
+// Fallback in case supabase:ready already fired before this script ran
+waitForSupabase(async () => {
+  await checkAuth();
+  await Promise.all([loadStats(), loadTrending(), loadFeed(), loadFeaturedWriter(), loadLeaderboard(), loadNewVoices()]);
+});
 
-  // Fix admin link
-  if (document.getElementById('nav-admin-link').style.display === 'none') {
-    const { data: adminRow } = await window._sb.from('inkwell_admins').select('id').eq('user_id', user.id).single();
-    if (adminRow) document.getElementById('nav-admin-link').style.display = 'inline-block';
-  }
 
-  // Fix button if still showing Become a Creator
-  const btn = document.getElementById('become-creator-btn');
-  if (btn.textContent.includes('Become')) {
-    const { data: creatorData } = await window._sb.from('inkwell_creators').select('id').eq('user_id', user.id).limit(1);
-    if (creatorData?.[0]) {
-      btn.textContent = '✍️ Go to My Workspace';
-      btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer';
-      btn.onclick = () => window.location.href = 'inkwell-write.html';
-      return;
-    }
-    const { data: appData } = await window._sb.from('inkwell_applications').select('id').eq('user_id', user.id).limit(1);
-    if (appData?.[0]) {
-      btn.textContent = '⏳ Application Pending…';
-      btn.disabled = true; btn.style.opacity = '.6'; btn.style.cursor = 'not-allowed';
-    } else {
-      btn.disabled = false; btn.style.opacity = '1';
-    }
-  }
-}, 2000);
+
 
 </script>
 </body>
