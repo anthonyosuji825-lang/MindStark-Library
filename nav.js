@@ -385,6 +385,7 @@
         <a href="browse.html" class="dd-item"><span class="dd-icon">📚</span> Browse Books</a>
         <a href="book.html" class="dd-item"><span class="dd-icon">🔖</span> My Books ${bmCount>0?`<span class="dd-badge">${bmCount}</span>`:''}</a>
         <a href="arena.html" class="dd-item" id="nav-arena-link"><span class="dd-icon">⚔️</span> The Arena</a>
+        <a href="inkwell.html" class="dd-item"><span class="dd-icon">✍️</span> Inkwell</a>
         <a href="my-requests.html" class="dd-item" id="nav-requests-link"><span class="dd-icon">📋</span> My Event Requests</a>
         <div class="dd-section">Account</div>
         <a href="profile.html" class="dd-item"><span class="dd-icon">👤</span> My Profile</a>

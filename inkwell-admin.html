@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="icon" type="image/png" href="logo.png"/>
+<title>Editorial — MindStark Inkwell</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --cream: #f5f0e8;
+  --warm: #ede5d5;
+  --warm2: #e4d9c4;
+  --brown: #3b2a1a;
+  --gold: #c8963e;
+  --rust: #a0522d;
+  --text: #2c1e0f;
+  --muted: #7a6652;
+  --white: #ffffff;
+  --border: rgba(200,150,62,.18);
+  --border-bright: rgba(200,150,62,.38);
+  --shadow: 0 4px 32px rgba(59,42,26,.1);
+  --card-bg: #ffffff;
+  --surface: #faf6ef;
+  --green: #4a7c59;
+  --red: #c0392b;
+  --red-soft: rgba(192,57,43,.08);
+  --green-soft: rgba(74,124,89,.08);
+}
+body.dark-mode {
+  --cream: #0d0905; --warm: #17100a; --warm2: #1e1510;
+  --brown: #f5f0e8; --gold: #c8963e;
+  --text: rgba(245,240,232,.92); --muted: rgba(245,240,232,.42);
+  --border: rgba(200,150,62,.14); --border-bright: rgba(200,150,62,.38);
+  --card-bg: #1e1510; --surface: #17100a;
+  --shadow: 0 4px 32px rgba(0,0,0,.3);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--cream);color:var(--text);
+  line-height:1.6;min-height:100vh;overflow-x:hidden;
+  transition:background .3s,color .3s;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 70% 45% at 60% 0%,rgba(200,150,62,.07) 0%,transparent 60%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── NAV ──────────────────────────────────────────────────────── */
+nav{
+  position:sticky;top:0;z-index:200;
+  background:rgba(245,240,232,.95);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);transition:background .3s;
+}
+body.dark-mode nav{background:rgba(13,9,5,.94);}
+.nav-inner{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1rem 1.5rem;max-width:1280px;margin:0 auto;
+}
+.logo{display:flex;flex-direction:column;line-height:1;text-decoration:none;}
+.logo-main{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--brown);}
+.logo-sub{font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);}
+.nav-right{display:flex;align-items:center;gap:.85rem;}
+.nav-badge{
+  font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;
+  background:rgba(200,150,62,.12);border:1px solid var(--border-bright);
+  color:var(--gold);padding:.3rem .8rem;border-radius:50px;font-weight:700;
+}
+.dark-toggle{
+  width:36px;height:20px;border-radius:10px;
+  background:var(--border-bright);border:none;cursor:pointer;
+  position:relative;transition:background .3s;flex-shrink:0;padding:0;
+}
+.dark-toggle::after{
+  content:'';position:absolute;top:3px;left:3px;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--gold);transition:transform .3s;
+}
+body.dark-mode .dark-toggle::after{transform:translateX(16px);}
+.btn-back{
+  display:flex;align-items:center;gap:.4rem;
+  font-size:.85rem;color:var(--muted);text-decoration:none;
+  transition:color .2s;
+}
+.btn-back:hover{color:var(--gold);}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:.4rem;background:none;border:none;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--brown);border-radius:2px;transition:all .3s;}
+body.dark-mode .hamburger span{background:var(--cream);}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+/* ── MOBILE SHEET ────────────────────────────────────────────── */
+.mobile-sheet-overlay{display:none;position:fixed;inset:0;z-index:150;background:rgba(59,42,26,.45);backdrop-filter:blur(3px);}
+.mobile-sheet-overlay.open{display:block;}
+.mobile-sheet{
+  position:fixed;bottom:0;left:0;right:0;z-index:151;
+  background:var(--cream);border-top:1px solid var(--border-bright);
+  border-radius:20px 20px 0 0;padding:1rem 1.75rem 2.5rem;
+  transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);
+}
+body.dark-mode .mobile-sheet{background:var(--warm2);}
+.mobile-sheet.open{transform:translateY(0);}
+.sheet-handle{width:40px;height:4px;background:var(--border-bright);border-radius:2px;margin:0 auto 1.5rem;}
+.mobile-sheet a{
+  display:block;font-family:'Playfair Display',serif;
+  font-size:1.2rem;font-weight:700;color:var(--brown);
+  text-decoration:none;padding:.65rem 0;
+  border-bottom:1px solid var(--border);transition:color .2s;
+}
+.mobile-sheet a:last-child{border-bottom:none;}
+.mobile-sheet a:hover{color:var(--gold);}
+
+/* ── PAGE ────────────────────────────────────────────────────── */
+.page-wrap{
+  position:relative;z-index:1;
+  max-width:1100px;margin:0 auto;
+  padding:2rem 1.25rem 5rem;
+}
+
+/* ── PAGE HEADER ─────────────────────────────────────────────── */
+.page-header{margin-bottom:2rem;}
+.page-eyebrow{
+  font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:.5rem;
+  display:flex;align-items:center;gap:.55rem;
+}
+.page-eyebrow::before{content:'';display:block;width:20px;height:1.5px;background:var(--gold);}
+.page-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.6rem,4vw,2.2rem);font-weight:900;
+  color:var(--brown);margin-bottom:.35rem;
+}
+.page-sub{font-size:.88rem;color:var(--muted);}
+
+/* ── SUMMARY STATS ───────────────────────────────────────────── */
+.summary-stats{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1rem;margin-bottom:2.5rem;
+}
+.stat-card{
+  background:var(--card-bg);border:1px solid var(--border);
+  border-radius:16px;padding:1.25rem 1rem;text-align:center;
+}
+.stat-card-num{
+  font-family:'Playfair Display',serif;font-size:1.8rem;
+  font-weight:900;color:var(--gold);display:block;line-height:1;
+}
+.stat-card-lbl{
+  font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;
+  color:var(--muted);margin-top:.35rem;display:block;
+}
+
+/* ── TABS ────────────────────────────────────────────────────── */
+.tabs{
+  display:flex;gap:.5rem;margin-bottom:1.75rem;
+  border-bottom:1px solid var(--border);padding-bottom:0;
+  overflow-x:auto;
+}
+.tabs::-webkit-scrollbar{display:none;}
+.tab-btn{
+  padding:.65rem 1.25rem;border:none;background:transparent;
+  font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;
+  color:var(--muted);cursor:pointer;transition:all .2s;
+  border-bottom:2px solid transparent;margin-bottom:-1px;
+  white-space:nowrap;flex-shrink:0;
+}
+.tab-btn:hover{color:var(--brown);}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);font-weight:600;}
+.tab-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:18px;height:18px;border-radius:50%;
+  background:var(--gold);color:var(--white);
+  font-size:.6rem;font-weight:800;margin-left:.4rem;
+}
+
+/* ── QUEUE LIST ──────────────────────────────────────────────── */
+.queue-section{display:none;}
+.queue-section.active{display:block;}
+.queue-empty{
+  text-align:center;padding:4rem 1.5rem;
+  color:var(--muted);font-size:.9rem;
+  background:var(--card-bg);border:1px solid var(--border);
+  border-radius:20px;
+}
+.queue-empty span{display:block;font-size:2rem;margin-bottom:.75rem;opacity:.5;}
+
+/* Application / Book card */
+.queue-card{
+  background:var(--card-bg);border:1px solid var(--border);
+  border-radius:18px;margin-bottom:1rem;overflow:hidden;
+  transition:border-color .2s,box-shadow .2s;
+}
+.queue-card:hover{border-color:var(--border-bright);box-shadow:var(--shadow);}
+
+.card-top{
+  display:flex;align-items:flex-start;gap:1rem;
+  padding:1.25rem 1.25rem .85rem;
+}
+.card-avatar{
+  width:44px;height:44px;border-radius:50%;
+  background:var(--warm2);border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;font-size:1.1rem;
+  font-weight:900;color:var(--gold);flex-shrink:0;
+}
+.card-info{flex:1;min-width:0;}
+.card-name{
+  font-family:'Playfair Display',serif;
+  font-size:1rem;font-weight:900;color:var(--brown);
+  margin-bottom:.15rem;
+}
+.card-meta{font-size:.75rem;color:var(--muted);}
+.card-meta span{color:var(--gold);font-weight:600;}
+.card-status-pill{
+  font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;
+  padding:.28rem .75rem;border-radius:50px;font-weight:700;
+  flex-shrink:0;
+}
+.pill-pending{background:rgba(200,150,62,.12);color:var(--gold);border:1px solid var(--border-bright);}
+.pill-approved{background:var(--green-soft);color:var(--green);border:1px solid rgba(74,124,89,.25);}
+.pill-rejected{background:var(--red-soft);color:var(--red);border:1px solid rgba(192,57,43,.2);}
+.pill-submitted{background:rgba(200,150,62,.12);color:var(--gold);border:1px solid var(--border-bright);}
+.pill-under_review{background:rgba(124,92,191,.1);color:#7c5cbf;border:1px solid rgba(124,92,191,.25);}
+
+/* Card body — pitch / synopsis */
+.card-body{
+  padding:0 1.25rem .85rem;
+  border-top:1px solid var(--border);
+  margin-top:.25rem;
+}
+.card-section-label{
+  font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--gold);margin:.85rem 0 .35rem;font-weight:600;
+}
+.card-text{
+  font-size:.85rem;color:var(--text);line-height:1.7;
+}
+.card-genres{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem;}
+.genre-pill{
+  font-size:.7rem;color:var(--muted);
+  background:var(--surface);border:1px solid var(--border);
+  padding:.2rem .65rem;border-radius:50px;
+}
+
+/* Expand toggle */
+.card-expand-btn{
+  display:flex;align-items:center;gap:.4rem;
+  font-size:.78rem;color:var(--gold);background:none;border:none;
+  cursor:pointer;padding:0 1.25rem .85rem;transition:opacity .2s;
+  font-family:'DM Sans',sans-serif;font-weight:600;
+}
+.card-expand-btn:hover{opacity:.7;}
+.card-expanded-content{display:none;}
+.card-expanded-content.open{display:block;}
+
+/* Writing sample link */
+.sample-link{
+  display:inline-flex;align-items:center;gap:.5rem;
+  font-size:.82rem;color:var(--gold);text-decoration:none;
+  background:rgba(200,150,62,.08);border:1px solid var(--border-bright);
+  padding:.45rem 1rem;border-radius:50px;transition:all .2s;margin-top:.5rem;
+}
+.sample-link:hover{background:var(--gold);color:var(--white);}
+
+/* Action row */
+.card-actions{
+  display:flex;gap:.65rem;align-items:center;
+  padding:.85rem 1.25rem;
+  border-top:1px solid var(--border);
+  background:var(--surface);flex-wrap:wrap;
+}
+.btn-approve{
+  padding:.55rem 1.35rem;border-radius:50px;border:none;
+  background:var(--green);color:var(--white);
+  font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;
+  cursor:pointer;transition:all .2s;
+}
+.btn-approve:hover{background:#3a6b49;transform:translateY(-1px);}
+.btn-reject{
+  padding:.55rem 1.35rem;border-radius:50px;
+  background:transparent;color:var(--red);
+  border:1.5px solid rgba(192,57,43,.3);
+  font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;
+  cursor:pointer;transition:all .2s;
+}
+.btn-reject:hover{background:var(--red-soft);border-color:var(--red);}
+.btn-review{
+  padding:.55rem 1.35rem;border-radius:50px;
+  background:rgba(124,92,191,.1);color:#7c5cbf;
+  border:1.5px solid rgba(124,92,191,.3);
+  font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;
+  cursor:pointer;transition:all .2s;
+}
+.btn-review:hover{background:rgba(124,92,191,.2);}
+.action-done{
+  font-size:.8rem;color:var(--muted);font-style:italic;
+}
+
+/* ── REJECT / NOTE MODAL ─────────────────────────────────────── */
+.modal-overlay{
+  position:fixed;inset:0;z-index:500;
+  background:rgba(59,42,26,.55);backdrop-filter:blur(5px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+  padding:1.5rem;
+}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.action-modal{
+  background:var(--card-bg);border:1px solid var(--border-bright);
+  border-radius:24px;width:100%;max-width:460px;
+  transform:translateY(20px) scale(.97);
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+  overflow:hidden;
+}
+.modal-overlay.open .action-modal{transform:translateY(0) scale(1);}
+@media(max-width:640px){
+  .modal-overlay{align-items:flex-end;padding:0;}
+  .action-modal{border-radius:20px 20px 0 0;}
+}
+.modal-handle{display:none;width:40px;height:4px;background:var(--border-bright);border-radius:2px;margin:.85rem auto .5rem;}
+@media(max-width:640px){.modal-handle{display:block;}}
+.modal-head{
+  padding:1.25rem 1.5rem 1rem;
+  border-bottom:1px solid var(--border);position:relative;
+}
+.modal-label{font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:.3rem;}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:900;color:var(--brown);}
+.modal-close{position:absolute;top:1.1rem;right:1.25rem;background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer;padding:.3rem;transition:color .2s;}
+.modal-close:hover{color:var(--brown);}
+.modal-body{padding:1.25rem 1.5rem;}
+.modal-note{font-size:.82rem;color:var(--muted);margin-bottom:1rem;line-height:1.65;}
+.modal-textarea{
+  width:100%;background:var(--surface);border:1.5px solid var(--border);
+  border-radius:10px;padding:.85rem 1rem;
+  font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--text);
+  outline:none;resize:none;min-height:110px;line-height:1.6;
+  transition:border-color .2s;
+}
+.modal-textarea::placeholder{color:var(--muted);}
+.modal-textarea:focus{border-color:var(--gold);}
+.modal-foot{
+  padding:.85rem 1.5rem 1.5rem;
+  display:flex;gap:.75rem;border-top:1px solid var(--border);
+}
+.modal-cancel{
+  flex:1;padding:.8rem;border-radius:50px;
+  background:transparent;border:1.5px solid var(--border);
+  color:var(--muted);font-family:'DM Sans',sans-serif;
+  font-size:.88rem;cursor:pointer;transition:all .2s;
+}
+.modal-cancel:hover{border-color:var(--brown);color:var(--brown);}
+.modal-confirm{
+  flex:2;padding:.8rem;border-radius:50px;border:none;
+  font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:700;
+  cursor:pointer;transition:all .2s;
+}
+.modal-confirm.approve{background:var(--green);color:var(--white);}
+.modal-confirm.approve:hover{background:#3a6b49;}
+.modal-confirm.reject{background:var(--red);color:var(--white);}
+.modal-confirm.reject:hover{background:#a93226;}
+.modal-confirm:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ── TOAST ───────────────────────────────────────────────────── */
+.toast{
+  position:fixed;bottom:2rem;left:50%;
+  transform:translateX(-50%) translateY(100px);
+  background:var(--brown);color:var(--cream);
+  padding:.7rem 1.4rem;border-radius:50px;
+  font-size:.85rem;font-weight:500;
+  box-shadow:0 8px 24px rgba(59,42,26,.25);
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+  z-index:999;white-space:nowrap;pointer-events:none;
+}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* ── REVEAL ──────────────────────────────────────────────────── */
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .5s ease,transform .5s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────── */
+.nav-links-desktop{display:flex;gap:1.5rem;list-style:none;}
+.nav-links-desktop a{text-decoration:none;color:var(--muted);font-size:.88rem;font-weight:500;transition:color .2s;}
+.nav-links-desktop a:hover{color:var(--gold);}
+
+@media(max-width:768px){
+  .nav-links-desktop{display:none;}
+  .hamburger{display:flex;}
+  .summary-stats{grid-template-columns:1fr 1fr;}
+  .page-wrap{padding:1.5rem 1rem 4rem;}
+}
+@media(max-width:480px){
+  .summary-stats{grid-template-columns:1fr 1fr;}
+  .card-top{gap:.75rem;}
+  .card-actions{gap:.5rem;}
+  .btn-approve,.btn-reject,.btn-review{font-size:.78rem;padding:.5rem 1rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ───────────────────────────────────────────────────── -->
+<nav>
+  <div class="nav-inner">
+    <a class="logo" href="inkwell.html">
+      <span class="logo-main">MindStark</span>
+      <span class="logo-sub">Inkwell · Editorial</span>
+    </a>
+    <ul class="nav-links-desktop">
+      <li><a href="inkwell.html">← Back to Inkwell</a></li>
+    </ul>
+    <div class="nav-right">
+      <span class="nav-badge">Editorial Team</span>
+      <button class="dark-toggle" id="dark-toggle" aria-label="Toggle dark mode"></button>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ── MOBILE SHEET ───────────────────────────────────────────── -->
+<div class="mobile-sheet-overlay" id="sheetOverlay">
+  <div class="mobile-sheet" id="mobileSheet">
+    <div class="sheet-handle"></div>
+    <a href="inkwell.html">← Back to Inkwell</a>
+    <a href="index.html">Library</a>
+  </div>
+</div>
+
+<!-- ── PAGE ──────────────────────────────────────────────────── -->
+<div class="page-wrap">
+
+  <!-- Header -->
+  <div class="page-header reveal">
+    <div class="page-eyebrow">MindStark Inkwell</div>
+    <h1 class="page-title">Editorial Queue</h1>
+    <p class="page-sub">Review creator applications and submitted books. Your decisions shape the Inkwell.</p>
+  </div>
+
+  <!-- Summary Stats -->
+  <div class="summary-stats reveal">
+    <div class="stat-card">
+      <span class="stat-card-num" id="stat-pending-apps">—</span>
+      <span class="stat-card-lbl">Pending Applications</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-card-num" id="stat-pending-books">—</span>
+      <span class="stat-card-lbl">Books Awaiting Review</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-card-num" id="stat-total-creators">—</span>
+      <span class="stat-card-lbl">Active Creators</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-card-num" id="stat-published">—</span>
+      <span class="stat-card-lbl">Published Books</span>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs reveal">
+    <button class="tab-btn active" data-tab="applications">
+      Applications <span class="tab-badge" id="app-badge">0</span>
+    </button>
+    <button class="tab-btn" data-tab="books">
+      Submitted Books <span class="tab-badge" id="book-badge">0</span>
+    </button>
+    <button class="tab-btn" data-tab="approved">
+      Approved
+    </button>
+    <button class="tab-btn" data-tab="rejected">
+      Rejected
+    </button>
+  </div>
+
+  <!-- Applications Queue -->
+  <div class="queue-section active" id="tab-applications">
+    <div id="applications-list">
+      <div class="queue-empty"><span>📬</span>Loading applications…</div>
+    </div>
+  </div>
+
+  <!-- Books Queue -->
+  <div class="queue-section" id="tab-books">
+    <div id="books-list">
+      <div class="queue-empty"><span>📚</span>Loading submitted books…</div>
+    </div>
+  </div>
+
+  <!-- Approved -->
+  <div class="queue-section" id="tab-approved">
+    <div id="approved-list">
+      <div class="queue-empty"><span>✅</span>Loading approved…</div>
+    </div>
+  </div>
+
+  <!-- Rejected -->
+  <div class="queue-section" id="tab-rejected">
+    <div id="rejected-list">
+      <div class="queue-empty"><span>📁</span>Loading rejected…</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── ACTION MODAL ───────────────────────────────────────────── -->
+<div class="modal-overlay" id="action-modal-overlay">
+  <div class="action-modal">
+    <div class="modal-handle"></div>
+    <div class="modal-head">
+      <div class="modal-label" id="modal-label">Decision</div>
+      <div class="modal-title" id="modal-title">Add a note</div>
+      <button class="modal-close" id="modal-close-btn">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-note" id="modal-note"></div>
+      <textarea class="modal-textarea" id="modal-textarea" placeholder="Write your note here…"></textarea>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-cancel" id="modal-cancel-btn">Cancel</button>
+      <button class="modal-confirm" id="modal-confirm-btn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ── SCRIPTS ────────────────────────────────────────────────── -->
+<script src="supabase.js"></script>
+<script>
+
+// ── DARK MODE ──────────────────────────────────────────────────
+const darkToggle = document.getElementById('dark-toggle');
+if (localStorage.getItem('inkwell-theme') === 'dark') document.body.classList.add('dark-mode');
+darkToggle.addEventListener('click', () => {
+  document.body.classList.toggle('dark-mode');
+  localStorage.setItem('inkwell-theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+});
+
+// ── MOBILE NAV ─────────────────────────────────────────────────
+const hamburger = document.getElementById('hamburger');
+const sheetOverlay = document.getElementById('sheetOverlay');
+const mobileSheet = document.getElementById('mobileSheet');
+hamburger.addEventListener('click', () => {
+  hamburger.classList.toggle('open');
+  sheetOverlay.classList.toggle('open');
+  mobileSheet.classList.toggle('open');
+  document.body.style.overflow = mobileSheet.classList.contains('open') ? 'hidden' : '';
+});
+sheetOverlay.addEventListener('click', e => { if (e.target === sheetOverlay) closeSheet(); });
+function closeSheet() {
+  hamburger.classList.remove('open');
+  sheetOverlay.classList.remove('open');
+  mobileSheet.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ── TOAST ──────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// ── REVEAL ─────────────────────────────────────────────────────
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); }});
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// ── TABS ───────────────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.queue-section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+  });
+});
+
+// ── HELPERS ────────────────────────────────────────────────────
+function formatNum(n) { if (n >= 1000) return (n/1000).toFixed(1)+'k'; return String(n||0); }
+function timeAgo(d) {
+  if (!d) return '—';
+  const diff = Date.now() - new Date(d).getTime();
+  const m = Math.floor(diff/60000);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m/60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h/24)}d ago`;
+}
+function pillClass(status) {
+  const map = { pending:'pill-pending', approved:'pill-approved', rejected:'pill-rejected', submitted:'pill-submitted', under_review:'pill-under_review' };
+  return map[status] || 'pill-pending';
+}
+function pillLabel(status) {
+  const map = { pending:'Pending', approved:'Approved', rejected:'Rejected', submitted:'Submitted', under_review:'Under Review' };
+  return map[status] || status;
+}
+
+// ── AUTH + ADMIN CHECK ─────────────────────────────────────────
+let currentUser = null;
+async function checkAuth() {
+  try {
+    if (typeof supabase === 'undefined') { loadAll(); return; }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { window.location.href = 'signin.html'; return; }
+    currentUser = user;
+
+    // Check inkwell_admins table
+    const { data: adminRow } = await supabase
+      .from('inkwell_admins')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+
+    if (!adminRow) {
+      document.body.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:'DM Sans',sans-serif;text-align:center;padding:2rem;">
+          <div>
+            <div style="font-size:2.5rem;margin-bottom:1rem;">🔒</div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:#3b2a1a;margin-bottom:.5rem;">Access Restricted</div>
+            <div style="color:#7a6652;margin-bottom:1.5rem;">This page is for the MindStark editorial team only.</div>
+            <a href="inkwell.html" style="background:#3b2a1a;color:#f5f0e8;padding:.75rem 1.75rem;border-radius:50px;text-decoration:none;font-size:.9rem;">← Back to Inkwell</a>
+          </div>
+        </div>`;
+      return;
+    }
+
+    loadAll();
+  } catch(e) { console.log('Auth:', e); loadAll(); }
+}
+
+// ── LOAD ALL DATA ──────────────────────────────────────────────
+async function loadAll() {
+  await Promise.all([
+    loadStats(),
+    loadApplications(),
+    loadBooks(),
+  ]);
+}
+
+// ── STATS ──────────────────────────────────────────────────────
+async function loadStats() {
+  try {
+    if (typeof supabase === 'undefined') return;
+    const [pendingApps, pendingBooks, creators, published] = await Promise.all([
+      supabase.from('inkwell_applications').select('id', {count:'exact',head:true}).eq('status','pending'),
+      supabase.from('inkwell_books').select('id', {count:'exact',head:true}).in('status',['submitted','under_review']),
+      supabase.from('inkwell_creators').select('id', {count:'exact',head:true}),
+      supabase.from('inkwell_books').select('id', {count:'exact',head:true}).eq('status','published'),
+    ]);
+    document.getElementById('stat-pending-apps').textContent = formatNum(pendingApps.count);
+    document.getElementById('stat-pending-books').textContent = formatNum(pendingBooks.count);
+    document.getElementById('stat-total-creators').textContent = formatNum(creators.count);
+    document.getElementById('stat-published').textContent = formatNum(published.count);
+    document.getElementById('app-badge').textContent = pendingApps.count || 0;
+    document.getElementById('book-badge').textContent = pendingBooks.count || 0;
+  } catch(e) {}
+}
+
+// ── APPLICATIONS ───────────────────────────────────────────────
+async function loadApplications() {
+  const list = document.getElementById('applications-list');
+  const approvedList = document.getElementById('approved-list');
+  const rejectedList = document.getElementById('rejected-list');
+
+  try {
+    if (typeof supabase === 'undefined') {
+      list.innerHTML = `<div class="queue-empty"><span>📬</span>Connect Supabase to load applications.</div>`;
+      return;
+    }
+
+    const { data: apps } = await supabase
+      .from('inkwell_applications')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!apps?.length) {
+      list.innerHTML = `<div class="queue-empty"><span>📬</span>No applications yet.</div>`;
+      approvedList.innerHTML = `<div class="queue-empty"><span>✅</span>No approved applications yet.</div>`;
+      rejectedList.innerHTML = `<div class="queue-empty"><span>📁</span>No rejected applications yet.</div>`;
+      return;
+    }
+
+    const pending = apps.filter(a => a.status === 'pending');
+    const approved = apps.filter(a => a.status === 'approved');
+    const rejected = apps.filter(a => a.status === 'rejected');
+
+    list.innerHTML = pending.length
+      ? pending.map(a => renderAppCard(a)).join('')
+      : `<div class="queue-empty"><span>🎉</span>All applications reviewed!</div>`;
+
+    approvedList.innerHTML = approved.length
+      ? approved.map(a => renderAppCard(a)).join('')
+      : `<div class="queue-empty"><span>✅</span>No approved applications yet.</div>`;
+
+    rejectedList.innerHTML = rejected.length
+      ? rejected.map(a => renderAppCard(a)).join('')
+      : `<div class="queue-empty"><span>📁</span>No rejected applications yet.</div>`;
+
+    // Wire up buttons
+    wireAppButtons();
+    wireExpandButtons();
+
+  } catch(e) {
+    list.innerHTML = `<div class="queue-empty"><span>⚠️</span>Could not load applications.</div>`;
+  }
+}
+
+function renderAppCard(app) {
+  const isPending = app.status === 'pending';
+  const genres = (app.genres || []).concat(app.blog_topics || []);
+  return `
+    <div class="queue-card" data-id="${app.id}" data-type="application">
+      <div class="card-top">
+        <div class="card-avatar">${(app.full_name||'?')[0].toUpperCase()}</div>
+        <div class="card-info">
+          <div class="card-name">${app.full_name || 'Unknown'}</div>
+          <div class="card-meta">
+            ID: <span>${app.mindstark_id || '—'}</span> &nbsp;·&nbsp;
+            ${app.creator_type ? app.creator_type.charAt(0).toUpperCase()+app.creator_type.slice(1) : '—'} &nbsp;·&nbsp;
+            ${timeAgo(app.created_at)}
+          </div>
+        </div>
+        <span class="card-status-pill ${pillClass(app.status)}">${pillLabel(app.status)}</span>
+      </div>
+
+      <div class="card-body">
+        ${app.bio ? `<div class="card-section-label">Bio</div><div class="card-text">${app.bio}</div>` : ''}
+        ${genres.length ? `<div class="card-genres">${genres.map(g=>`<span class="genre-pill">${g}</span>`).join('')}</div>` : ''}
+      </div>
+
+      <button class="card-expand-btn" data-expand="${app.id}">▾ View pitch & writing sample</button>
+
+      <div class="card-expanded-content" id="expand-${app.id}">
+        <div class="card-body" style="border-top:none;padding-top:0;">
+          ${app.pitch ? `<div class="card-section-label">Pitch</div><div class="card-text">${app.pitch}</div>` : ''}
+          ${app.writing_sample_url ? `<div class="card-section-label">Writing Sample</div><a class="sample-link" href="${app.writing_sample_url}" target="_blank">📄 View Writing Sample</a>` : '<div class="card-section-label">Writing Sample</div><div class="card-text" style="color:var(--muted);font-style:italic;">No file uploaded</div>'}
+          ${app.rejection_note ? `<div class="card-section-label">Editorial Note</div><div class="card-text" style="color:var(--muted);font-style:italic;">${app.rejection_note}</div>` : ''}
+        </div>
+      </div>
+
+      <div class="card-actions">
+        ${isPending ? `
+          <button class="btn-approve" data-action="approve" data-id="${app.id}" data-type="application" data-name="${app.full_name}">✓ Approve</button>
+          <button class="btn-review" data-action="review" data-id="${app.id}" data-type="application" data-name="${app.full_name}">Mark Under Review</button>
+          <button class="btn-reject" data-action="reject" data-id="${app.id}" data-type="application" data-name="${app.full_name}">✕ Reject</button>
+        ` : `<span class="action-done">Decision recorded — ${pillLabel(app.status)}</span>`}
+      </div>
+    </div>`;
+}
+
+// ── BOOKS ──────────────────────────────────────────────────────
+async function loadBooks() {
+  const list = document.getElementById('books-list');
+  try {
+    if (typeof supabase === 'undefined') {
+      list.innerHTML = `<div class="queue-empty"><span>📚</span>Connect Supabase to load books.</div>`;
+      return;
+    }
+
+    const { data: books } = await supabase
+      .from('inkwell_books')
+      .select('*, inkwell_creators(display_name, mindstark_id)')
+      .in('status', ['submitted', 'under_review'])
+      .order('created_at', { ascending: false });
+
+    if (!books?.length) {
+      list.innerHTML = `<div class="queue-empty"><span>📚</span>No books submitted for review yet.</div>`;
+      return;
+    }
+
+    list.innerHTML = books.map(b => renderBookCard(b)).join('');
+    wireAppButtons();
+    wireExpandButtons();
+
+  } catch(e) {
+    list.innerHTML = `<div class="queue-empty"><span>⚠️</span>Could not load books.</div>`;
+  }
+}
+
+function renderBookCard(book) {
+  const creator = book.inkwell_creators;
+  return `
+    <div class="queue-card" data-id="${book.id}" data-type="book">
+      <div class="card-top">
+        <div class="card-avatar" style="border-radius:8px;">📖</div>
+        <div class="card-info">
+          <div class="card-name">${book.title || 'Untitled'}</div>
+          <div class="card-meta">
+            by <span>${creator?.display_name || 'Unknown'}</span> &nbsp;·&nbsp;
+            ${book.genre || '—'} &nbsp;·&nbsp;
+            ${timeAgo(book.created_at)}
+          </div>
+        </div>
+        <span class="card-status-pill ${pillClass(book.status)}">${pillLabel(book.status)}</span>
+      </div>
+
+      <div class="card-body">
+        ${book.synopsis ? `<div class="card-section-label">Synopsis</div><div class="card-text">${book.synopsis}</div>` : ''}
+      </div>
+
+      <button class="card-expand-btn" data-expand="${book.id}">▾ View chapters</button>
+
+      <div class="card-expanded-content" id="expand-${book.id}">
+        <div class="card-body" style="border-top:none;padding-top:0;">
+          <div class="card-section-label">Read the Book</div>
+          <a class="sample-link" href="inkwell-story.html?id=${book.id}" target="_blank">📖 Open in Story Reader</a>
+          ${book.rejection_note ? `<div class="card-section-label">Previous Note</div><div class="card-text" style="color:var(--muted);font-style:italic;">${book.rejection_note}</div>` : ''}
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn-approve" data-action="publish" data-id="${book.id}" data-type="book" data-name="${book.title}">✓ Publish</button>
+        <button class="btn-review" data-action="under_review" data-id="${book.id}" data-type="book" data-name="${book.title}">Mark Under Review</button>
+        <button class="btn-reject" data-action="reject-book" data-id="${book.id}" data-type="book" data-name="${book.title}">✕ Send Back</button>
+      </div>
+    </div>`;
+}
+
+// ── WIRE EXPAND BUTTONS ────────────────────────────────────────
+function wireExpandButtons() {
+  document.querySelectorAll('.card-expand-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.expand;
+      const content = document.getElementById(`expand-${id}`);
+      const isOpen = content.classList.contains('open');
+      content.classList.toggle('open', !isOpen);
+      btn.textContent = isOpen ? '▾ View pitch & writing sample' : '▴ Hide details';
+      // fix for book cards
+      if (btn.textContent.includes('▴')) btn.textContent = '▴ Hide details';
+      else btn.textContent = btn.dataset.expand ? '▾ View details' : '▾ View pitch & writing sample';
+    });
+  });
+}
+
+// ── WIRE ACTION BUTTONS ────────────────────────────────────────
+function wireAppButtons() {
+  document.querySelectorAll('[data-action]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const { action, id, type, name } = btn.dataset;
+      openActionModal(action, id, type, name);
+    });
+  });
+}
+
+// ── ACTION MODAL ───────────────────────────────────────────────
+let pendingAction = null;
+
+function openActionModal(action, id, type, name) {
+  pendingAction = { action, id, type, name };
+
+  const configs = {
+    approve: {
+      label: 'Approve Application',
+      title: `Approve "${name}"`,
+      note: 'This will create a creator account for this applicant. They will be able to access the writing environment.',
+      confirmClass: 'approve',
+      confirmText: '✓ Approve Creator',
+      placeholder: 'Optional note to the creator… (e.g. "Welcome to MindStark Inkwell!")',
+    },
+    review: {
+      label: 'Mark Under Review',
+      title: `Reviewing "${name}"`,
+      note: 'Mark this application as under review while you take a closer look.',
+      confirmClass: 'approve',
+      confirmText: 'Mark Under Review',
+      placeholder: 'Optional note…',
+    },
+    reject: {
+      label: 'Decline Application',
+      title: `Decline "${name}"`,
+      note: 'This applicant will be notified. Keep it encouraging — "not quite ready yet" not "rejected".',
+      confirmClass: 'reject',
+      confirmText: '✕ Decline',
+      placeholder: 'e.g. "Your writing shows promise — keep working on your craft and apply again soon."',
+    },
+    publish: {
+      label: 'Publish Book',
+      title: `Publish "${name}"`,
+      note: 'This book will go live on the browse page and be visible to all MindStark readers.',
+      confirmClass: 'approve',
+      confirmText: '✓ Publish Now',
+      placeholder: 'Optional note to the author…',
+    },
+    under_review: {
+      label: 'Under Review',
+      title: `Reviewing "${name}"`,
+      note: 'Mark this book as under review while the editorial team reads through it.',
+      confirmClass: 'approve',
+      confirmText: 'Mark Under Review',
+      placeholder: 'Optional note…',
+    },
+    'reject-book': {
+      label: 'Send Back for Revision',
+      title: `Send Back "${name}"`,
+      note: 'The author will see your note and can revise and resubmit. Be specific and constructive.',
+      confirmClass: 'reject',
+      confirmText: '↩ Send Back',
+      placeholder: 'e.g. "Great concept — the first three chapters need more character development before we can publish."',
+    },
+  };
+
+  const cfg = configs[action] || configs.approve;
+  document.getElementById('modal-label').textContent = cfg.label;
+  document.getElementById('modal-title').textContent = cfg.title;
+  document.getElementById('modal-note').textContent = cfg.note;
+  document.getElementById('modal-textarea').placeholder = cfg.placeholder;
+  document.getElementById('modal-textarea').value = '';
+
+  const confirmBtn = document.getElementById('modal-confirm-btn');
+  confirmBtn.className = `modal-confirm ${cfg.confirmClass}`;
+  confirmBtn.textContent = cfg.confirmText;
+  confirmBtn.disabled = false;
+
+  document.getElementById('action-modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('modal-textarea').focus(), 300);
+}
+
+function closeActionModal() {
+  document.getElementById('action-modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  pendingAction = null;
+}
+
+document.getElementById('modal-close-btn').addEventListener('click', closeActionModal);
+document.getElementById('modal-cancel-btn').addEventListener('click', closeActionModal);
+document.getElementById('action-modal-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('action-modal-overlay')) closeActionModal();
+});
+
+// ── CONFIRM ACTION ─────────────────────────────────────────────
+document.getElementById('modal-confirm-btn').addEventListener('click', async () => {
+  if (!pendingAction) return;
+  const btn = document.getElementById('modal-confirm-btn');
+  btn.disabled = true; btn.textContent = 'Processing…';
+
+  const note = document.getElementById('modal-textarea').value.trim();
+  const { action, id, type, name } = pendingAction;
+
+  try {
+    if (typeof supabase === 'undefined') throw new Error('Supabase not connected');
+
+    if (action === 'approve') {
+      // 1. Update application status
+      await supabase.from('inkwell_applications')
+        .update({ status: 'approved', rejection_note: note || null })
+        .eq('id', id);
+
+      // 2. Get the application to create creator record
+      const { data: app } = await supabase
+        .from('inkwell_applications')
+        .select('*').eq('id', id).single();
+
+      // 3. Create inkwell_creators entry
+      if (app) {
+        await supabase.from('inkwell_creators').insert({
+          user_id: app.user_id,
+          mindstark_id: app.mindstark_id,
+          display_name: app.full_name,
+          bio: app.bio,
+          creator_type: app.creator_type,
+          genres: app.genres,
+          blog_topics: app.blog_topics,
+        });
+      }
+      showToast(`✓ ${name} approved as a creator`);
+
+    } else if (action === 'review') {
+      await supabase.from('inkwell_applications')
+        .update({ status: 'under_review', rejection_note: note || null })
+        .eq('id', id);
+      showToast(`Marked as under review`);
+
+    } else if (action === 'reject') {
+      await supabase.from('inkwell_applications')
+        .update({ status: 'rejected', rejection_note: note || null })
+        .eq('id', id);
+      showToast(`Application declined`);
+
+    } else if (action === 'publish') {
+      await supabase.from('inkwell_books')
+        .update({ status: 'published', published_at: new Date().toISOString(), rejection_note: note || null })
+        .eq('id', id);
+      showToast(`✓ "${name}" is now live`);
+
+    } else if (action === 'under_review') {
+      await supabase.from('inkwell_books')
+        .update({ status: 'under_review', rejection_note: note || null })
+        .eq('id', id);
+      showToast(`Book marked as under review`);
+
+    } else if (action === 'reject-book') {
+      await supabase.from('inkwell_books')
+        .update({ status: 'draft', rejection_note: note || null })
+        .eq('id', id);
+      showToast(`Book sent back for revision`);
+    }
+
+    closeActionModal();
+    // Reload data
+    await loadAll();
+
+  } catch(e) {
+    showToast('Something went wrong. Please try again.');
+    btn.disabled = false;
+    btn.textContent = 'Confirm';
+  }
+});
+
+// ── INIT ───────────────────────────────────────────────────────
+(async () => { await checkAuth(); })();
+
+</script>
+</body>
+</html>

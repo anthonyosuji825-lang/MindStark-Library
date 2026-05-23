@@ -913,7 +913,7 @@ body.dark-mode .mobile-sheet { background: var(--ink-card); }
       </div>
       <div class="form-group">
         <label class="form-label">MindStark ID</label>
-        <input type="text" class="form-input" id="app-mindstark-id" placeholder="Your MindStark ID" readonly/>
+        <input type="text" class="form-input" id="app-mindstark-id" placeholder="Your MindStark ID"/>
       </div>
       <div class="form-group">
         <label class="form-label">Short Bio <span style="color:var(--muted);font-size:.72rem">(max 150 words)</span></label>
@@ -1043,20 +1043,65 @@ document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 let currentUser = null;
 async function checkAuth() {
   try {
-    if (typeof supabase === 'undefined') return;
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      currentUser = user;
-      document.getElementById('nav-signin').style.display = 'none';
-      document.getElementById('nav-user').style.display = 'flex';
-      const { data: profile } = await supabase.from('profiles').select('mindstark_id, full_name').eq('id', user.id).single();
-      if (profile) {
-        document.getElementById('nav-username').textContent = profile.mindstark_id || profile.full_name || 'Writer';
-        document.getElementById('app-mindstark-id').value = profile.mindstark_id || '';
-        document.getElementById('app-name').value = profile.full_name || '';
-      }
+    const btn = document.getElementById('become-creator-btn');
+
+    if (typeof supabase === 'undefined') {
+      btn.disabled = false; btn.style.opacity = '1';
+      btn.onclick = () => openModal();
+      return;
     }
-  } catch(e) {}
+
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      // Not signed in
+      btn.disabled = false; btn.style.opacity = '1';
+      btn.onclick = () => { window.location.href = 'signin.html'; };
+      return;
+    }
+
+    currentUser = user;
+    document.getElementById('nav-signin').style.display = 'none';
+    document.getElementById('nav-user').style.display = 'flex';
+
+    const { data: profile } = await supabase.from('profiles').select('mindstark_id, full_name').eq('id', user.id).single();
+    if (profile) {
+      document.getElementById('nav-username').textContent = profile.mindstark_id || profile.full_name || 'Writer';
+      document.getElementById('app-mindstark-id').value = profile.mindstark_id || '';
+      document.getElementById('app-name').value = profile.full_name || '';
+    }
+
+    // Check if approved creator
+    const { data: creator } = await supabase
+      .from('inkwell_creators').select('id').eq('user_id', user.id).single();
+
+    if (creator) {
+      btn.textContent = '✍️ Go to My Workspace';
+      btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer';
+      btn.onclick = () => window.location.href = 'inkwell-write.html';
+      return;
+    }
+
+    // Check if application already submitted
+    const { data: application } = await supabase
+      .from('inkwell_applications').select('id, status').eq('user_id', user.id).single();
+
+    if (application) {
+      btn.textContent = '⏳ Application Pending…';
+      btn.disabled = true; btn.style.opacity = '.6'; btn.style.cursor = 'not-allowed';
+      btn.onclick = null;
+      return;
+    }
+
+    // Logged in, no application — open modal
+    btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer';
+    btn.onclick = () => openModal();
+
+  } catch(e) {
+    const btn = document.getElementById('become-creator-btn');
+    btn.disabled = false; btn.style.opacity = '1';
+    btn.onclick = () => openModal();
+  }
 }
 
 // ── HELPERS ────────────────────────────────────────────────────
@@ -1336,10 +1381,10 @@ document.getElementById('modal-back-btn').addEventListener('click', () => { if(c
 document.getElementById('modal-close-btn').addEventListener('click', closeModal);
 document.getElementById('apply-modal-overlay').addEventListener('click', e => { if(e.target===document.getElementById('apply-modal-overlay')) closeModal(); });
 
-document.getElementById('become-creator-btn').addEventListener('click', () => {
-  if (!currentUser) { showToast('Please sign in first'); setTimeout(()=>window.location.href='signin.html',1500); return; }
-  openModal();
-});
+// Button starts disabled while auth loads
+const _creatorBtn = document.getElementById('become-creator-btn');
+_creatorBtn.disabled = true;
+_creatorBtn.style.opacity = '.6';
 
 async function submitApplication() {
   const btn = document.getElementById('modal-next-btn');
