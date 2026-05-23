@@ -1424,6 +1424,17 @@ document.addEventListener('supabase:ready', async () => {
   await Promise.all([loadStats(), loadTrending(), loadFeed(), loadFeaturedWriter(), loadLeaderboard(), loadNewVoices()]);
 });
 
+// Fallback: retry admin check after 2s in case supabase:ready fired before listener attached
+setTimeout(async () => {
+  if (document.getElementById('nav-admin-link').style.display === 'none' && window._sb) {
+    const { data: { user } } = await window._sb.auth.getUser();
+    if (user) {
+      const { data: adminRow } = await window._sb.from('inkwell_admins').select('id').eq('user_id', user.id).single();
+      if (adminRow) document.getElementById('nav-admin-link').style.display = 'inline-block';
+    }
+  }
+}, 2000);
+
 </script>
 </body>
 </html>
