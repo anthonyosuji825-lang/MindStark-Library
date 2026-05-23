@@ -606,13 +606,13 @@ function pillLabel(status) {
 let currentUser = null;
 async function checkAuth() {
   try {
-    if (typeof window._sb === 'undefined') { loadAll(); return; }
+    if (typeof window._sb === 'undefined') { window.location.href = 'signin.html'; return; }
     const { data: { user } } = await window._sb.auth.getUser();
     if (!user) { window.location.href = 'signin.html'; return; }
     currentUser = user;
 
     // Check inkwell_admins table
-    const { data: adminRow } = await supabase
+    const { data: adminRow } = await window._sb
       .from('inkwell_admins')
       .select('id')
       .eq('user_id', user.id)
