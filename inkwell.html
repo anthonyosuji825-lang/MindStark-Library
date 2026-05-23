@@ -1078,9 +1078,9 @@ async function checkAuth() {
     if (adminRow) document.getElementById('nav-admin-link').style.display = 'inline-block';
 
     // Check if approved creator
-    const { data: creator } = await supabase
-      .from('inkwell_creators').select('id').eq('user_id', user.id).single();
-
+    const { data: creatorData } = await window._sb
+      .from('inkwell_creators').select('id').eq('user_id', user.id).limit(1);
+    const creator = creatorData?.[0];
     if (creator) {
       btn.textContent = '✍️ Go to My Workspace';
       btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer';
@@ -1089,8 +1089,9 @@ async function checkAuth() {
     }
 
     // Check if application already submitted
-    const { data: application } = await supabase
-      .from('inkwell_applications').select('id, status').eq('user_id', user.id).single();
+    const { data: appData } = await window._sb
+      .from('inkwell_applications').select('id, status').eq('user_id', user.id).limit(1);
+    const application = appData?.[0];
 
     if (application) {
       btn.textContent = '⏳ Application Pending…';
