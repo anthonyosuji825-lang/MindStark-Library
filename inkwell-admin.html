@@ -675,7 +675,7 @@ async function loadApplications() {
       return;
     }
 
-    const { data: apps } = await supabase
+    const { data: apps } = await window._sb
       .from('inkwell_applications')
       .select('*')
       .order('created_at', { ascending: false });
@@ -764,7 +764,7 @@ async function loadBooks() {
       return;
     }
 
-    const { data: books } = await supabase
+    const { data: books } = await window._sb
       .from('inkwell_books')
       .select('*, inkwell_creators(display_name, mindstark_id)')
       .in('status', ['submitted', 'under_review'])
@@ -954,7 +954,7 @@ document.getElementById('modal-confirm-btn').addEventListener('click', async () 
         .eq('id', id);
 
       // 2. Get the application to create creator record
-      const { data: app } = await supabase
+      const { data: app } = await window._sb
         .from('inkwell_applications')
         .select('*').eq('id', id).single();
 
