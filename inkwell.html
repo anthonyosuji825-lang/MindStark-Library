@@ -1397,40 +1397,20 @@ async function submitApplication() {
   const btn = document.getElementById('modal-next-btn');
   btn.disabled = true; btn.textContent = 'Submitting...';
   try {
-    // Upload writing sample if provided
-    let writingSampleUrl = null;
-    const fileInput = document.getElementById('app-sample');
-    const file = fileInput?.files?.[0];
-    if (file && window._sb) {
-      btn.textContent = 'Uploading sample...';
-      const ext = file.name.split('.').pop();
-      const fileName = `${currentUser?.id}_${Date.now()}.${ext}`;
-      const { data: uploadData, error: uploadError } = await window._sb
-        .storage.from('inkwell-files')
-        .upload(`writing-samples/${fileName}`, file, { upsert: true });
-      if (!uploadError && uploadData) {
-        const { data: urlData } = window._sb.storage
-          .from('inkwell-files')
-          .getPublicUrl(`writing-samples/${fileName}`);
-        writingSampleUrl = urlData?.publicUrl || null;
-      }
+    if (typeof supabase !== 'undefined') {
+      const { error } = await window._sb.from('inkwell_applications').insert({
+        user_id: currentUser?.id||null,
+        mindstark_id: document.getElementById('app-mindstark-id').value,
+        full_name: document.getElementById('app-name').value.trim(),
+        bio: document.getElementById('app-bio').value.trim(),
+        creator_type: selectedType,
+        genres: selectedGenres,
+        blog_topics: selectedTopics,
+        pitch: document.getElementById('app-pitch').value.trim(),
+        status: 'pending',
+      });
+      if (error) throw error;
     }
-
-    btn.textContent = 'Submitting...';
-    const { error } = await window._sb.from('inkwell_applications').insert({
-      user_id: currentUser?.id || null,
-      mindstark_id: document.getElementById('app-mindstark-id').value,
-      full_name: document.getElementById('app-name').value.trim(),
-      bio: document.getElementById('app-bio').value.trim(),
-      creator_type: selectedType,
-      genres: selectedGenres,
-      blog_topics: selectedTopics,
-      pitch: document.getElementById('app-pitch').value.trim(),
-      writing_sample_url: writingSampleUrl,
-      status: 'pending',
-    });
-    if (error) throw error;
-
     for(let i=1;i<=4;i++){const el=document.getElementById(`step-${i}`);if(el)el.style.display='none';}
     document.getElementById('modal-footer').style.display='none';
     document.getElementById('modal-success').classList.add('visible');
@@ -1440,27 +1420,20 @@ async function submitApplication() {
 }
 
 // ── INIT ───────────────────────────────────────────────────────
-// Poll for window._sb to be ready — works regardless of event timing
-function waitForSupabase(cb, tries = 0) {
-  if (window._sb) { cb(); return; }
-  if (tries > 20) return; // give up after 10s
-  setTimeout(() => waitForSupabase(cb, tries + 1), 500);
+let _initiated = false;
+function waitForSupabase(tries = 0) {
+  if (_initiated) return;
+  if (window._sb) {
+    _initiated = true;
+    checkAuth().then(() => {
+      Promise.all([loadStats(), loadTrending(), loadFeed(), loadFeaturedWriter(), loadLeaderboard(), loadNewVoices()]);
+    });
+    return;
+  }
+  if (tries > 40) return; // give up after 20s
+  setTimeout(() => waitForSupabase(tries + 1), 500);
 }
-
-document.addEventListener('supabase:ready', async () => {
-  await checkAuth();
-  await Promise.all([loadStats(), loadTrending(), loadFeed(), loadFeaturedWriter(), loadLeaderboard(), loadNewVoices()]);
-});
-
-// Fallback in case supabase:ready already fired before this script ran
-waitForSupabase(async () => {
-  await checkAuth();
-  await Promise.all([loadStats(), loadTrending(), loadFeed(), loadFeaturedWriter(), loadLeaderboard(), loadNewVoices()]);
-});
-
-
-
-
+waitForSupabase();
 </script>
 </body>
 </html>
