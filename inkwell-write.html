@@ -159,6 +159,7 @@ body.dark-mode .mobile-sheet { background: var(--warm2); }
 .write-layout {
   display: flex; height: calc(100vh - 62px);
   position: relative; z-index: 1; overflow: hidden;
+  max-width: 100vw;
 }
 
 /* ── SIDEBAR PANEL ───────────────────────────────────────────── */
@@ -168,11 +169,17 @@ body.dark-mode .mobile-sheet { background: var(--warm2); }
   border-right: 1px solid var(--border);
   display: flex; flex-direction: column;
   overflow: hidden; transition: transform .3s cubic-bezier(.4,0,.2,1);
+  height: 100%;
 }
 
 /* Scrollable middle section of sidebar */
 .sidebar-scroll {
-  flex: 1; overflow-y: auto; display: flex; flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 /* Invisible scrollbar */
 .sidebar-scroll::-webkit-scrollbar { width: 0px; background: transparent; }
@@ -212,12 +219,12 @@ body.dark-mode .mobile-sheet { background: var(--warm2); }
 
 /* Cover upload */
 .cover-upload {
-  width: 100%; aspect-ratio: 2/3; border-radius: 10px;
+  width: 100%; aspect-ratio: 3/2; border-radius: 10px;
   border: 1.5px dashed var(--border);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   cursor: pointer; position: relative; overflow: hidden;
   transition: border-color .2s, background .2s; background: var(--card-bg);
-  margin-bottom: .85rem;
+  margin-bottom: .85rem; max-height: 160px;
 }
 .cover-upload:hover { border-color: var(--gold); background: rgba(200,150,62,.04); }
 .cover-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
@@ -546,14 +553,23 @@ body.dark-mode .mobile-sheet { background: var(--warm2); }
 /* ── MOBILE ──────────────────────────────────────────────────── */
 /* Mobile: sidebar hidden by default, editor full width */
 .sidebar-panel {
-  position: absolute; z-index: 10; height: 100%;
+  position: absolute; z-index: 10;
+  width: 85vw; max-width: 300px;
+  height: 100%; max-height: 100%;
   transform: translateX(-100%);
   box-shadow: 4px 0 24px rgba(59,42,26,.12);
+  display: flex; flex-direction: column;
+  overflow: hidden;
 }
 .sidebar-panel.open { transform: translateX(0); }
 .sidebar-overlay {
-  display: none; position: absolute; inset: 0; z-index: 9;
+  display: none; position: fixed; inset: 0; z-index: 9;
   background: rgba(59,42,26,.3);
+  pointer-events: none;
+}
+.sidebar-overlay.open {
+  pointer-events: auto;
+  left: 85vw;
 }
 .sidebar-overlay.open { display: block; }
 
@@ -562,10 +578,10 @@ body.dark-mode .mobile-sheet { background: var(--warm2); }
 
 @media (min-width: 768px) {
   .nav-inner { padding: 1rem 2rem; }
-  /* On tablet+, sidebar is in-flow */
   .sidebar-panel {
     position: relative; transform: none !important;
-    box-shadow: none; height: auto;
+    box-shadow: none; width: 260px; max-width: none;
+    height: auto; max-height: none;
   }
   .sidebar-panel.collapsed { transform: translateX(-100%) !important; position: absolute; }
   .sidebar-overlay { display: none !important; }
@@ -576,13 +592,23 @@ body.dark-mode .mobile-sheet { background: var(--warm2); }
 }
 
 @media (max-width: 767px) {
+  html, body { overflow-x: hidden; }
   .hamburger { display: flex; }
-  .nav-center { max-width: 180px; }
-  .chapter-title-input { width: 100px; }
-  .toolbar { padding: .5rem .75rem; gap: .25rem; }
-  .editor-wrap { padding: 1.5rem 1rem; }
-  #editor { font-size: 1rem; line-height: 1.85; }
-  .book-title-input { font-size: .9rem; }
+  .nav-inner { padding: .75rem 1rem; gap: .5rem; }
+  .nav-center { max-width: 130px; margin: 0 .4rem; }
+  .book-title-input { font-size: .82rem; }
+  .save-status { display: none; }
+  .toolbar { padding: .4rem .6rem; gap: .15rem; flex-wrap: wrap; }
+  .toolbar-divider { display: none; }
+  .tool-btn { width: 28px; height: 28px; font-size: .78rem; }
+  .tool-btn-wide { padding: 0 .4rem; font-size: .7rem; }
+  .chapter-title-input { width: 100px; font-size: .8rem; }
+  .editor-wrap { padding: 1.25rem .85rem; }
+  #editor { font-size: .97rem; line-height: 1.9; min-height: auto; }
+  .editor-footer { padding: .4rem .85rem; }
+  .editor-hint { display: none; }
+  /* Shrink cover on mobile so synopsis/chapters are reachable by scroll */
+  .cover-upload { aspect-ratio: 2/1; max-height: 120px; }
 }
 </style>
 </head>
