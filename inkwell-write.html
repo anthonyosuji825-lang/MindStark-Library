@@ -932,24 +932,39 @@ let isDirty = false;
 // ── AUTH CHECK ─────────────────────────────────────────────────
 async function checkAuth() {
   try {
-    if (typeof window._sb === 'undefined') return;
+    if (!window._sb) return;
     const { data: { user } } = await window._sb.auth.getUser();
     if (!user) { window.location.href = 'signin.html'; return; }
     currentUser = user;
 
+    // Check if admin — admins can write without being a creator
+    const { data: adminRow } = await window._sb
+      .from('inkwell_admins')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+
     // Check if approved creator
-    const { data: creator } = await supabase
+    const { data: creator } = await window._sb
       .from('inkwell_creators')
       .select('*')
       .eq('user_id', user.id)
       .single();
 
-    if (!creator) {
+    if (!creator && !adminRow) {
       showToast('You need to be an approved creator to write here.', 5000);
       setTimeout(() => window.location.href = 'inkwell.html', 3000);
       return;
     }
-    currentCreator = creator;
+
+    // If admin but not creator, create a virtual creator profile
+    currentCreator = creator || {
+      id: user.id,
+      user_id: user.id,
+      display_name: 'Anthony',
+      creator_type: 'novelist',
+    };
+
     loadUserBooks();
   } catch(e) { console.log('Auth:', e); }
 }
@@ -957,8 +972,8 @@ async function checkAuth() {
 // ── LOAD USER BOOKS ────────────────────────────────────────────
 async function loadUserBooks() {
   try {
-    if (typeof window._sb === 'undefined') { initFreshBook(); return; }
-    const { data: books } = await supabase
+    if (!window._sb) { initFreshBook(); return; }
+    const { data: books } = await window._sb
       .from('inkwell_books')
       .select('*')
       .eq('creator_id', currentCreator.id)
@@ -987,8 +1002,8 @@ function initFreshBook() {
 // ── LOAD CHAPTERS ──────────────────────────────────────────────
 async function loadChapters() {
   try {
-    if (typeof window._sb === 'undefined' || !currentBook) return;
-    const { data } = await supabase
+    if (!window._sb || !currentBook) return;
+    const { data } = await window._sb
       .from('inkwell_chapters')
       .select('*')
       .eq('book_id', currentBook.id)
@@ -1045,7 +1060,7 @@ function renderChapterList() {
       if (!confirm(`Remove "${ch.title}"? This cannot be undone.`)) return;
 
       // Delete from Supabase if saved
-      if (ch.id && typeof supabase !== 'undefined') {
+      if (ch.id && window._sb) {
         try { await window._sb.from('inkwell_chapters').delete().eq('id', ch.id); } catch(e) {}
       }
 
@@ -1185,6 +1200,25 @@ document.getElementById('cover-input').addEventListener('change', function() {
   markDirty();
 });
 
+// Upload cover to Supabase Storage and return URL
+async function uploadCover() {
+  const input = document.getElementById('cover-input');
+  const file = input?.files?.[0];
+  if (!file || !window._sb) return null;
+  try {
+    const ext = file.name.split('.').pop();
+    const fileName = `covers/${currentUser.id}_${Date.now()}.${ext}`;
+    const { data, error } = await window._sb.storage
+      .from('inkwell-files')
+      .upload(fileName, file, { upsert: true });
+    if (error) return null;
+    const { data: urlData } = window._sb.storage
+      .from('inkwell-files')
+      .getPublicUrl(fileName);
+    return urlData?.publicUrl || null;
+  } catch(e) { return null; }
+}
+
 // ── DIRTY STATE ────────────────────────────────────────────────
 function markDirty() {
   isDirty = true;
@@ -1208,21 +1242,29 @@ async function saveAll() {
   const genre = document.getElementById('book-genre').value;
 
   try {
-    if (typeof window._sb === 'undefined') {
+    if (!window._sb) {
       setSaveStatus('Saved locally', true);
       isDirty = false;
       renderChapterList();
       return;
     }
 
+    // Upload cover if a new file was selected
+    const coverInput = document.getElementById('cover-input');
+    let coverUrl = currentBook?.cover_url || null;
+    if (coverInput?.files?.[0]) {
+      const uploaded = await uploadCover();
+      if (uploaded) coverUrl = uploaded;
+    }
+
     // Upsert book
     let bookId = currentBook?.id;
     if (!bookId) {
-      const { data: newBook, error: bookErr } = await supabase
+      const { data: newBook, error: bookErr } = await window._sb
         .from('inkwell_books')
         .insert({
           creator_id: currentCreator.id,
-          title, synopsis, genre, status: 'draft'
+          title, synopsis, genre, cover_url: coverUrl, status: 'draft'
         })
         .select().single();
       if (bookErr) throw bookErr;
@@ -1230,7 +1272,7 @@ async function saveAll() {
       bookId = newBook.id;
     } else {
       await window._sb.from('inkwell_books')
-        .update({ title, synopsis, genre })
+        .update({ title, synopsis, genre, cover_url: coverUrl })
         .eq('id', bookId);
     }
 
@@ -1341,7 +1383,7 @@ document.getElementById('submit-confirm-btn').addEventListener('click', async ()
 
   try {
     await saveAll();
-    if (currentBook?.id && typeof supabase !== 'undefined') {
+    if (currentBook?.id && window._sb) {
       await window._sb.from('inkwell_books')
         .update({ status: 'submitted' })
         .eq('id', currentBook.id);
@@ -1382,8 +1424,8 @@ document.getElementById('nbm-create').addEventListener('click', async () => {
   btn.disabled = true; btn.textContent = 'Creating…';
 
   try {
-    if (typeof supabase !== 'undefined' && currentCreator) {
-      const { data: newBook, error } = await supabase
+    if (window._sb && currentCreator) {
+      const { data: newBook, error } = await window._sb
         .from('inkwell_books')
         .insert({ creator_id: currentCreator.id, title, genre, status: 'draft' })
         .select().single();

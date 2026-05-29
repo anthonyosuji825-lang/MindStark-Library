@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="icon" type="image/png" href="logo.png"/>
+<title>Story — MindStark Inkwell</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --cream:#f5f0e8; --warm:#ede5d5; --warm2:#e4d9c4;
+  --brown:#3b2a1a; --gold:#c8963e; --rust:#a0522d;
+  --text:#2c1e0f; --muted:#7a6652; --white:#ffffff;
+  --border:rgba(200,150,62,.18); --border-bright:rgba(200,150,62,.38);
+  --shadow:0 4px 32px rgba(59,42,26,.1);
+  --card-bg:#ffffff; --surface:#faf6ef;
+  --green:#4a7c59; --red:#c0392b;
+}
+body.dark-mode {
+  --cream:#0d0905; --warm:#17100a; --warm2:#1e1510;
+  --brown:#f5f0e8; --gold:#c8963e;
+  --text:rgba(245,240,232,.92); --muted:rgba(245,240,232,.42);
+  --border:rgba(200,150,62,.14); --border-bright:rgba(200,150,62,.38);
+  --card-bg:#1e1510; --surface:#17100a;
+  --shadow:0 4px 32px rgba(0,0,0,.3);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--cream);color:var(--text);
+  line-height:1.6;min-height:100vh;overflow-x:hidden;
+  transition:background .3s,color .3s;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 70% 45% at 60% 0%,rgba(200,150,62,.07) 0%,transparent 60%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── NAV ──────────────────────────────────── */
+nav{
+  position:sticky;top:0;z-index:200;
+  background:rgba(245,240,232,.95);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);transition:background .3s;
+}
+body.dark-mode nav{background:rgba(13,9,5,.94);}
+.nav-inner{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1rem 1.5rem;max-width:1200px;margin:0 auto;gap:.75rem;
+}
+.logo{display:flex;flex-direction:column;line-height:1;text-decoration:none;flex-shrink:0;}
+.logo-main{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--brown);}
+.logo-sub{font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);}
+.nav-right{display:flex;align-items:center;gap:.75rem;flex-shrink:0;}
+.dark-toggle{
+  width:36px;height:20px;border-radius:10px;
+  background:var(--border-bright);border:none;cursor:pointer;
+  position:relative;transition:background .3s;padding:0;flex-shrink:0;
+}
+.dark-toggle::after{
+  content:'';position:absolute;top:3px;left:3px;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--gold);transition:transform .3s;
+}
+body.dark-mode .dark-toggle::after{transform:translateX(16px);}
+.btn-back{
+  display:flex;align-items:center;gap:.4rem;
+  font-size:.85rem;color:var(--muted);text-decoration:none;
+  transition:color .2s;white-space:nowrap;
+}
+.btn-back:hover{color:var(--gold);}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:.4rem;background:none;border:none;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--brown);border-radius:2px;transition:all .3s;}
+body.dark-mode .hamburger span{background:var(--cream);}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+/* ── MOBILE SHEET ─────────────────────────── */
+.mobile-sheet-overlay{display:none;position:fixed;inset:0;z-index:150;background:rgba(59,42,26,.45);backdrop-filter:blur(3px);}
+.mobile-sheet-overlay.open{display:block;}
+.mobile-sheet{
+  position:fixed;bottom:0;left:0;right:0;z-index:151;
+  background:var(--cream);border-top:1px solid var(--border-bright);
+  border-radius:20px 20px 0 0;padding:1rem 1.75rem 2.5rem;
+  transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);
+}
+body.dark-mode .mobile-sheet{background:var(--warm2);}
+.mobile-sheet.open{transform:translateY(0);}
+.sheet-handle{width:40px;height:4px;background:var(--border-bright);border-radius:2px;margin:0 auto 1.5rem;}
+.mobile-sheet a{
+  display:block;font-family:'Playfair Display',serif;
+  font-size:1.2rem;font-weight:700;color:var(--brown);
+  text-decoration:none;padding:.65rem 0;border-bottom:1px solid var(--border);transition:color .2s;
+}
+.mobile-sheet a:last-child{border-bottom:none;}
+.mobile-sheet a:hover{color:var(--gold);}
+
+/* ── PAGE LOADING ─────────────────────────── */
+.page-loading{
+  position:fixed;inset:0;background:var(--cream);
+  display:flex;align-items:center;justify-content:center;
+  z-index:300;transition:opacity .5s ease;
+}
+.page-loading.hidden{opacity:0;pointer-events:none;}
+.load-spinner{
+  width:44px;height:44px;border:3px solid var(--border);
+  border-top-color:var(--gold);border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── MAIN PAGE ────────────────────────────── */
+.story-page{
+  position:relative;z-index:1;
+  max-width:1200px;margin:0 auto;
+  padding:2.5rem 1.5rem 6rem;
+  opacity:0;transform:translateY(12px);
+  transition:opacity .5s ease,transform .5s ease;
+}
+.story-page.visible{opacity:1;transform:translateY(0);}
+
+/* ── HERO ─────────────────────────────────── */
+.story-hero{
+  display:grid;grid-template-columns:220px 1fr;
+  gap:2.5rem;align-items:start;margin-bottom:3rem;
+}
+
+/* Cover */
+.story-cover-wrap{position:relative;}
+.story-cover{
+  width:100%;aspect-ratio:2/3;border-radius:16px;
+  object-fit:cover;box-shadow:0 12px 40px rgba(59,42,26,.2);
+  background:var(--warm2);display:flex;align-items:center;
+  justify-content:center;overflow:hidden;
+}
+.story-cover img{width:100%;height:100%;object-fit:cover;border-radius:16px;}
+.cover-placeholder{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  width:100%;height:100%;background:linear-gradient(145deg,var(--brown),var(--rust));
+  border-radius:16px;padding:1.5rem;text-align:center;
+}
+.cover-placeholder-title{
+  font-family:'Playfair Display',serif;font-size:1rem;
+  font-weight:900;color:var(--cream);line-height:1.3;
+}
+.cover-placeholder-author{font-size:.75rem;color:rgba(245,240,232,.6);margin-top:.5rem;}
+
+.story-originals-badge{
+  position:absolute;top:-10px;right:-10px;
+  background:var(--gold);color:var(--brown);
+  font-size:.62rem;font-weight:800;letter-spacing:.12em;
+  text-transform:uppercase;padding:.3rem .65rem;border-radius:50px;
+  box-shadow:0 2px 12px rgba(200,150,62,.4);
+}
+
+/* Story info */
+.story-info{min-width:0;}
+.story-eyebrow{
+  font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:.6rem;
+  display:flex;align-items:center;gap:.5rem;
+}
+.story-eyebrow::before{content:'';display:block;width:16px;height:1.5px;background:var(--gold);}
+.story-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.6rem,4vw,2.4rem);font-weight:900;
+  color:var(--brown);line-height:1.15;margin-bottom:.6rem;
+}
+.story-author-line{
+  font-size:.9rem;color:var(--muted);margin-bottom:1.25rem;
+}
+.story-author-link{
+  color:var(--gold);text-decoration:none;font-weight:600;transition:opacity .2s;
+}
+.story-author-link:hover{opacity:.7;}
+
+.story-genre-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.5rem;}
+.genre-tag{
+  font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--gold);background:rgba(200,150,62,.1);
+  border:1px solid var(--border-bright);padding:.3rem .8rem;border-radius:50px;
+}
+
+.story-stats{
+  display:flex;gap:1.5rem;margin-bottom:1.75rem;
+  padding:.85rem 1rem;background:var(--surface);
+  border:1px solid var(--border);border-radius:12px;
+  flex-wrap:wrap;
+}
+.stat{text-align:center;}
+.stat-val{
+  display:block;font-family:'Playfair Display',serif;
+  font-size:1.25rem;font-weight:900;color:var(--gold);line-height:1;
+}
+.stat-lbl{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-top:.2rem;}
+
+.story-actions{display:flex;gap:.75rem;flex-wrap:wrap;}
+.btn-read{
+  background:var(--brown);color:var(--cream);
+  padding:.9rem 2.25rem;border-radius:50px;
+  font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:600;
+  border:none;cursor:pointer;transition:all .25s;
+  display:flex;align-items:center;gap:.5rem;
+}
+.btn-read:hover{background:var(--gold);transform:translateY(-2px);}
+.btn-like{
+  padding:.9rem 1.5rem;border-radius:50px;
+  background:transparent;border:2px solid var(--border-bright);
+  color:var(--muted);font-family:'DM Sans',sans-serif;
+  font-size:.88rem;font-weight:600;cursor:pointer;transition:all .25s;
+  display:flex;align-items:center;gap:.45rem;
+}
+.btn-like:hover,.btn-like.liked{
+  background:rgba(200,150,62,.1);border-color:var(--gold);color:var(--gold);
+}
+.btn-follow{
+  padding:.9rem 1.5rem;border-radius:50px;
+  background:transparent;border:2px solid var(--border-bright);
+  color:var(--muted);font-family:'DM Sans',sans-serif;
+  font-size:.88rem;font-weight:600;cursor:pointer;transition:all .25s;
+}
+.btn-follow:hover,.btn-follow.following{
+  background:var(--brown);border-color:var(--brown);color:var(--cream);
+}
+
+/* ── CONTENT GRID ─────────────────────────── */
+.story-grid{
+  display:grid;grid-template-columns:1fr 320px;
+  gap:2.5rem;align-items:start;
+}
+
+/* ── SECTION ──────────────────────────────── */
+.section{margin-bottom:2.5rem;}
+.section-label{
+  font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--gold);font-weight:600;margin-bottom:.4rem;
+}
+.section-title{
+  font-family:'Playfair Display',serif;
+  font-size:1.2rem;font-weight:900;color:var(--brown);
+  margin-bottom:1.1rem;padding-bottom:.75rem;
+  border-bottom:1px solid var(--border);
+}
+
+/* Synopsis */
+.synopsis-text{
+  font-family:'Playfair Display',serif;
+  font-size:.98rem;color:var(--text);line-height:1.85;
+  font-style:italic;
+}
+
+/* Chapter list */
+.chapter-list{display:flex;flex-direction:column;gap:.6rem;}
+.chapter-item{
+  display:flex;align-items:center;gap:1rem;
+  padding:.9rem 1.1rem;
+  background:var(--card-bg);border:1px solid var(--border);
+  border-radius:12px;cursor:pointer;
+  transition:border-color .2s,transform .2s,box-shadow .2s;
+  text-decoration:none;color:inherit;
+}
+.chapter-item:hover{
+  border-color:var(--border-bright);
+  transform:translateX(4px);box-shadow:var(--shadow);
+}
+.chapter-num{
+  font-family:'DM Mono',monospace;font-size:.75rem;
+  color:var(--gold);min-width:32px;flex-shrink:0;
+}
+.chapter-info{flex:1;min-width:0;}
+.chapter-name{
+  font-family:'Playfair Display',serif;
+  font-size:.92rem;font-weight:700;color:var(--brown);
+  margin-bottom:.15rem;
+}
+.chapter-words{font-size:.72rem;color:var(--muted);}
+.chapter-read-btn{
+  font-size:.72rem;color:var(--gold);
+  background:rgba(200,150,62,.08);border:1px solid var(--border-bright);
+  padding:.25rem .7rem;border-radius:50px;
+  font-family:'DM Sans',sans-serif;font-weight:600;
+  transition:all .2s;flex-shrink:0;white-space:nowrap;
+}
+.chapter-item:hover .chapter-read-btn{background:var(--gold);color:var(--white);}
+
+/* Comments */
+.comment-form{margin-bottom:1.5rem;}
+.comment-input{
+  width:100%;background:var(--surface);border:1.5px solid var(--border);
+  border-radius:12px;padding:.85rem 1rem;
+  font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--text);
+  outline:none;resize:none;min-height:80px;line-height:1.6;
+  transition:border-color .2s;
+}
+.comment-input::placeholder{color:var(--muted);}
+.comment-input:focus{border-color:var(--gold);}
+.comment-submit{
+  margin-top:.6rem;padding:.65rem 1.5rem;border-radius:50px;
+  background:var(--brown);border:none;color:var(--cream);
+  font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;
+  cursor:pointer;transition:all .2s;
+}
+.comment-submit:hover{background:var(--gold);}
+.comment-submit:disabled{opacity:.4;cursor:not-allowed;}
+
+.comment-list{display:flex;flex-direction:column;gap:.85rem;}
+.comment-card{
+  padding:1rem;background:var(--card-bg);
+  border:1px solid var(--border);border-radius:12px;
+}
+.comment-top{display:flex;align-items:center;gap:.65rem;margin-bottom:.5rem;}
+.comment-avatar{
+  width:30px;height:30px;border-radius:50%;
+  background:var(--warm2);border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;font-weight:700;color:var(--gold);
+  text-transform:uppercase;flex-shrink:0;
+}
+.comment-author{font-size:.82rem;color:var(--brown);font-weight:600;}
+.comment-time{font-size:.7rem;color:var(--muted);margin-left:auto;font-family:'DM Mono',monospace;}
+.comment-text{font-size:.88rem;color:var(--text);line-height:1.65;}
+.empty-comments{
+  text-align:center;padding:2rem;color:var(--muted);
+  font-size:.88rem;background:var(--surface);
+  border:1px solid var(--border);border-radius:12px;
+}
+
+/* ── SIDEBAR ──────────────────────────────── */
+.story-sidebar{display:flex;flex-direction:column;gap:1.5rem;position:sticky;top:5rem;}
+
+/* Author card */
+.author-card{
+  background:var(--brown);border-radius:20px;
+  padding:1.75rem;text-align:center;position:relative;overflow:hidden;
+}
+.author-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+.author-card-label{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;}
+.author-avatar{
+  width:64px;height:64px;border-radius:50%;
+  background:rgba(200,150,62,.15);border:2px solid var(--gold);
+  margin:0 auto .75rem;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--gold);
+  overflow:hidden;
+}
+.author-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.author-name{font-family:'Playfair Display',serif;font-size:1rem;font-weight:900;color:var(--cream);margin-bottom:.2rem;}
+.author-type{font-size:.72rem;color:var(--gold);margin-bottom:.6rem;}
+.author-bio{font-size:.78rem;color:rgba(245,240,232,.5);line-height:1.65;margin-bottom:1rem;}
+.author-stats{display:flex;justify-content:center;gap:1.5rem;margin-bottom:1rem;}
+.author-stat-val{font-family:'DM Mono',monospace;font-size:.9rem;color:var(--gold);display:block;}
+.author-stat-lbl{font-size:.62rem;color:rgba(245,240,232,.4);text-transform:uppercase;letter-spacing:.1em;}
+.author-follow-btn{
+  width:100%;padding:.65rem;
+  background:rgba(200,150,62,.12);border:1px solid rgba(200,150,62,.4);
+  color:var(--gold);border-radius:50px;
+  font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;
+  cursor:pointer;transition:all .2s;
+}
+.author-follow-btn:hover,.author-follow-btn.following{background:var(--gold);color:var(--brown);}
+
+/* More books */
+.ink-card{background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:1.4rem;}
+.more-book-item{
+  display:flex;gap:.75rem;padding:.65rem 0;
+  border-bottom:1px solid var(--border);text-decoration:none;color:inherit;
+  transition:opacity .2s;
+}
+.more-book-item:last-child{border-bottom:none;}
+.more-book-item:hover{opacity:.75;}
+.more-book-cover{
+  width:38px;height:52px;border-radius:6px;flex-shrink:0;
+  background:linear-gradient(145deg,var(--brown),var(--rust));
+  display:flex;align-items:center;justify-content:center;
+  font-size:.4rem;color:rgba(255,255,255,.6);
+  font-family:'Playfair Display',serif;text-align:center;padding:.25rem;
+  writing-mode:vertical-rl;
+}
+.more-book-info{min-width:0;}
+.more-book-title{font-family:'Playfair Display',serif;font-size:.82rem;font-weight:700;color:var(--brown);margin-bottom:.15rem;}
+.more-book-genre{font-size:.68rem;color:var(--gold);}
+
+/* ── READER OVERLAY ───────────────────────── */
+.reader-overlay{
+  position:fixed;inset:0;z-index:500;
+  background:var(--cream);
+  opacity:0;pointer-events:none;
+  transition:opacity .5s ease;
+  display:flex;flex-direction:column;
+}
+.reader-overlay.open{opacity:1;pointer-events:all;}
+
+.reader-topbar{
+  background:var(--brown);padding:.75rem 1.25rem;
+  display:flex;align-items:center;gap:.85rem;
+  flex-shrink:0;
+}
+.reader-back{
+  display:flex;align-items:center;gap:.4rem;
+  color:var(--gold);background:none;border:none;
+  font-family:'DM Sans',sans-serif;font-size:.85rem;
+  font-weight:500;cursor:pointer;flex-shrink:0;
+  transition:opacity .2s;
+}
+.reader-back:hover{opacity:.7;}
+.reader-divider{width:1px;height:18px;background:rgba(200,150,62,.25);flex-shrink:0;}
+.reader-book-title{
+  font-family:'Playfair Display',serif;font-size:.9rem;
+  font-weight:700;color:var(--cream);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;
+}
+.reader-chapter-label{
+  font-size:.75rem;color:rgba(245,240,232,.5);
+  white-space:nowrap;flex-shrink:0;
+}
+
+.reader-controls{
+  background:#1e1208;padding:.5rem 1.25rem;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:1rem;flex-shrink:0;flex-wrap:wrap;
+  border-bottom:1px solid rgba(200,150,62,.1);
+}
+.reader-font-controls{display:flex;align-items:center;gap:.5rem;}
+.r-ctrl-label{font-size:.7rem;color:rgba(245,240,232,.4);}
+.r-font-btn{
+  width:26px;height:26px;border-radius:6px;
+  background:rgba(200,150,62,.08);border:1px solid rgba(200,150,62,.15);
+  color:var(--gold);font-size:.85rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;
+}
+.r-font-btn:hover{background:rgba(200,150,62,.2);}
+.r-font-size{font-size:.75rem;color:var(--cream);min-width:24px;text-align:center;}
+.r-theme-btn{
+  width:22px;height:22px;border-radius:50%;
+  border:2px solid transparent;cursor:pointer;transition:all .2s;
+}
+.r-theme-btn:hover,.r-theme-btn.active{border-color:var(--gold);transform:scale(1.15);}
+.reader-progress{display:flex;align-items:center;gap:.5rem;}
+.r-progress-bg{flex:1;height:3px;background:rgba(200,150,62,.15);border-radius:3px;overflow:hidden;min-width:80px;}
+.r-progress-fill{height:100%;background:var(--gold);border-radius:3px;transition:width .2s;width:0%;}
+.r-progress-pct{font-size:.7rem;color:rgba(245,240,232,.45);min-width:28px;}
+
+.reader-content-wrap{
+  flex:1;overflow-y:auto;background:var(--read-bg,#f5f0e8);
+  transition:background .3s;
+}
+.reader-content-wrap::-webkit-scrollbar{width:5px;}
+.reader-content-wrap::-webkit-scrollbar-thumb{background:rgba(200,150,62,.3);border-radius:3px;}
+.reader-content{
+  max-width:680px;margin:0 auto;
+  padding:3rem 1.75rem 5rem;
+  font-family:'Playfair Display',serif;
+  font-size:1.05rem;line-height:1.9;
+  color:var(--read-text,#2c1e0f);
+  transition:color .3s,font-size .2s,line-height .2s;
+}
+.reader-content p{margin-bottom:1.1em;}
+.reader-content h1,.reader-content h2,.reader-content h3{
+  font-family:'Playfair Display',serif;font-weight:900;
+  margin:1.5em 0 .75em;line-height:1.2;
+}
+.reader-content blockquote{
+  border-left:3px solid var(--gold);padding-left:1rem;
+  margin:1.25em 0;opacity:.85;font-style:italic;
+}
+
+/* Chapter nav */
+.chapter-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1rem 1.75rem;background:var(--read-bg,#f5f0e8);
+  border-top:1px solid rgba(200,150,62,.15);flex-shrink:0;
+  flex-wrap:wrap;gap:.75rem;
+  transition:background .3s;
+}
+.chapter-nav-btn{
+  display:flex;align-items:center;gap:.4rem;
+  padding:.6rem 1.25rem;border-radius:50px;
+  background:transparent;border:1.5px solid rgba(200,150,62,.25);
+  color:var(--gold);font-family:'DM Sans',sans-serif;
+  font-size:.82rem;font-weight:600;cursor:pointer;transition:all .2s;
+}
+.chapter-nav-btn:hover:not(:disabled){background:rgba(200,150,62,.1);border-color:var(--gold);}
+.chapter-nav-btn:disabled{opacity:.3;cursor:not-allowed;}
+.chapter-nav-label{
+  font-size:.78rem;color:rgba(200,150,62,.6);
+  font-family:'DM Mono',monospace;
+}
+
+/* Inline comments in reader */
+.chapter-comments{
+  max-width:680px;margin:0 auto;
+  padding:0 1.75rem 4rem;
+}
+.chapter-comment-divider{
+  text-align:center;margin:1.5rem 0;
+  font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;
+  color:rgba(200,150,62,.5);
+  display:flex;align-items:center;gap:.75rem;
+}
+.chapter-comment-divider::before,.chapter-comment-divider::after{
+  content:'';flex:1;height:1px;background:rgba(200,150,62,.15);
+}
+
+/* ── TOAST ────────────────────────────────── */
+.toast{
+  position:fixed;bottom:2rem;left:50%;
+  transform:translateX(-50%) translateY(100px);
+  background:var(--brown);color:var(--cream);
+  padding:.7rem 1.4rem;border-radius:50px;
+  font-size:.85rem;font-weight:500;
+  box-shadow:0 8px 24px rgba(59,42,26,.25);
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+  z-index:999;white-space:nowrap;pointer-events:none;
+}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* ── REVEAL ───────────────────────────────── */
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .5s ease,transform .5s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+
+/* ── RESPONSIVE ───────────────────────────── */
+@media(max-width:900px){
+  .story-grid{grid-template-columns:1fr;}
+  .story-sidebar{position:static;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
+  .author-card{grid-column:1/-1;}
+}
+@media(max-width:768px){
+  .hamburger{display:flex;}
+  .story-hero{grid-template-columns:140px 1fr;gap:1.5rem;}
+  .story-title{font-size:clamp(1.3rem,5vw,1.8rem);}
+  .story-grid{grid-template-columns:1fr;}
+  .story-sidebar{grid-template-columns:1fr;}
+  .reader-controls{padding:.4rem .85rem;flex-wrap:wrap;gap:.4rem;}
+  .reader-topbar{padding:.65rem 1rem;}
+}
+@media(max-width:540px){
+  .story-hero{grid-template-columns:1fr;gap:1.5rem;}
+  .story-cover-wrap{max-width:200px;margin:0 auto;}
+  .story-info{text-align:center;}
+  .story-eyebrow{justify-content:center;}
+  .story-genre-row{justify-content:center;}
+  .story-stats{justify-content:center;}
+  .story-actions{flex-direction:column;}
+  .btn-read,.btn-like,.btn-follow{justify-content:center;}
+  .story-page{padding:1.5rem 1rem 5rem;}
+  .reader-content{padding:2rem 1rem 4rem;font-size:.97rem;}
+  .chapter-comments{padding:0 1rem 3rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── PAGE LOADING ──────────────────────────── -->
+<div class="page-loading" id="pageLoading">
+  <div class="load-spinner"></div>
+</div>
+
+<!-- ── NAV ───────────────────────────────────── -->
+<nav>
+  <div class="nav-inner">
+    <a class="logo" href="inkwell.html">
+      <span class="logo-main">MindStark</span>
+      <span class="logo-sub">Inkwell</span>
+    </a>
+    <div class="nav-right">
+      <a href="browse.html" class="btn-back">← Browse</a>
+      <button class="dark-toggle" id="dark-toggle" aria-label="Toggle dark mode"></button>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ── MOBILE SHEET ───────────────────────────── -->
+<div class="mobile-sheet-overlay" id="sheetOverlay">
+  <div class="mobile-sheet" id="mobileSheet">
+    <div class="sheet-handle"></div>
+    <a href="inkwell.html">← Inkwell</a>
+    <a href="browse.html">Browse</a>
+    <a href="index.html">Library</a>
+  </div>
+</div>
+
+<!-- ── STORY PAGE ────────────────────────────── -->
+<div class="story-page" id="storyPage">
+
+  <!-- HERO -->
+  <div class="story-hero reveal">
+    <div class="story-cover-wrap">
+      <div class="story-cover" id="story-cover">
+        <div class="cover-placeholder">
+          <div class="cover-placeholder-title" id="cover-title-placeholder">Loading…</div>
+        </div>
+      </div>
+      <div class="story-originals-badge">MindStark Original</div>
+    </div>
+    <div class="story-info">
+      <div class="story-eyebrow">MindStark Inkwell</div>
+      <h1 class="story-title" id="story-title">Loading…</h1>
+      <div class="story-author-line">
+        by <a href="#" class="story-author-link" id="story-author-link">—</a>
+      </div>
+      <div class="story-genre-row" id="story-genre-row"></div>
+      <div class="story-stats">
+        <div class="stat">
+          <span class="stat-val" id="stat-reads">—</span>
+          <span class="stat-lbl">Reads</span>
+        </div>
+        <div class="stat">
+          <span class="stat-val" id="stat-likes">—</span>
+          <span class="stat-lbl">Likes</span>
+        </div>
+        <div class="stat">
+          <span class="stat-val" id="stat-comments">—</span>
+          <span class="stat-lbl">Comments</span>
+        </div>
+        <div class="stat">
+          <span class="stat-val" id="stat-chapters">—</span>
+          <span class="stat-lbl">Chapters</span>
+        </div>
+      </div>
+      <div class="story-actions">
+        <button class="btn-read" id="btn-read">📖 Start Reading</button>
+        <button class="btn-like" id="btn-like">♥ Like</button>
+        <button class="btn-follow" id="btn-follow">+ Follow Author</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRID -->
+  <div class="story-grid">
+    <div>
+
+      <!-- SYNOPSIS -->
+      <div class="section reveal">
+        <div class="section-label">About</div>
+        <div class="section-title">Synopsis</div>
+        <p class="synopsis-text" id="story-synopsis">Loading synopsis…</p>
+      </div>
+
+      <!-- CHAPTERS -->
+      <div class="section reveal">
+        <div class="section-label">Contents</div>
+        <div class="section-title">Chapters</div>
+        <div class="chapter-list" id="chapter-list">
+          <div style="text-align:center;padding:2rem;color:var(--muted);">Loading chapters…</div>
+        </div>
+      </div>
+
+      <!-- COMMENTS -->
+      <div class="section reveal">
+        <div class="section-label">Community</div>
+        <div class="section-title">Comments</div>
+        <div class="comment-form" id="comment-form" style="display:none">
+          <textarea class="comment-input" id="comment-input" placeholder="Share your thoughts about this story…"></textarea>
+          <button class="comment-submit" id="comment-submit">Post Comment</button>
+        </div>
+        <div id="sign-in-prompt" style="margin-bottom:1rem;font-size:.85rem;color:var(--muted);">
+          <a href="signin.html" style="color:var(--gold);text-decoration:none;font-weight:600;">Sign in</a> to leave a comment.
+        </div>
+        <div class="comment-list" id="comment-list">
+          <div class="empty-comments">No comments yet. Be the first to share your thoughts!</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="story-sidebar">
+
+      <!-- Author card -->
+      <div class="author-card reveal" id="author-card">
+        <div class="author-card-label">✦ About the Author</div>
+        <div class="author-avatar" id="author-avatar">?</div>
+        <div class="author-name" id="author-name">Loading…</div>
+        <div class="author-type" id="author-type">—</div>
+        <div class="author-bio" id="author-bio">—</div>
+        <div class="author-stats">
+          <div>
+            <span class="author-stat-val" id="author-reads">—</span>
+            <span class="author-stat-lbl">Reads</span>
+          </div>
+          <div>
+            <span class="author-stat-val" id="author-followers">—</span>
+            <span class="author-stat-lbl">Followers</span>
+          </div>
+        </div>
+        <button class="author-follow-btn" id="author-follow-btn">+ Follow</button>
+      </div>
+
+      <!-- More books -->
+      <div class="ink-card reveal" id="more-books-card">
+        <div class="section-label" style="margin-bottom:.25rem">More by this author</div>
+        <div class="section-title" style="border:none;padding:0;margin-bottom:.85rem;font-size:1rem;">Other Stories</div>
+        <div id="more-books-list">
+          <div style="font-size:.82rem;color:var(--muted);text-align:center;padding:1rem 0;">Loading…</div>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+</div>
+
+<!-- ── READER OVERLAY ─────────────────────────── -->
+<div class="reader-overlay" id="readerOverlay">
+
+  <!-- Top bar -->
+  <div class="reader-topbar">
+    <button class="reader-back" id="reader-back-btn">← Back</button>
+    <div class="reader-divider"></div>
+    <div class="reader-book-title" id="reader-book-title">—</div>
+    <div class="reader-chapter-label" id="reader-chapter-label">Chapter 1</div>
+  </div>
+
+  <!-- Controls -->
+  <div class="reader-controls" id="reader-controls">
+    <div class="reader-font-controls">
+      <span class="r-ctrl-label">Size</span>
+      <button class="r-font-btn" onclick="changeReaderFont(-1)">−</button>
+      <span class="r-font-size" id="r-font-size">18</span>
+      <button class="r-font-btn" onclick="changeReaderFont(1)">+</button>
+      <span style="display:inline-block;width:12px;"></span>
+      <span class="r-ctrl-label">Theme</span>
+      <button class="r-theme-btn active" style="background:#f5f0e8" onclick="setReaderTheme('cream',this)" title="Cream"></button>
+      <button class="r-theme-btn" style="background:#ffffff;border:1px solid #ddd" onclick="setReaderTheme('white',this)" title="White"></button>
+      <button class="r-theme-btn" style="background:#f4ecd8" onclick="setReaderTheme('sepia',this)" title="Sepia"></button>
+      <button class="r-theme-btn" style="background:#1a1a2e" onclick="setReaderTheme('night',this)" title="Night"></button>
+    </div>
+    <div class="reader-progress">
+      <div class="r-progress-bg"><div class="r-progress-fill" id="r-progress-fill"></div></div>
+      <span class="r-progress-pct" id="r-progress-pct">0%</span>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="reader-content-wrap" id="reader-content-wrap">
+    <div class="reader-content" id="reader-content"></div>
+    <!-- Inline chapter comments -->
+    <div class="chapter-comments" id="chapter-comments"></div>
+  </div>
+
+  <!-- Chapter nav -->
+  <div class="chapter-nav">
+    <button class="chapter-nav-btn" id="prev-chapter-btn" onclick="navigateChapter(-1)" disabled>← Previous</button>
+    <span class="chapter-nav-label" id="chapter-nav-label">Chapter 1 of 1</span>
+    <button class="chapter-nav-btn" id="next-chapter-btn" onclick="navigateChapter(1)">Next →</button>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="supabase.js"></script>
+<script>
+
+// ── DARK MODE ──────────────────────────────────────────────────
+const darkToggle = document.getElementById('dark-toggle');
+if (localStorage.getItem('inkwell-theme') === 'dark') document.body.classList.add('dark-mode');
+darkToggle.addEventListener('click', () => {
+  document.body.classList.toggle('dark-mode');
+  localStorage.setItem('inkwell-theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+});
+
+// ── MOBILE NAV ─────────────────────────────────────────────────
+const hamburger = document.getElementById('hamburger');
+const sheetOverlay = document.getElementById('sheetOverlay');
+const mobileSheet = document.getElementById('mobileSheet');
+hamburger.addEventListener('click', () => {
+  hamburger.classList.toggle('open');
+  sheetOverlay.classList.toggle('open');
+  mobileSheet.classList.toggle('open');
+});
+sheetOverlay.addEventListener('click', e => { if (e.target === sheetOverlay) closeSheet(); });
+function closeSheet() {
+  hamburger.classList.remove('open');
+  sheetOverlay.classList.remove('open');
+  mobileSheet.classList.remove('open');
+}
+
+// ── TOAST ──────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── REVEAL ─────────────────────────────────────────────────────
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); } });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// ── STATE ──────────────────────────────────────────────────────
+let currentUser = null;
+let currentBook = null;
+let currentCreator = null;
+let chapters = [];
+let activeChapterIdx = 0;
+let readerFontSize = 18;
+let readerTheme = 'cream';
+let isLiked = false;
+let isFollowing = false;
+
+const READER_THEMES = {
+  cream: { bg: '#f5f0e8', text: '#2c1e0f' },
+  white: { bg: '#ffffff', text: '#1a1a1a' },
+  sepia: { bg: '#f4ecd8', text: '#3b2a1a' },
+  night: { bg: '#1a1a2e', text: '#d4d4f4' },
+};
+
+function formatNum(n) {
+  if (!n) return '0';
+  if (n >= 1000) return (n/1000).toFixed(1) + 'k';
+  return String(n);
+}
+function timeAgo(d) {
+  if (!d) return '—';
+  const diff = Date.now() - new Date(d).getTime();
+  const m = Math.floor(diff/60000);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m/60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h/24)}d ago`;
+}
+
+// ── AUTH ───────────────────────────────────────────────────────
+async function checkAuth() {
+  try {
+    if (!window._sb) return;
+    const { data: { user } } = await window._sb.auth.getUser();
+    if (user) {
+      currentUser = user;
+      document.getElementById('comment-form').style.display = 'block';
+      document.getElementById('sign-in-prompt').style.display = 'none';
+    }
+  } catch(e) {}
+}
+
+// ── LOAD BOOK ──────────────────────────────────────────────────
+async function loadBook() {
+  const params = new URLSearchParams(window.location.search);
+  const bookId = params.get('id');
+  if (!bookId) { window.location.href = 'browse.html'; return; }
+
+  try {
+    // Load book
+    const { data: book, error } = await window._sb
+      .from('inkwell_books')
+      .select('*, inkwell_creators(*)')
+      .eq('id', bookId)
+      .eq('status', 'published')
+      .single();
+
+    if (error || !book) { window.location.href = 'browse.html'; return; }
+
+    currentBook = book;
+    currentCreator = book.inkwell_creators;
+
+    // Load chapters
+    const { data: chaps } = await window._sb
+      .from('inkwell_chapters')
+      .select('*')
+      .eq('book_id', bookId)
+      .order('chapter_number', { ascending: true });
+
+    chapters = chaps || [];
+
+    // Render everything
+    renderBookInfo();
+    renderChapters();
+    renderAuthor();
+    loadMoreBooks();
+    loadComments();
+    checkLikeStatus();
+    checkFollowStatus();
+
+    // Increment reads
+    await window._sb.from('inkwell_books')
+      .update({ total_reads: (book.total_reads || 0) + 1 })
+      .eq('id', bookId);
+
+  } catch(e) {
+    console.error('Load book error:', e);
+    window.location.href = 'browse.html';
+  }
+}
+
+// ── RENDER BOOK INFO ───────────────────────────────────────────
+function renderBookInfo() {
+  const book = currentBook;
+
+  document.title = `${book.title} — MindStark Inkwell`;
+  document.getElementById('story-title').textContent = book.title;
+  document.getElementById('cover-title-placeholder').textContent = book.title;
+
+  const authorLink = document.getElementById('story-author-link');
+  authorLink.textContent = currentCreator?.display_name || 'Unknown';
+  authorLink.href = `inkwell-profile.html?id=${currentCreator?.id}`;
+
+  // Cover
+  if (book.cover_url) {
+    document.getElementById('story-cover').innerHTML = `<img src="${book.cover_url}" alt="${book.title}"/>`;
+  }
+
+  // Genre
+  const genreRow = document.getElementById('story-genre-row');
+  if (book.genre) {
+    genreRow.innerHTML = `<span class="genre-tag">${book.genre}</span>`;
+  }
+
+  // Stats
+  document.getElementById('stat-reads').textContent = formatNum(book.total_reads || 0);
+  document.getElementById('stat-likes').textContent = formatNum(book.total_likes || 0);
+  document.getElementById('stat-comments').textContent = formatNum(book.total_comments || 0);
+  document.getElementById('stat-chapters').textContent = chapters.length;
+
+  // Synopsis
+  document.getElementById('story-synopsis').textContent = book.synopsis || 'No synopsis available.';
+
+  // Reader title
+  document.getElementById('reader-book-title').textContent = book.title;
+
+  // Show page
+  document.getElementById('pageLoading').classList.add('hidden');
+  document.getElementById('storyPage').classList.add('visible');
+}
+
+// ── RENDER CHAPTERS ────────────────────────────────────────────
+function renderChapters() {
+  const list = document.getElementById('chapter-list');
+  if (!chapters.length) {
+    list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);">No chapters yet.</div>';
+    return;
+  }
+  list.innerHTML = chapters.map((ch, i) => `
+    <div class="chapter-item" onclick="openReader(${i})">
+      <div class="chapter-num">Ch.${String(ch.chapter_number).padStart(2,'0')}</div>
+      <div class="chapter-info">
+        <div class="chapter-name">${ch.title || `Chapter ${ch.chapter_number}`}</div>
+        <div class="chapter-words">${countWords(ch.content || '')} words</div>
+      </div>
+      <div class="chapter-read-btn">Read →</div>
+    </div>
+  `).join('');
+}
+function countWords(text) {
+  const t = text.replace(/<[^>]*>/g,'').trim();
+  return t ? t.split(/\s+/).filter(w=>w).length.toLocaleString() : '0';
+}
+
+// ── RENDER AUTHOR ──────────────────────────────────────────────
+function renderAuthor() {
+  const c = currentCreator;
+  if (!c) return;
+  const initial = (c.display_name || 'U')[0].toUpperCase();
+  document.getElementById('author-avatar').textContent = initial;
+  document.getElementById('author-name').textContent = c.display_name || 'Unknown';
+  document.getElementById('author-type').textContent = c.creator_type ? c.creator_type.charAt(0).toUpperCase()+c.creator_type.slice(1) : '—';
+  document.getElementById('author-bio').textContent = c.bio ? c.bio.substring(0,120)+(c.bio.length>120?'…':'') : '—';
+  document.getElementById('author-reads').textContent = formatNum(c.total_reads || 0);
+  document.getElementById('author-followers').textContent = formatNum(c.follower_count || 0);
+}
+
+// ── LOAD MORE BOOKS ────────────────────────────────────────────
+async function loadMoreBooks() {
+  if (!currentCreator) return;
+  const list = document.getElementById('more-books-list');
+  try {
+    const { data: books } = await window._sb
+      .from('inkwell_books')
+      .select('id,title,genre')
+      .eq('creator_id', currentCreator.id)
+      .eq('status', 'published')
+      .neq('id', currentBook.id)
+      .limit(4);
+
+    if (!books?.length) {
+      list.innerHTML = '<div style="font-size:.82rem;color:var(--muted);text-align:center;padding:.75rem 0;">No other books yet.</div>';
+      return;
+    }
+    list.innerHTML = books.map(b => `
+      <a class="more-book-item" href="story.html?id=${b.id}">
+        <div class="more-book-cover">${b.title}</div>
+        <div class="more-book-info">
+          <div class="more-book-title">${b.title}</div>
+          <div class="more-book-genre">${b.genre || 'Fiction'}</div>
+        </div>
+      </a>
+    `).join('');
+  } catch(e) {
+    list.innerHTML = '<div style="font-size:.82rem;color:var(--muted);text-align:center;padding:.75rem 0;">Could not load books.</div>';
+  }
+}
+
+// ── LIKE ───────────────────────────────────────────────────────
+async function checkLikeStatus() {
+  if (!currentUser || !window._sb) return;
+  try {
+    const { data } = await window._sb.from('inkwell_likes')
+      .select('id').eq('user_id', currentUser.id)
+      .eq('content_type', 'book').eq('content_id', currentBook.id).single();
+    if (data) {
+      isLiked = true;
+      document.getElementById('btn-like').classList.add('liked');
+      document.getElementById('btn-like').textContent = '♥ Liked';
+    }
+  } catch(e) {}
+}
+
+document.getElementById('btn-like').addEventListener('click', async () => {
+  if (!currentUser) { showToast('Sign in to like this story'); return; }
+  if (!window._sb) return;
+  try {
+    if (isLiked) {
+      await window._sb.from('inkwell_likes')
+        .delete().eq('user_id', currentUser.id)
+        .eq('content_type','book').eq('content_id', currentBook.id);
+      const newLikes = Math.max(0, (currentBook.total_likes||0) - 1);
+      await window._sb.from('inkwell_books').update({total_likes: newLikes}).eq('id', currentBook.id);
+      currentBook.total_likes = newLikes;
+      document.getElementById('stat-likes').textContent = formatNum(newLikes);
+      document.getElementById('btn-like').classList.remove('liked');
+      document.getElementById('btn-like').textContent = '♥ Like';
+      isLiked = false;
+    } else {
+      await window._sb.from('inkwell_likes').insert({
+        user_id: currentUser.id, content_type: 'book', content_id: currentBook.id
+      });
+      const newLikes = (currentBook.total_likes||0) + 1;
+      await window._sb.from('inkwell_books').update({total_likes: newLikes}).eq('id', currentBook.id);
+      currentBook.total_likes = newLikes;
+      document.getElementById('stat-likes').textContent = formatNum(newLikes);
+      document.getElementById('btn-like').classList.add('liked');
+      document.getElementById('btn-like').textContent = '♥ Liked';
+      isLiked = true;
+      showToast('Added to your likes');
+    }
+  } catch(e) { showToast('Already liked'); }
+});
+
+// ── FOLLOW ─────────────────────────────────────────────────────
+async function checkFollowStatus() {
+  if (!currentUser || !currentCreator || !window._sb) return;
+  try {
+    const { data } = await window._sb.from('inkwell_follows')
+      .select('id').eq('follower_id', currentUser.id)
+      .eq('creator_id', currentCreator.id).single();
+    if (data) setFollowing(true);
+  } catch(e) {}
+}
+function setFollowing(val) {
+  isFollowing = val;
+  const btns = [document.getElementById('btn-follow'), document.getElementById('author-follow-btn')];
+  btns.forEach(btn => {
+    if (!btn) return;
+    btn.textContent = val ? '✓ Following' : '+ Follow Author';
+    btn.className = btn.className.replace(' following','') + (val ? ' following' : '');
+  });
+}
+
+async function followAuthor() {
+  if (!currentUser) { showToast('Sign in to follow this author'); return; }
+  if (!currentCreator || !window._sb) return;
+  try {
+    if (isFollowing) {
+      await window._sb.from('inkwell_follows')
+        .delete().eq('follower_id', currentUser.id).eq('creator_id', currentCreator.id);
+      setFollowing(false);
+      showToast('Unfollowed');
+    } else {
+      await window._sb.from('inkwell_follows').insert({
+        follower_id: currentUser.id, creator_id: currentCreator.id
+      });
+      setFollowing(true);
+      showToast(`Now following ${currentCreator.display_name}`);
+    }
+  } catch(e) { showToast('Already following'); }
+}
+
+document.getElementById('btn-follow').addEventListener('click', followAuthor);
+document.getElementById('author-follow-btn').addEventListener('click', followAuthor);
+
+// ── COMMENTS ───────────────────────────────────────────────────
+async function loadComments() {
+  const list = document.getElementById('comment-list');
+  try {
+    if (!window._sb) return;
+    const { data: comments } = await window._sb
+      .from('inkwell_comments')
+      .select('*, profiles(full_name, mindstark_id)')
+      .eq('content_type', 'book')
+      .eq('content_id', currentBook.id)
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    if (!comments?.length) {
+      list.innerHTML = '<div class="empty-comments">No comments yet. Be the first to share your thoughts!</div>';
+      return;
+    }
+    list.innerHTML = comments.map(c => `
+      <div class="comment-card">
+        <div class="comment-top">
+          <div class="comment-avatar">${(c.profiles?.full_name||'U')[0].toUpperCase()}</div>
+          <span class="comment-author">${c.profiles?.mindstark_id || c.profiles?.full_name || 'Reader'}</span>
+          <span class="comment-time">${timeAgo(c.created_at)}</span>
+        </div>
+        <div class="comment-text">${c.comment_text}</div>
+      </div>
+    `).join('');
+  } catch(e) {}
+}
+
+document.getElementById('comment-submit').addEventListener('click', async () => {
+  const input = document.getElementById('comment-input');
+  const text = input.value.trim();
+  if (!text) { showToast('Please write a comment'); return; }
+  if (!currentUser) { showToast('Sign in to comment'); return; }
+
+  const btn = document.getElementById('comment-submit');
+  btn.disabled = true; btn.textContent = 'Posting…';
+
+  try {
+    await window._sb.from('inkwell_comments').insert({
+      user_id: currentUser.id,
+      content_type: 'book',
+      content_id: currentBook.id,
+      comment_text: text
+    });
+    await window._sb.from('inkwell_books')
+      .update({ total_comments: (currentBook.total_comments||0) + 1 })
+      .eq('id', currentBook.id);
+    input.value = '';
+    showToast('Comment posted!');
+    loadComments();
+  } catch(e) {
+    showToast('Could not post comment. Try again.');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Post Comment';
+  }
+});
+
+// ── READER ─────────────────────────────────────────────────────
+function openReader(chapterIdx = 0) {
+  if (!chapters.length) { showToast('No chapters available yet'); return; }
+  activeChapterIdx = chapterIdx;
+  renderReaderChapter();
+
+  // Fade out page, fade in reader
+  const overlay = document.getElementById('readerOverlay');
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeReader() {
+  document.getElementById('readerOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('reader-back-btn').addEventListener('click', closeReader);
+
+function renderReaderChapter() {
+  const ch = chapters[activeChapterIdx];
+  if (!ch) return;
+
+  // Update labels
+  document.getElementById('reader-chapter-label').textContent = `Chapter ${ch.chapter_number}`;
+  document.getElementById('chapter-nav-label').textContent = `Chapter ${activeChapterIdx+1} of ${chapters.length}`;
+
+  // Render content
+  const contentEl = document.getElementById('reader-content');
+  contentEl.innerHTML = `
+    <h2 style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;margin-bottom:1.5rem;line-height:1.2;">
+      ${ch.title || `Chapter ${ch.chapter_number}`}
+    </h2>
+    ${ch.content || '<p style="color:var(--muted);font-style:italic;">This chapter has no content yet.</p>'}
+  `;
+
+  // Apply theme
+  applyReaderTheme();
+
+  // Scroll to top
+  document.getElementById('reader-content-wrap').scrollTop = 0;
+  document.getElementById('r-progress-fill').style.width = '0%';
+  document.getElementById('r-progress-pct').textContent = '0%';
+
+  // Nav buttons
+  document.getElementById('prev-chapter-btn').disabled = activeChapterIdx === 0;
+  document.getElementById('next-chapter-btn').disabled = activeChapterIdx === chapters.length - 1;
+
+  // Load chapter comments
+  loadChapterComments(ch.id);
+}
+
+function navigateChapter(dir) {
+  const newIdx = activeChapterIdx + dir;
+  if (newIdx < 0 || newIdx >= chapters.length) return;
+  activeChapterIdx = newIdx;
+  renderReaderChapter();
+}
+
+// Reader scroll progress
+document.getElementById('reader-content-wrap').addEventListener('scroll', function() {
+  const pct = this.scrollHeight - this.clientHeight > 0
+    ? Math.round((this.scrollTop / (this.scrollHeight - this.clientHeight)) * 100) : 0;
+  document.getElementById('r-progress-fill').style.width = pct + '%';
+  document.getElementById('r-progress-pct').textContent = pct + '%';
+});
+
+// Reader font
+function changeReaderFont(dir) {
+  readerFontSize = Math.min(24, Math.max(14, readerFontSize + dir));
+  document.getElementById('r-font-size').textContent = readerFontSize;
+  document.getElementById('reader-content').style.fontSize = readerFontSize + 'px';
+}
+
+// Reader theme
+function setReaderTheme(name, btn) {
+  readerTheme = name;
+  document.querySelectorAll('.r-theme-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyReaderTheme();
+}
+function applyReaderTheme() {
+  const t = READER_THEMES[readerTheme];
+  const wrap = document.getElementById('reader-content-wrap');
+  const nav = document.querySelector('.chapter-nav');
+  wrap.style.background = t.bg;
+  nav.style.background = t.bg;
+  document.getElementById('reader-content').style.color = t.text;
+  document.getElementById('chapter-comments').style.background = t.bg;
+  document.documentElement.style.setProperty('--read-bg', t.bg);
+  document.documentElement.style.setProperty('--read-text', t.text);
+}
+
+// ── CHAPTER COMMENTS (inline in reader) ───────────────────────
+async function loadChapterComments(chapterId) {
+  const container = document.getElementById('chapter-comments');
+  container.innerHTML = '';
+  if (!window._sb || !chapterId) return;
+
+  try {
+    const { data: comments } = await window._sb
+      .from('inkwell_comments')
+      .select('*, profiles(full_name, mindstark_id)')
+      .eq('content_type', 'chapter')
+      .eq('content_id', chapterId)
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    const loginPrompt = currentUser ? '' : `<p style="font-size:.82rem;color:var(--muted);margin-bottom:.75rem;"><a href="signin.html" style="color:var(--gold);text-decoration:none;font-weight:600;">Sign in</a> to comment on this chapter.</p>`;
+
+    const commentForm = currentUser ? `
+      <div style="margin-bottom:1rem;">
+        <textarea id="ch-comment-input" placeholder="Comment on this chapter…" style="width:100%;background:rgba(200,150,62,.06);border:1.5px solid rgba(200,150,62,.2);border-radius:10px;padding:.75rem;font-family:'DM Sans',sans-serif;font-size:.85rem;resize:none;min-height:70px;outline:none;color:inherit;" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='rgba(200,150,62,.2)'"></textarea>
+        <button onclick="postChapterComment('${chapterId}')" style="margin-top:.5rem;padding:.55rem 1.25rem;border-radius:50px;background:var(--brown);border:none;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;">Post</button>
+      </div>
+    ` : '';
+
+    const commentsHtml = comments?.length ? comments.map(c => `
+      <div style="padding:.85rem;background:rgba(200,150,62,.04);border:1px solid rgba(200,150,62,.12);border-radius:10px;margin-bottom:.6rem;">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;">
+          <div style="width:26px;height:26px;border-radius:50%;background:rgba(200,150,62,.15);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:var(--gold);">${(c.profiles?.full_name||'U')[0].toUpperCase()}</div>
+          <span style="font-size:.78rem;font-weight:600;">${c.profiles?.mindstark_id || c.profiles?.full_name || 'Reader'}</span>
+          <span style="font-size:.68rem;color:var(--muted);margin-left:auto;">${timeAgo(c.created_at)}</span>
+        </div>
+        <div style="font-size:.85rem;line-height:1.6;">${c.comment_text}</div>
+      </div>
+    `).join('') : '<p style="font-size:.82rem;color:var(--muted);text-align:center;padding:1rem 0;">No comments yet for this chapter.</p>';
+
+    container.innerHTML = `
+      <div class="chapter-comment-divider">Chapter Discussion</div>
+      ${loginPrompt}
+      ${commentForm}
+      ${commentsHtml}
+    `;
+  } catch(e) {}
+}
+
+async function postChapterComment(chapterId) {
+  const input = document.getElementById('ch-comment-input');
+  const text = input?.value?.trim();
+  if (!text || !currentUser || !window._sb) return;
+  try {
+    await window._sb.from('inkwell_comments').insert({
+      user_id: currentUser.id,
+      content_type: 'chapter',
+      content_id: chapterId,
+      comment_text: text
+    });
+    input.value = '';
+    showToast('Comment posted!');
+    loadChapterComments(chapterId);
+  } catch(e) { showToast('Could not post. Try again.'); }
+}
+
+// Read button
+document.getElementById('btn-read').addEventListener('click', () => openReader(0));
+
+// Start button keyboard shortcut
+document.addEventListener('keydown', e => {
+  if (document.getElementById('readerOverlay').classList.contains('open')) {
+    if (e.key === 'ArrowRight') navigateChapter(1);
+    if (e.key === 'ArrowLeft') navigateChapter(-1);
+    if (e.key === 'Escape') closeReader();
+  }
+});
+
+// ── INIT ───────────────────────────────────────────────────────
+let _initiated = false;
+function waitForSupabase(tries = 0) {
+  if (_initiated) return;
+  if (window._sb) {
+    _initiated = true;
+    Promise.all([checkAuth(), loadBook()]);
+    return;
+  }
+  if (tries > 40) {
+    document.getElementById('pageLoading').classList.add('hidden');
+    return;
+  }
+  setTimeout(() => waitForSupabase(tries + 1), 500);
+}
+waitForSupabase();
+
+</script>
+</body>
+</html>
