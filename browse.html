@@ -1346,7 +1346,7 @@
     <a href="https://gutendex.com" target="_blank">Gutendex API</a>
   </footer>
 
-  <script src="my-books.js"></script>
+
   <script>
     /* ═══════════════════════════════════════════
        GUTENDEX API — Project Gutenberg wrapper
@@ -1405,26 +1405,37 @@
     }
 
     /* ════════════════════════════════════════════
-       FILTER MY_BOOKS
+       LOAD ORIGINALS FROM SUPABASE
     ════════════════════════════════════════════ */
-    function filterMyBooks() {
-      const all = (typeof MY_BOOKS !== 'undefined') ? MY_BOOKS : [];
-      if (!all.length) return [];
-      let results = [...all];
-      if (searchTerm) {
-        const q = searchTerm.toLowerCase();
-        results = results.filter(b =>
-          b.title.toLowerCase().includes(q) ||
-          (b.authors?.[0]?.name || '').toLowerCase().includes(q)
-        );
-      }
-      if (topic) {
-        const t = topic.toLowerCase();
-        results = results.filter(b =>
-          (b.subjects || []).some(s => s.toLowerCase().includes(t))
-        );
-      }
-      return results;
+    async function filterMyBooks() {
+      if (!window._sb) return [];
+      try {
+        let query = window._sb
+          .from('inkwell_books')
+          .select('id, title, synopsis, genre, cover_url, total_reads, inkwell_creators(display_name)')
+          .eq('status', 'published')
+          .order('published_at', { ascending: false });
+
+        if (searchTerm) query = query.ilike('title', `%${searchTerm}%`);
+        if (topic) query = query.ilike('genre', `%${topic}%`);
+
+        const { data, error } = await query;
+        if (error || !data) return [];
+
+        // Shape data to match expected book format
+        return data.map(b => ({
+          id: b.id,
+          title: b.title || 'Untitled',
+          authors: [{ name: b.inkwell_creators?.display_name || 'Unknown' }],
+          subjects: [b.genre || 'Fiction'],
+          download_count: b.total_reads || 0,
+          _mindstark: true,
+          _inkwell: true,
+          formats: {
+            'image/jpeg': b.cover_url || '',
+          }
+        }));
+      } catch(e) { return []; }
     }
 
     /* ════════════════════════════════════════════
@@ -1463,7 +1474,7 @@
       }
 
       if (showOriginals) {
-        const originals = filterMyBooks();
+        const originals = await filterMyBooks();
         const skel = document.getElementById('skeletonGrid');
         if (skel) skel.remove();
         totalCount = originals.length;
@@ -1496,10 +1507,10 @@
         let results = data.results || [];
 
         if (!url && !searchTerm && !topic) {
-          const myFiltered = filterMyBooks();
+          const myFiltered = await filterMyBooks();
           results = [...myFiltered, ...results];
         } else if (!url && (searchTerm || topic)) {
-          const myFiltered = filterMyBooks();
+          const myFiltered = await filterMyBooks();
           if (myFiltered.length) results = [...myFiltered, ...results];
         }
 
@@ -1630,6 +1641,11 @@
         });
 
         card.querySelector('.read-btn').addEventListener('click', () => {
+          // Inkwell originals go to story.html, others go to reader.html
+          if (book._inkwell) {
+            window.location.href = `story.html?id=${id}`;
+            return;
+          }
           sessionStorage.setItem('ms_book', JSON.stringify({
             id, title, author: authorClean, cover: coverUrl, readUrl
           }));
@@ -1666,7 +1682,7 @@
         }
       });
 
-      const myCount    = (typeof MY_BOOKS !== 'undefined') ? MY_BOOKS.length : 0;
+      const myCount    = totalCount;
       const totalLabel = originalsOnly
         ? `<strong>${myCount}</strong> MindStark <em>Original</em> books`
         : searchTerm
