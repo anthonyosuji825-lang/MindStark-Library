@@ -916,6 +916,7 @@ body.dark-mode .mobile-sheet { background: var(--ink-card); }
         <div class="progress-dot" id="dot-2"></div>
         <div class="progress-dot" id="dot-3"></div>
         <div class="progress-dot" id="dot-4"></div>
+        <div class="progress-dot" id="dot-5"></div>
       </div>
       <div class="modal-step-label" id="step-label">Step 1 of 4</div>
       <div class="modal-title" id="step-title">Who are you?</div>
@@ -937,10 +938,50 @@ body.dark-mode .mobile-sheet { background: var(--ink-card); }
         <textarea class="form-textarea" id="app-bio" placeholder="Tell the Inkwell community who you are..."></textarea>
         <div class="char-count" id="bio-count">0 / 150 words</div>
       </div>
+      <div class="form-group">
+        <label class="form-label">Date of Birth</label>
+        <input type="date" class="form-input" id="app-dob"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nationality</label>
+        <input type="text" class="form-input" id="app-nationality" placeholder="e.g. Nigerian"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Country of Residence</label>
+        <input type="text" class="form-input" id="app-residence" placeholder="Where you currently live"/>
+      </div>
     </div>
 
-    <!-- Step 2 -->
+    <!-- Step 2: Experience -->
     <div class="modal-body" id="step-2" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Have you written for another organization before?</label>
+        <div class="type-toggle">
+          <button class="type-btn" data-exp="yes" id="exp-yes-btn">Yes</button>
+          <button class="type-btn" data-exp="no" id="exp-no-btn">No</button>
+        </div>
+      </div>
+      <div id="exp-details" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Organization name</label>
+          <input type="text" class="form-input" id="app-prior-org" placeholder="Who did you write for?"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Are you still working with them?</label>
+          <div class="type-toggle">
+            <button class="type-btn" data-still="yes" id="still-yes-btn">Yes, still there</button>
+            <button class="type-btn" data-still="no" id="still-no-btn">No, that ended</button>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Portfolio or previous work <span style="color:var(--muted);font-size:.72rem">(optional — links, one per line)</span></label>
+        <textarea class="form-textarea" id="app-portfolio" placeholder="https://..."></textarea>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="modal-body" id="step-3" style="display:none">
       <div class="form-group">
         <label class="form-label">What do you create?</label>
         <div class="type-toggle">
@@ -961,8 +1002,8 @@ body.dark-mode .mobile-sheet { background: var(--ink-card); }
       </div>
     </div>
 
-    <!-- Step 3 -->
-    <div class="modal-body" id="step-3" style="display:none">
+    <!-- Step 4 -->
+    <div class="modal-body" id="step-4" style="display:none">
       <div class="form-group">
         <label class="form-label">Your pitch <span style="color:var(--muted);font-size:.72rem">(what's the first project you'll publish?)</span></label>
         <textarea class="form-textarea" id="app-pitch" placeholder="Give us one compelling paragraph about your first project on MindStark Inkwell..." style="min-height:130px"></textarea>
@@ -976,10 +1017,30 @@ body.dark-mode .mobile-sheet { background: var(--ink-card); }
           <div class="file-name" id="file-name-display"></div>
         </div>
       </div>
+      <div class="form-group">
+        <label class="form-label">Evidence of Identity <span style="color:var(--muted);font-size:.72rem">(ID card, passport, or similar — image or PDF, max 5MB)</span></label>
+        <div class="file-upload" id="id-upload-area">
+          <input type="file" id="app-id-doc" accept=".pdf,.jpg,.jpeg,.png"/>
+          <div class="file-upload-icon">🪪</div>
+          <div class="file-upload-text">Drop your ID here or <span>browse</span></div>
+          <div class="file-name" id="id-name-display"></div>
+        </div>
+        <div class="char-count" style="text-align:left">Kept private — only visible to the editorial team.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Passport Photo <span style="color:var(--muted);font-size:.72rem">(clear headshot, JPG/PNG, max 2MB)</span></label>
+        <div class="file-upload" id="photo-upload-area">
+          <input type="file" id="app-passport-photo" accept=".jpg,.jpeg,.png"/>
+          <div class="file-upload-icon">🖼️</div>
+          <div class="file-upload-text">Drop your photo here or <span>browse</span></div>
+          <div class="file-name" id="photo-name-display"></div>
+        </div>
+        <div class="char-count" style="text-align:left">Kept private — only visible to the editorial team.</div>
+      </div>
     </div>
 
-    <!-- Step 4 -->
-    <div class="modal-body" id="step-4" style="display:none">
+    <!-- Step 5 -->
+    <div class="modal-body" id="step-5" style="display:none">
       <div class="guidelines-box">
         <h4>MindStark Inkwell Content Guidelines</h4>
         <ul>
@@ -990,9 +1051,26 @@ body.dark-mode .mobile-sheet { background: var(--ink-card); }
           <li>You retain full ownership of your work.</li>
         </ul>
       </div>
-      <div class="agree-row" id="agree-row">
+      <div class="guidelines-box">
+        <h4>Exclusivity for Inkwell Originals</h4>
+        <ul>
+          <li>You keep full ownership of anything you publish through Inkwell.</li>
+          <li>While a book stays published on MindStark, it becomes a MindStark Original — you agree not to publish that same book with another organization or platform during that time.</li>
+          <li>This applies only to books you submit and publish through Inkwell, not to your other unrelated writing.</li>
+          <li>If you later ask MindStark to unpublish the book, the exclusivity ends and the rights return to you to place it wherever you like.</li>
+        </ul>
+      </div>
+      <div class="agree-row" id="agree-row" style="margin-bottom:.75rem">
         <div class="agree-box" id="agree-box"></div>
         <div class="agree-text">I agree to the MindStark Inkwell content guidelines and understand my application will be reviewed by the editorial team.</div>
+      </div>
+      <div class="agree-row" id="exclusivity-row" style="margin-bottom:.75rem">
+        <div class="agree-box" id="exclusivity-box"></div>
+        <div class="agree-text">I agree that any book I publish through Inkwell is exclusive to MindStark for as long as it stays published here, and I won't publish that same book with another organization during that time.</div>
+      </div>
+      <div class="agree-row" id="consent-row">
+        <div class="agree-box" id="consent-box"></div>
+        <div class="agree-text">I consent to MindStark collecting and securely storing my identity document and personal information for verification and, if accepted, payment purposes.</div>
       </div>
     </div>
 
@@ -1236,7 +1314,11 @@ async function loadFeaturedWriter() {
     }
     const c = data[0];
     document.getElementById('fw-avatar').textContent = (c.display_name||'U')[0].toUpperCase();
+    document.getElementById('fw-avatar').style.cursor = 'pointer';
+    document.getElementById('fw-avatar').onclick = () => window.location.href = `inkwell-profile.html?id=${c.id}`;
     document.getElementById('fw-name').textContent = c.display_name||'Unknown';
+    document.getElementById('fw-name').style.cursor = 'pointer';
+    document.getElementById('fw-name').onclick = () => window.location.href = `inkwell-profile.html?id=${c.id}`;
     document.getElementById('fw-type').textContent = c.creator_type ? c.creator_type.charAt(0).toUpperCase()+c.creator_type.slice(1) : '—';
     document.getElementById('fw-bio').textContent = c.bio ? c.bio.substring(0,100)+(c.bio.length>100?'...':'') : '—';
     document.getElementById('fw-reads').textContent = formatNum(c.total_reads||0);
@@ -1260,7 +1342,7 @@ async function loadLeaderboard() {
     const { data } = await window._sb.from('inkwell_creators').select('id,display_name,total_reads').order('total_reads',{ascending:false}).limit(5);
     if (!data?.length) { list.innerHTML = '<div class="empty-state" style="padding:1rem 0"><span>🏆</span>Rankings coming soon.</div>'; return; }
     list.innerHTML = data.map((c,i) => `
-      <div class="lb-row">
+      <div class="lb-row" style="cursor:pointer" onclick="window.location.href='inkwell-profile.html?id=${c.id}'">
         <div class="lb-rank">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div>
         <div class="lb-avatar">${(c.display_name||'U')[0].toUpperCase()}</div>
         <div class="lb-name">${c.display_name||'Unknown'}</div>
@@ -1278,8 +1360,8 @@ async function loadNewVoices() {
     if (!data?.length) { list.innerHTML = '<div class="empty-state" style="padding:1rem 0"><span>🌱</span>New voices coming soon.</div>'; return; }
     list.innerHTML = data.map((c,i) => `
       <div class="nv-item">
-        <div class="nv-avatar" style="background:${NV_COLORS[i%NV_COLORS.length]}">${(c.display_name||'U')[0].toUpperCase()}</div>
-        <div class="nv-info">
+        <div class="nv-avatar" style="background:${NV_COLORS[i%NV_COLORS.length]};cursor:pointer" onclick="window.location.href='inkwell-profile.html?id=${c.id}'">${(c.display_name||'U')[0].toUpperCase()}</div>
+        <div class="nv-info" style="cursor:pointer" onclick="window.location.href='inkwell-profile.html?id=${c.id}'">
           <div class="nv-name">${c.display_name||'New Creator'}</div>
           <div class="nv-type">${c.creator_type||'Creator'}</div>
         </div>
@@ -1299,6 +1381,10 @@ async function loadNewVoices() {
 
 // ── APPLICATION MODAL ──────────────────────────────────────────
 let currentStep = 1, selectedType = null, selectedGenres = [], selectedTopics = [], agreed = false;
+let hasPriorExperience = null, stillWithPriorOrg = null, consented = false, exclusivityAgreed = false;
+const MAX_ID_DOC_BYTES = 5 * 1024 * 1024;   // 5MB
+const MAX_PASSPORT_PHOTO_BYTES = 2 * 1024 * 1024; // 2MB
+const MIN_APPLICANT_AGE = 18;
 const GENRES = ['Romance','Thriller','Sci-Fi','Fantasy','Mystery','Horror','Adventure','Historical','Literary Fiction','Drama','Comedy','Young Adult'];
 const TOPICS = ['Writing Tips','Book Reviews','Opinion','Culture','Lifestyle','Tech','Personal Essays','Interviews'];
 
@@ -1338,6 +1424,22 @@ function openModal() {
   document.getElementById('apply-modal-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
   renderGenreGrid(); renderTopicGrid();
+  hasPriorExperience = null; stillWithPriorOrg = null;
+  agreed = false; exclusivityAgreed = false; consented = false;
+  document.getElementById('agree-box').style.background = '';
+  document.getElementById('agree-box').style.borderColor = '';
+  document.getElementById('agree-box').innerHTML = '';
+  document.getElementById('exclusivity-box').style.background = '';
+  document.getElementById('exclusivity-box').style.borderColor = '';
+  document.getElementById('exclusivity-box').innerHTML = '';
+  document.getElementById('consent-box').style.background = '';
+  document.getElementById('consent-box').style.borderColor = '';
+  document.getElementById('consent-box').innerHTML = '';
+  document.getElementById('exp-yes-btn').classList.remove('selected');
+  document.getElementById('exp-no-btn').classList.remove('selected');
+  document.getElementById('still-yes-btn').classList.remove('selected');
+  document.getElementById('still-no-btn').classList.remove('selected');
+  document.getElementById('exp-details').style.display = 'none';
 }
 function closeModal() {
   document.getElementById('apply-modal-overlay').classList.remove('open');
@@ -1345,20 +1447,20 @@ function closeModal() {
 }
 
 function goToStep(step) {
-  for (let i=1;i<=4;i++) { const el=document.getElementById(`step-${i}`); if(el) el.style.display=i===step?'block':'none'; }
+  for (let i=1;i<=5;i++) { const el=document.getElementById(`step-${i}`); if(el) el.style.display=i===step?'block':'none'; }
   currentStep = step;
-  const titles = ['Who are you?','What do you create?','Prove your craft','Almost there'];
-  const stepLabels = ['Step 1 of 4','Step 2 of 4','Step 3 of 4','Step 4 of 4'];
+  const titles = ['Who are you?','Your experience','What do you create?','Prove your craft','Almost there'];
+  const stepLabels = ['Step 1 of 5','Step 2 of 5','Step 3 of 5','Step 4 of 5','Step 5 of 5'];
   document.getElementById('step-title').textContent = titles[step-1];
   document.getElementById('step-label').textContent = stepLabels[step-1];
-  for (let i=1;i<=4;i++) {
+  for (let i=1;i<=5;i++) {
     const dot=document.getElementById(`dot-${i}`);
     dot.classList.remove('active','done');
     if(i<step) dot.classList.add('done');
     else if(i===step) dot.classList.add('active');
   }
   document.getElementById('modal-back-btn').style.display = step>1?'block':'none';
-  document.getElementById('modal-next-btn').textContent = step===4?'Submit Application':'Continue →';
+  document.getElementById('modal-next-btn').textContent = step===5?'Submit Application':'Continue →';
 }
 
 document.querySelectorAll('.type-btn').forEach(btn => {
@@ -1379,6 +1481,51 @@ document.getElementById('app-sample').addEventListener('change', function() {
   if (this.files[0]) { const d=document.getElementById('file-name-display'); d.textContent=this.files[0].name; d.style.display='block'; }
 });
 
+// ── EXPERIENCE TOGGLES ──────────────────────────────────────────
+document.getElementById('exp-yes-btn').addEventListener('click', () => {
+  hasPriorExperience = true;
+  document.getElementById('exp-yes-btn').classList.add('selected');
+  document.getElementById('exp-no-btn').classList.remove('selected');
+  document.getElementById('exp-details').style.display = 'block';
+});
+document.getElementById('exp-no-btn').addEventListener('click', () => {
+  hasPriorExperience = false;
+  document.getElementById('exp-no-btn').classList.add('selected');
+  document.getElementById('exp-yes-btn').classList.remove('selected');
+  document.getElementById('exp-details').style.display = 'none';
+});
+document.getElementById('still-yes-btn').addEventListener('click', () => {
+  stillWithPriorOrg = true;
+  document.getElementById('still-yes-btn').classList.add('selected');
+  document.getElementById('still-no-btn').classList.remove('selected');
+});
+document.getElementById('still-no-btn').addEventListener('click', () => {
+  stillWithPriorOrg = false;
+  document.getElementById('still-no-btn').classList.add('selected');
+  document.getElementById('still-yes-btn').classList.remove('selected');
+});
+
+// ── FILE VALIDATION HELPERS ──────────────────────────────────────
+function validateFile(input, maxBytes, label) {
+  const file = input.files?.[0];
+  if (!file) return true;
+  if (file.size > maxBytes) {
+    showToast(`${label} is too large — max ${(maxBytes/1024/1024).toFixed(0)}MB`);
+    input.value = '';
+    return false;
+  }
+  return true;
+}
+
+document.getElementById('app-id-doc').addEventListener('change', function() {
+  if (!validateFile(this, MAX_ID_DOC_BYTES, 'ID document')) return;
+  if (this.files[0]) { const d=document.getElementById('id-name-display'); d.textContent=this.files[0].name; d.style.display='block'; }
+});
+document.getElementById('app-passport-photo').addEventListener('change', function() {
+  if (!validateFile(this, MAX_PASSPORT_PHOTO_BYTES, 'Passport photo')) return;
+  if (this.files[0]) { const d=document.getElementById('photo-name-display'); d.textContent=this.files[0].name; d.style.display='block'; }
+});
+
 document.getElementById('agree-row').addEventListener('click', () => {
   agreed = !agreed;
   const box = document.getElementById('agree-box');
@@ -1387,18 +1534,62 @@ document.getElementById('agree-row').addEventListener('click', () => {
   box.innerHTML = agreed ? '<span style="color:var(--white);font-size:.75rem;font-weight:700">✓</span>' : '';
 });
 
+document.getElementById('exclusivity-row').addEventListener('click', () => {
+  exclusivityAgreed = !exclusivityAgreed;
+  const box = document.getElementById('exclusivity-box');
+  box.style.background = exclusivityAgreed ? 'var(--gold)' : '';
+  box.style.borderColor = exclusivityAgreed ? 'var(--gold)' : '';
+  box.innerHTML = exclusivityAgreed ? '<span style="color:var(--white);font-size:.75rem;font-weight:700">✓</span>' : '';
+});
+
+document.getElementById('consent-row').addEventListener('click', () => {
+  consented = !consented;
+  const box = document.getElementById('consent-box');
+  box.style.background = consented ? 'var(--gold)' : '';
+  box.style.borderColor = consented ? 'var(--gold)' : '';
+  box.innerHTML = consented ? '<span style="color:var(--white);font-size:.75rem;font-weight:700">✓</span>' : '';
+});
+
+function calcAge(dobStr) {
+  if (!dobStr) return null;
+  const dob = new Date(dobStr);
+  if (isNaN(dob.getTime())) return null;
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const m = today.getMonth() - dob.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+  return age;
+}
+
 document.getElementById('modal-next-btn').addEventListener('click', async () => {
   if (currentStep===1) {
-    if (!document.getElementById('app-name').value.trim() || !document.getElementById('app-bio').value.trim()) { showToast('Please fill in all fields'); return; }
+    const name = document.getElementById('app-name').value.trim();
+    const bio = document.getElementById('app-bio').value.trim();
+    const dob = document.getElementById('app-dob').value;
+    const nationality = document.getElementById('app-nationality').value.trim();
+    const residence = document.getElementById('app-residence').value.trim();
+    if (!name || !bio || !dob || !nationality || !residence) { showToast('Please fill in all fields'); return; }
+    const age = calcAge(dob);
+    if (age === null) { showToast('Please enter a valid date of birth'); return; }
+    if (age < MIN_APPLICANT_AGE) { showToast(`Applicants must be at least ${MIN_APPLICANT_AGE} years old`); return; }
     goToStep(2);
   } else if (currentStep===2) {
-    if (!selectedType) { showToast('Please select what you create'); return; }
+    if (hasPriorExperience === null) { showToast('Please answer the experience question'); return; }
+    if (hasPriorExperience && !document.getElementById('app-prior-org').value.trim()) { showToast('Please tell us the organization name'); return; }
+    if (hasPriorExperience && stillWithPriorOrg === null) { showToast('Please let us know if you\'re still working with them'); return; }
     goToStep(3);
   } else if (currentStep===3) {
-    if (!document.getElementById('app-pitch').value.trim()) { showToast('Please write your pitch'); return; }
+    if (!selectedType) { showToast('Please select what you create'); return; }
     goToStep(4);
   } else if (currentStep===4) {
+    if (!document.getElementById('app-pitch').value.trim()) { showToast('Please write your pitch'); return; }
+    if (!document.getElementById('app-id-doc').files?.[0]) { showToast('Please upload an identity document'); return; }
+    if (!document.getElementById('app-passport-photo').files?.[0]) { showToast('Please upload a passport photo'); return; }
+    goToStep(5);
+  } else if (currentStep===5) {
     if (!agreed) { showToast('Please agree to the content guidelines'); return; }
+    if (!exclusivityAgreed) { showToast('Please agree to the exclusivity terms'); return; }
+    if (!consented) { showToast('Please consent to identity data processing'); return; }
     await submitApplication();
   }
 });
@@ -1412,47 +1603,95 @@ const _creatorBtn = document.getElementById('become-creator-btn');
 _creatorBtn.disabled = true;
 _creatorBtn.style.opacity = '.6';
 
+// Uploads a file and returns its storage path (not a public URL).
+// Returns { path, cancelled } — cancelled=true means the applicant chose to stop and fix the upload.
+async function uploadPrivateFile(file, bucket, folder, label, btn, uploadingLabel) {
+  if (!file) return { path: null, cancelled: false };
+  btn.textContent = uploadingLabel;
+  const ext = file.name.split('.').pop();
+  const fileName = `${currentUser?.id || 'anon'}_${Date.now()}.${ext}`;
+  const path = `${folder}/${fileName}`;
+  const { data, error } = await window._sb.storage.from(bucket).upload(path, file, { upsert: true });
+  if (error) {
+    console.error(`${label} upload failed:`, error);
+    showToast(`Couldn't upload ${label.toLowerCase()}: ${error.message || 'unknown error'}`);
+    const proceed = window.confirm(
+      `Your ${label.toLowerCase()} failed to upload (${error.message || 'unknown error'}).\n\nSubmit the application anyway without it?`
+    );
+    return { path: null, cancelled: !proceed };
+  }
+  return { path: data ? path : null, cancelled: false };
+}
+
 async function submitApplication() {
   const btn = document.getElementById('modal-next-btn');
   btn.disabled = true; btn.textContent = 'Submitting...';
   try {
+    // Writing sample — kept in the existing public bucket (not sensitive).
     let writingSampleUrl = null;
-    const fileInput = document.getElementById('app-sample');
-    const file = fileInput?.files?.[0];
-    if (file && window._sb) {
-      btn.textContent = 'Uploading sample...';
-      const ext = file.name.split('.').pop();
-      const fileName = `${currentUser?.id}_${Date.now()}.${ext}`;
+    const sampleFile = document.getElementById('app-sample')?.files?.[0];
+    if (sampleFile && window._sb) {
+      const ext = sampleFile.name.split('.').pop();
+      const fileName = `${currentUser?.id || 'anon'}_${Date.now()}.${ext}`;
       const { data: uploadData, error: uploadError } = await window._sb
         .storage.from('inkwell-files')
-        .upload(`writing-samples/${fileName}`, file, { upsert: true });
-      if (!uploadError && uploadData) {
-        const { data: urlData } = window._sb.storage
-          .from('inkwell-files')
-          .getPublicUrl(`writing-samples/${fileName}`);
+        .upload(`writing-samples/${fileName}`, sampleFile, { upsert: true });
+      if (uploadError) {
+        console.error('Writing sample upload failed:', uploadError);
+        showToast(`Couldn't upload writing sample: ${uploadError.message || 'unknown error'}`);
+        const proceed = window.confirm(
+          'Your writing sample failed to upload (' + (uploadError.message || 'unknown error') + ').\n\nSubmit the application anyway without the sample?'
+        );
+        if (!proceed) { btn.disabled = false; btn.textContent = 'Submit Application'; return; }
+      } else if (uploadData) {
+        const { data: urlData } = window._sb.storage.from('inkwell-files').getPublicUrl(`writing-samples/${fileName}`);
         writingSampleUrl = urlData?.publicUrl || null;
       }
     }
+
+    // ID document and passport photo — private bucket, path only (no public URL).
+    const idFile = document.getElementById('app-id-doc')?.files?.[0];
+    const idResult = await uploadPrivateFile(idFile, 'inkwell-private', 'id-documents', 'Identity document', btn, 'Uploading ID...');
+    if (idResult.cancelled) { btn.disabled = false; btn.textContent = 'Submit Application'; return; }
+
+    const photoFile = document.getElementById('app-passport-photo')?.files?.[0];
+    const photoResult = await uploadPrivateFile(photoFile, 'inkwell-private', 'passport-photos', 'Passport photo', btn, 'Uploading photo...');
+    if (photoResult.cancelled) { btn.disabled = false; btn.textContent = 'Submit Application'; return; }
+
     btn.textContent = 'Submitting...';
+    const portfolioLinks = document.getElementById('app-portfolio').value
+      .split('\n').map(s => s.trim()).filter(Boolean);
+
     const { error } = await window._sb.from('inkwell_applications').insert({
-      user_id: currentUser?.id||null,
+      user_id: currentUser?.id || null,
       mindstark_id: document.getElementById('app-mindstark-id').value,
       full_name: document.getElementById('app-name').value.trim(),
       bio: document.getElementById('app-bio').value.trim(),
+      date_of_birth: document.getElementById('app-dob').value || null,
+      nationality: document.getElementById('app-nationality').value.trim(),
+      country_of_residence: document.getElementById('app-residence').value.trim(),
+      has_prior_experience: hasPriorExperience,
+      prior_organization: hasPriorExperience ? document.getElementById('app-prior-org').value.trim() : null,
+      still_with_prior_org: hasPriorExperience ? stillWithPriorOrg : null,
+      portfolio_links: portfolioLinks,
       creator_type: selectedType,
       genres: selectedGenres,
       blog_topics: selectedTopics,
       pitch: document.getElementById('app-pitch').value.trim(),
       writing_sample_url: writingSampleUrl,
+      id_document_path: idResult.path,
+      passport_photo_path: photoResult.path,
+      identity_consent: consented,
+      agreed_to_exclusivity: exclusivityAgreed,
       status: 'pending',
     });
     if (error) throw error;
-    for(let i=1;i<=4;i++){const el=document.getElementById(`step-${i}`);if(el)el.style.display='none';}
+    for(let i=1;i<=5;i++){const el=document.getElementById(`step-${i}`);if(el)el.style.display='none';}
     document.getElementById('modal-footer').style.display='none';
     document.getElementById('modal-success').classList.add('visible');
     document.getElementById('step-label').textContent='Application Sent ✦';
     document.getElementById('step-title').textContent='You\'re on your way';
-  } catch(e) { showToast('Something went wrong. Please try again.'); btn.disabled=false; btn.textContent='Submit Application'; }
+  } catch(e) { console.error(e); showToast('Something went wrong. Please try again.'); btn.disabled=false; btn.textContent='Submit Application'; }
 }
 
 // ── INIT ───────────────────────────────────────────────────────

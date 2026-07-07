@@ -263,6 +263,7 @@ body.dark-mode .mobile-sheet{background:var(--warm2);}
   font-size:.82rem;color:var(--gold);text-decoration:none;
   background:rgba(200,150,62,.08);border:1px solid var(--border-bright);
   padding:.45rem 1rem;border-radius:50px;transition:all .2s;margin-top:.5rem;
+  cursor:pointer;font-family:inherit;
 }
 .sample-link:hover{background:var(--gold);color:var(--white);}
 
@@ -706,15 +707,32 @@ async function loadApplications() {
     // Wire up buttons
     wireAppButtons();
     wireExpandButtons();
+    wireDocumentButtons();
 
   } catch(e) {
     list.innerHTML = `<div class="queue-empty"><span>⚠️</span>Could not load applications.</div>`;
   }
 }
 
+function calcAgeFromDob(dobStr) {
+  if (!dobStr) return null;
+  const dob = new Date(dobStr);
+  if (isNaN(dob.getTime())) return null;
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const m = today.getMonth() - dob.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+  return age;
+}
+
 function renderAppCard(app) {
   const isPending = app.status === 'pending';
   const genres = (app.genres || []).concat(app.blog_topics || []);
+  const age = calcAgeFromDob(app.date_of_birth);
+  const portfolioLinks = app.portfolio_links || [];
+  const experienceText = app.has_prior_experience === true
+    ? `Yes — ${app.prior_organization || 'unnamed organization'} (${app.still_with_prior_org ? 'still working there' : 'no longer there'})`
+    : (app.has_prior_experience === false ? 'No prior organization' : '—');
   return `
     <div class="queue-card" data-id="${app.id}" data-type="application">
       <div class="card-top">
@@ -739,8 +757,24 @@ function renderAppCard(app) {
 
       <div class="card-expanded-content" id="expand-${app.id}">
         <div class="card-body" style="border-top:none;padding-top:0;">
+          <div class="card-section-label">Personal Details</div>
+          <div class="card-text">
+            ${age !== null ? `Age ${age}` : 'DOB not provided'}
+            ${app.nationality ? ` &nbsp;·&nbsp; ${app.nationality}` : ''}
+            ${app.country_of_residence ? ` &nbsp;·&nbsp; Resides in ${app.country_of_residence}` : ''}
+          </div>
+          <div class="card-section-label">Prior Experience</div>
+          <div class="card-text">${experienceText}</div>
+          ${portfolioLinks.length ? `<div class="card-section-label">Portfolio</div><div class="card-text">${portfolioLinks.map(l=>`<a href="${l}" target="_blank" rel="noopener">${l}</a>`).join('<br>')}</div>` : ''}
           ${app.pitch ? `<div class="card-section-label">Pitch</div><div class="card-text">${app.pitch}</div>` : ''}
           ${app.writing_sample_url ? `<div class="card-section-label">Writing Sample</div><a class="sample-link" href="${app.writing_sample_url}" target="_blank">📄 View Writing Sample</a>` : '<div class="card-section-label">Writing Sample</div><div class="card-text" style="color:var(--muted);font-style:italic;">No file uploaded</div>'}
+          <div class="card-section-label">Identity Verification</div>
+          <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+            ${app.id_document_path ? `<button class="sample-link" data-doc-path="${app.id_document_path}">🪪 View ID Document</button>` : `<div class="card-text" style="color:var(--muted);font-style:italic;">No ID uploaded</div>`}
+            ${app.passport_photo_path ? `<button class="sample-link" data-doc-path="${app.passport_photo_path}">🖼️ View Passport Photo</button>` : `<div class="card-text" style="color:var(--muted);font-style:italic;">No photo uploaded</div>`}
+          </div>
+          <div class="card-text" style="color:var(--muted);font-size:.75rem;margin-top:.4rem;">Identity data consent: ${app.identity_consent ? 'Given ✓' : 'Not given'}</div>
+          <div class="card-text" style="color:var(--muted);font-size:.75rem;">Exclusivity agreement: ${app.agreed_to_exclusivity ? 'Agreed ✓' : 'Not agreed'}</div>
           ${app.rejection_note ? `<div class="card-section-label">Editorial Note</div><div class="card-text" style="color:var(--muted);font-style:italic;">${app.rejection_note}</div>` : ''}
         </div>
       </div>
@@ -753,6 +787,24 @@ function renderAppCard(app) {
         ` : `<span class="action-done">Decision recorded — ${pillLabel(app.status)}</span>`}
       </div>
     </div>`;
+}
+
+// Generates a short-lived signed URL for a private document, on demand, and opens it.
+async function viewPrivateDocument(path) {
+  try {
+    const { data, error } = await window._sb.storage.from('inkwell-private').createSignedUrl(path, 300); // 5 min
+    if (error || !data?.signedUrl) throw error || new Error('No signed URL returned');
+    window.open(data.signedUrl, '_blank', 'noopener');
+  } catch (e) {
+    console.error('Could not create signed URL:', e);
+    alert(`Could not open this document: ${e.message || 'unknown error'}\n\nCheck that the "inkwell-private" bucket exists and that this admin account has SELECT permission on it.`);
+  }
+}
+
+function wireDocumentButtons() {
+  document.querySelectorAll('[data-doc-path]').forEach(btn => {
+    btn.addEventListener('click', () => viewPrivateDocument(btn.dataset.docPath));
+  });
 }
 
 // ── BOOKS ──────────────────────────────────────────────────────
