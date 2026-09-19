@@ -1355,6 +1355,28 @@
     const PALS = ['pal-0','pal-1','pal-2','pal-3','pal-4','pal-5','pal-6','pal-7'];
     const BGS  = ['bg-0','bg-1','bg-2','bg-3','bg-4','bg-5','bg-6','bg-7'];
 
+    // Gutendex format keys almost always carry a charset suffix
+    // (e.g. "text/html; charset=utf-8"), which varies by book and
+    // sometimes by charset value — so match by prefix, not exact string.
+    // Gutendex's "text/html" format key points to a REDIRECT URL
+    // (gutenberg.org/ebooks/<id>.html.images), not the actual file — it
+    // 302s to the real location. Free CORS proxies are inconsistent about
+    // following redirects correctly, which is what was actually causing
+    // "Couldn't load this book" failures. Construct the direct, stable
+    // cache URL ourselves instead, bypassing the redirect entirely.
+    function pickReadableFormat(formats, id) {
+      if (id) return `https://www.gutenberg.org/cache/epub/${id}/pg${id}-images.html`;
+      if (!formats) return null;
+      const findByPrefix = prefix => {
+        const key = Object.keys(formats).find(k => k.startsWith(prefix));
+        return key ? formats[key] : null;
+      };
+      return findByPrefix('text/html')
+          || findByPrefix('application/epub+zip')
+          || findByPrefix('text/plain')
+          || null;
+    }
+
     let searchTerm    = '';
     let topic         = '';
     let sort          = 'popular';
@@ -1566,11 +1588,7 @@
         const downloads = book.download_count || 0;
 
         const coverUrl = book.formats?.['image/jpeg'] || '';
-        const readUrl  = book.formats?.['text/html']
-                      || book.formats?.['application/epub+zip']
-                      || book.formats?.['text/plain; charset=us-ascii']
-                      || book.formats?.['text/plain']
-                      || `https://www.gutenberg.org/ebooks/${id}`;
+        const readUrl  = pickReadableFormat(book.formats, id);
 
         const isSaved = !!bookmarks[id];
         const p       = i % 8;
@@ -1888,11 +1906,7 @@
         const subjects = book.subjects || [];
         const genre    = (subjects[0] || '').split('--')[0].trim().slice(0, 22) || 'Classic';
         const coverUrl = book.formats?.['image/jpeg'] || '';
-        const readUrl  = book.formats?.['text/html']
-                      || book.formats?.['application/epub+zip']
-                      || book.formats?.['text/plain; charset=us-ascii']
-                      || book.formats?.['text/plain']
-                      || `https://www.gutenberg.org/ebooks/${id}`;
+        const readUrl  = pickReadableFormat(book.formats, id);
         const p = i % 8;
 
         const card = document.createElement('div');

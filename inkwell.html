@@ -1186,17 +1186,32 @@ async function checkAuth() {
 
     // Check if application already submitted
     const { data: appData } = await window._sb
-      .from('inkwell_applications').select('id, status').eq('user_id', user.id).limit(1);
+      .from('inkwell_applications').select('id, status, rejection_note').eq('user_id', user.id)
+      .order('created_at', { ascending: false }).limit(1);
     const application = appData?.[0];
 
-    if (application) {
+    if (application?.status === 'pending') {
       btn.textContent = '⏳ Application Pending…';
       btn.disabled = true; btn.style.opacity = '.6'; btn.style.cursor = 'not-allowed';
       btn.onclick = null;
       return;
     }
 
-    // Logged in, no application — open modal
+    if (application?.status === 'under_review') {
+      btn.textContent = '👀 Under Review…';
+      btn.disabled = true; btn.style.opacity = '.6'; btn.style.cursor = 'not-allowed';
+      btn.onclick = null;
+      return;
+    }
+
+    if (application?.status === 'rejected') {
+      btn.textContent = '✎ Application Declined — Reapply';
+      btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer';
+      btn.onclick = () => openModal();
+      return;
+    }
+
+    // Logged in, no application (or an unexpected/unknown status) — open modal
     btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer';
     btn.onclick = () => openModal();
 
@@ -1611,7 +1626,7 @@ async function uploadPrivateFile(file, bucket, folder, label, btn, uploadingLabe
   const ext = file.name.split('.').pop();
   const fileName = `${currentUser?.id || 'anon'}_${Date.now()}.${ext}`;
   const path = `${folder}/${fileName}`;
-  const { data, error } = await window._sb.storage.from(bucket).upload(path, file, { upsert: true });
+  const { data, error } = await window._sb.storage.from(bucket).upload(path, file);
   if (error) {
     console.error(`${label} upload failed:`, error);
     showToast(`Couldn't upload ${label.toLowerCase()}: ${error.message || 'unknown error'}`);
@@ -1635,7 +1650,7 @@ async function submitApplication() {
       const fileName = `${currentUser?.id || 'anon'}_${Date.now()}.${ext}`;
       const { data: uploadData, error: uploadError } = await window._sb
         .storage.from('inkwell-files')
-        .upload(`writing-samples/${fileName}`, sampleFile, { upsert: true });
+        .upload(`writing-samples/${fileName}`, sampleFile);
       if (uploadError) {
         console.error('Writing sample upload failed:', uploadError);
         showToast(`Couldn't upload writing sample: ${uploadError.message || 'unknown error'}`);

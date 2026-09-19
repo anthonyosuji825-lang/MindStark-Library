@@ -476,6 +476,9 @@ body.dark-mode .mobile-sheet{background:var(--warm2);}
     <button class="tab-btn" data-tab="rejected">
       Rejected
     </button>
+    <button class="tab-btn" data-tab="announcements">
+      Announcements
+    </button>
   </div>
 
   <!-- Applications Queue -->
@@ -503,6 +506,30 @@ body.dark-mode .mobile-sheet{background:var(--warm2);}
   <div class="queue-section" id="tab-rejected">
     <div id="rejected-list">
       <div class="queue-empty"><span>📁</span>Loading rejected…</div>
+    </div>
+  </div>
+
+  <!-- Announcements -->
+  <div class="queue-section" id="tab-announcements">
+    <div style="max-width:520px;background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin-bottom:1.5rem;">
+      <div style="font-family:'Playfair Display',serif;font-weight:900;font-size:1.1rem;color:var(--brown);margin-bottom:1rem;">Post a MindStark Announcement</div>
+      <div style="margin-bottom:.9rem;">
+        <label style="display:block;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:.35rem;">Title</label>
+        <input type="text" id="announce-title" placeholder="e.g. New feature: reading streaks!" style="width:100%;padding:.6rem .8rem;border:1px solid var(--border-bright);border-radius:8px;font-family:inherit;font-size:.9rem;"/>
+      </div>
+      <div style="margin-bottom:1rem;">
+        <label style="display:block;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:.35rem;">Message</label>
+        <textarea id="announce-message" rows="3" placeholder="What do you want every user to see?" style="width:100%;padding:.6rem .8rem;border:1px solid var(--border-bright);border-radius:8px;font-family:inherit;font-size:.9rem;resize:vertical;"></textarea>
+      </div>
+      <div style="margin-bottom:1rem;">
+        <label style="display:block;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:.35rem;">Link (optional)</label>
+        <input type="text" id="announce-link" placeholder="e.g. membership.html" style="width:100%;padding:.6rem .8rem;border:1px solid var(--border-bright);border-radius:8px;font-family:inherit;font-size:.9rem;"/>
+      </div>
+      <button class="btn-approve" id="announce-post-btn" onclick="postAnnouncement()">📣 Send to Everyone</button>
+      <div id="announce-status" style="margin-top:.7rem;font-size:.82rem;"></div>
+    </div>
+    <div id="announcements-list">
+      <div class="queue-empty"><span>📣</span>Loading past announcements…</div>
     </div>
   </div>
 
@@ -583,6 +610,74 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
+// ── ANNOUNCEMENTS ──────────────────────────────────────────────
+async function postAnnouncement() {
+  const btn = document.getElementById('announce-post-btn');
+  const status = document.getElementById('announce-status');
+  const title = document.getElementById('announce-title').value.trim();
+  const message = document.getElementById('announce-message').value.trim();
+  const link = document.getElementById('announce-link').value.trim();
+
+  if (!title || !message) {
+    status.textContent = 'Please fill in a title and message.';
+    status.style.color = 'var(--rust)';
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Sending...';
+  try {
+    const { error } = await window._sb.from('inkwell_notifications').insert({
+      user_id: null,
+      type: 'announcement',
+      title,
+      message,
+      link_url: link || null,
+    });
+    if (error) throw error;
+    status.textContent = '✓ Sent to everyone.';
+    status.style.color = 'var(--gold)';
+    document.getElementById('announce-title').value = '';
+    document.getElementById('announce-message').value = '';
+    document.getElementById('announce-link').value = '';
+    loadAnnouncements();
+  } catch (e) {
+    console.error('Failed to post announcement:', e);
+    status.textContent = `Failed to send: ${e.message || 'unknown error'}`;
+    status.style.color = 'var(--rust)';
+  }
+  btn.disabled = false; btn.textContent = '📣 Send to Everyone';
+}
+
+async function loadAnnouncements() {
+  const list = document.getElementById('announcements-list');
+  try {
+    const { data, error } = await window._sb
+      .from('inkwell_notifications')
+      .select('*')
+      .eq('type', 'announcement')
+      .order('created_at', { ascending: false })
+      .limit(30);
+    if (error) throw error;
+    if (!data?.length) {
+      list.innerHTML = `<div class="queue-empty"><span>📣</span>No announcements sent yet.</div>`;
+      return;
+    }
+    list.innerHTML = data.map(a => `
+      <div class="queue-card">
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">${a.title}</div>
+            <div class="card-meta">${timeAgo(a.created_at)}</div>
+          </div>
+        </div>
+        <div class="card-body"><div class="card-text">${a.message}</div></div>
+      </div>`).join('');
+  } catch (e) {
+    list.innerHTML = `<div class="queue-empty"><span>⚠️</span>Could not load announcements.</div>`;
+  }
+}
+
+
 // ── HELPERS ────────────────────────────────────────────────────
 function formatNum(n) { if (n >= 1000) return (n/1000).toFixed(1)+'k'; return String(n||0); }
 function timeAgo(d) {
@@ -595,11 +690,11 @@ function timeAgo(d) {
   return `${Math.floor(h/24)}d ago`;
 }
 function pillClass(status) {
-  const map = { pending:'pill-pending', approved:'pill-approved', rejected:'pill-rejected', submitted:'pill-submitted', under_review:'pill-under_review' };
+  const map = { pending:'pill-pending', approved:'pill-approved', rejected:'pill-rejected', submitted:'pill-submitted', under_review:'pill-under_review', published:'pill-approved', draft:'pill-rejected' };
   return map[status] || 'pill-pending';
 }
 function pillLabel(status) {
-  const map = { pending:'Pending', approved:'Approved', rejected:'Rejected', submitted:'Submitted', under_review:'Under Review' };
+  const map = { pending:'Pending', approved:'Approved', rejected:'Rejected', submitted:'Submitted', under_review:'Under Review', published:'Published', draft:'Sent Back' };
   return map[status] || status;
 }
 
@@ -642,7 +737,58 @@ async function loadAll() {
     loadStats(),
     loadApplications(),
     loadBooks(),
+    loadDecisions(),
+    loadAnnouncements(),
   ]);
+}
+
+// ── APPROVED / REJECTED (combined applications + books) ────────
+async function loadDecisions() {
+  const approvedList = document.getElementById('approved-list');
+  const rejectedList = document.getElementById('rejected-list');
+  if (typeof window._sb === 'undefined') return;
+
+  try {
+    const [appsRes, publishedRes, sentBackRes] = await Promise.all([
+      window._sb.from('inkwell_applications').select('*').in('status', ['approved', 'rejected']).order('created_at', { ascending: false }),
+      window._sb.from('inkwell_books').select('*, inkwell_creators(display_name, mindstark_id)').eq('status', 'published').order('published_at', { ascending: false }),
+      // "Sent back" books are drafts that carry a rejection_note from a prior review —
+      // distinguishes them from ordinary in-progress drafts that were never submitted.
+      window._sb.from('inkwell_books').select('*, inkwell_creators(display_name, mindstark_id)').eq('status', 'draft').not('rejection_note', 'is', null).order('created_at', { ascending: false }),
+    ]);
+
+    const apps = appsRes.data || [];
+    const publishedBooks = publishedRes.data || [];
+    const sentBackBooks = sentBackRes.data || [];
+
+    const approvedApps = apps.filter(a => a.status === 'approved');
+    const rejectedApps = apps.filter(a => a.status === 'rejected');
+
+    const approvedHtml = [
+      ...approvedApps.map(a => renderAppCard(a)),
+      ...publishedBooks.map(b => renderBookCard(b)),
+    ];
+    const rejectedHtml = [
+      ...rejectedApps.map(a => renderAppCard(a)),
+      ...sentBackBooks.map(b => renderBookCard(b)),
+    ];
+
+    approvedList.innerHTML = approvedHtml.length
+      ? approvedHtml.join('')
+      : `<div class="queue-empty"><span>✅</span>Nothing approved or published yet.</div>`;
+
+    rejectedList.innerHTML = rejectedHtml.length
+      ? rejectedHtml.join('')
+      : `<div class="queue-empty"><span>📁</span>Nothing declined or sent back yet.</div>`;
+
+    wireExpandButtons();
+    wireDocumentButtons();
+
+  } catch(e) {
+    console.error('Failed to load decisions:', e);
+    approvedList.innerHTML = `<div class="queue-empty"><span>⚠️</span>Could not load approved items.</div>`;
+    rejectedList.innerHTML = `<div class="queue-empty"><span>⚠️</span>Could not load rejected items.</div>`;
+  }
 }
 
 // ── STATS ──────────────────────────────────────────────────────
@@ -667,8 +813,6 @@ async function loadStats() {
 // ── APPLICATIONS ───────────────────────────────────────────────
 async function loadApplications() {
   const list = document.getElementById('applications-list');
-  const approvedList = document.getElementById('approved-list');
-  const rejectedList = document.getElementById('rejected-list');
 
   try {
     if (typeof window._sb === 'undefined') {
@@ -681,28 +825,11 @@ async function loadApplications() {
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (!apps?.length) {
-      list.innerHTML = `<div class="queue-empty"><span>📬</span>No applications yet.</div>`;
-      approvedList.innerHTML = `<div class="queue-empty"><span>✅</span>No approved applications yet.</div>`;
-      rejectedList.innerHTML = `<div class="queue-empty"><span>📁</span>No rejected applications yet.</div>`;
-      return;
-    }
-
-    const pending = apps.filter(a => a.status === 'pending');
-    const approved = apps.filter(a => a.status === 'approved');
-    const rejected = apps.filter(a => a.status === 'rejected');
+    const pending = (apps || []).filter(a => a.status === 'pending');
 
     list.innerHTML = pending.length
       ? pending.map(a => renderAppCard(a)).join('')
       : `<div class="queue-empty"><span>🎉</span>All applications reviewed!</div>`;
-
-    approvedList.innerHTML = approved.length
-      ? approved.map(a => renderAppCard(a)).join('')
-      : `<div class="queue-empty"><span>✅</span>No approved applications yet.</div>`;
-
-    rejectedList.innerHTML = rejected.length
-      ? rejected.map(a => renderAppCard(a)).join('')
-      : `<div class="queue-empty"><span>📁</span>No rejected applications yet.</div>`;
 
     // Wire up buttons
     wireAppButtons();
@@ -838,6 +965,7 @@ async function loadBooks() {
 
 function renderBookCard(book) {
   const creator = book.inkwell_creators;
+  const isPending = book.status === 'submitted' || book.status === 'under_review';
   return `
     <div class="queue-card" data-id="${book.id}" data-type="book">
       <div class="card-top">
@@ -868,9 +996,11 @@ function renderBookCard(book) {
       </div>
 
       <div class="card-actions">
-        <button class="btn-approve" data-action="publish" data-id="${book.id}" data-type="book" data-name="${book.title}">✓ Publish</button>
-        <button class="btn-review" data-action="under_review" data-id="${book.id}" data-type="book" data-name="${book.title}">Mark Under Review</button>
-        <button class="btn-reject" data-action="reject-book" data-id="${book.id}" data-type="book" data-name="${book.title}">✕ Send Back</button>
+        ${isPending ? `
+          <button class="btn-approve" data-action="publish" data-id="${book.id}" data-type="book" data-name="${book.title}">✓ Publish</button>
+          <button class="btn-review" data-action="under_review" data-id="${book.id}" data-type="book" data-name="${book.title}">Mark Under Review</button>
+          <button class="btn-reject" data-action="reject-book" data-id="${book.id}" data-type="book" data-name="${book.title}">✕ Send Back</button>
+        ` : `<span class="action-done">Decision recorded — ${pillLabel(book.status)}</span>`}
       </div>
     </div>`;
 }

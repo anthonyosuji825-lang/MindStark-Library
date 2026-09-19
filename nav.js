@@ -279,6 +279,44 @@
     @media(min-width:861px){
       .ms-overlay,.ms-sheet{display:none!important}
     }
+
+    /* ═══ NOTIFICATION BELL ═══════════════════ */
+    .notif-bell-wrap{position:relative}
+    .notif-bell-btn{
+      width:36px;height:36px;border-radius:50%;border:1px solid rgba(200,150,62,.25);
+      background:rgba(200,150,62,.08);cursor:pointer;font-size:1rem;
+      display:flex;align-items:center;justify-content:center;position:relative;transition:all .2s;
+    }
+    .notif-bell-btn:hover{background:rgba(200,150,62,.18);border-color:#c8963e}
+    .notif-badge{
+      position:absolute;top:-3px;right:-3px;background:#e05c5c;color:#fff;
+      font-size:.58rem;font-weight:700;min-width:16px;height:16px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;border:1.5px solid #fff;padding:0 3px;
+    }
+    .notif-dropdown{
+      position:absolute;top:calc(100% + .65rem);right:0;background:#fff;
+      border:1px solid rgba(200,150,62,.18);border-radius:16px;box-shadow:0 16px 48px rgba(59,42,26,.18);
+      width:320px;max-width:88vw;overflow:hidden;display:none;z-index:9999;animation:dropIn .2s ease;
+    }
+    .notif-bell-wrap.open .notif-dropdown{display:block}
+    .notif-dropdown-header{padding:.9rem 1.1rem;font-family:'Playfair Display',serif;font-weight:900;color:#3b2a1a;border-bottom:1px solid rgba(200,150,62,.12);background:#fdf8f0}
+    .notif-dropdown-list{max-height:340px;overflow-y:auto}
+    .notif-item{display:block;padding:.8rem 1.1rem;border-bottom:1px solid rgba(200,150,62,.08);text-decoration:none;color:inherit;transition:background .15s;cursor:pointer}
+    .notif-item:hover{background:#fdf8f0}
+    .notif-item.unread{background:rgba(200,150,62,.06)}
+    .notif-item-title{font-size:.83rem;font-weight:600;color:#2c1e0f;margin-bottom:.15rem}
+    .notif-item-msg{font-size:.78rem;color:#7a6652;line-height:1.4}
+    .notif-item-time{font-size:.68rem;color:#a89880;margin-top:.25rem}
+    .notif-empty{padding:1.5rem 1.1rem;text-align:center;color:#7a6652;font-size:.85rem;font-style:italic}
+    .notif-view-all{display:block;text-align:center;padding:.75rem;font-size:.82rem;font-weight:600;color:#c8963e;text-decoration:none;border-top:1px solid rgba(200,150,62,.12);background:#fdf8f0}
+    .notif-view-all:hover{background:rgba(200,150,62,.1)}
+    body.dark-mode .notif-dropdown{background:#1e1510;border-color:rgba(200,150,62,.15)}
+    body.dark-mode .notif-dropdown-header{background:#150d05;color:#e8dfd0}
+    body.dark-mode .notif-item{border-color:rgba(200,150,62,.08)}
+    body.dark-mode .notif-item:hover{background:#150d05}
+    body.dark-mode .notif-item.unread{background:rgba(200,150,62,.1)}
+    body.dark-mode .notif-item-title{color:#e8dfd0}
+    body.dark-mode .notif-view-all{background:#150d05}
   `;
   document.head.appendChild(style);
 
@@ -352,6 +390,37 @@
   const navCta = document.querySelector('.nav-cta');
 
   if (navCta && isSignedIn) {
+    const bellWrap = document.createElement('div');
+    bellWrap.className = 'notif-bell-wrap';
+    bellWrap.id = 'notif-bell-wrap';
+    bellWrap.innerHTML = `
+      <button class="notif-bell-btn" onclick="toggleNotifDropdown(event)" aria-label="Notifications">
+        🔔<span class="notif-badge" id="notif-badge" style="display:none">0</span>
+      </button>
+      <div class="notif-dropdown">
+        <div class="notif-dropdown-header">Notifications</div>
+        <div class="notif-dropdown-list" id="notif-dropdown-list">
+          <div class="notif-empty">Loading...</div>
+        </div>
+        <a href="notifications.html" class="notif-view-all">View all →</a>
+      </div>`;
+
+    // Some pages wrap .nav-cta in an <li> inside .nav-links (index.html,
+    // browse.html, profile.html, etc.); others (inkwell.html and friends)
+    // put it directly in a .nav-right flex div. Insert accordingly so the
+    // bell doesn't get trapped as a stacked block inside a narrow <li>.
+    const navCtaParent = navCta.parentElement;
+    if (navCtaParent && navCtaParent.tagName === 'LI') {
+      const bellLi = document.createElement('li');
+      bellLi.style.display = 'flex';
+      bellLi.style.alignItems = 'center';
+      bellLi.appendChild(bellWrap);
+      navCtaParent.parentNode.insertBefore(bellLi, navCtaParent);
+    } else {
+      navCta.parentNode.insertBefore(bellWrap, navCta);
+    }
+    document.addEventListener('click', e => { if (!bellWrap.contains(e.target)) bellWrap.classList.remove('open'); });
+
     const wrap = document.createElement('div');
     wrap.className = 'nav-profile-wrap';
     wrap.innerHTML = `
@@ -462,6 +531,7 @@
     if (isSignedIn) {
       accountSection = `
         <span class="ms-section">Account</span>
+        <a href="notifications.html" class="ms-mob-link"><span class="ms-mob-link-icon">🔔</span> Notifications <span class="ms-mob-link-badge" id="mob-notif-badge" style="display:none">0</span></a>
         <a href="profile.html" class="ms-mob-link"><span class="ms-mob-link-icon">👤</span> My Profile</a>
         <div class="ms-toggle-row">
           <span class="ms-mob-toggle-lbl"><span class="ms-mob-link-icon">🌙</span> Dark Mode</span>
@@ -561,6 +631,100 @@
     t.textContent = msg;
     t.style.transform = 'translateX(-50%) translateY(0)';
     setTimeout(() => { t.style.transform = 'translateX(-50%) translateY(100px)'; }, 3000);
+  }
+
+  /* ── NOTIFICATIONS ──────────────────────────────────────────── */
+  window.toggleNotifDropdown = function(e) {
+    e.stopPropagation();
+    const wrap = document.getElementById('notif-bell-wrap');
+    if (!wrap) return;
+    const willOpen = !wrap.classList.contains('open');
+    document.querySelectorAll('.nav-profile-wrap.open').forEach(w => w.classList.remove('open'));
+    wrap.classList.toggle('open', willOpen);
+    if (willOpen) markVisibleNotifsRead();
+  };
+
+  function timeAgoShort(dateStr) {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    if (days < 7) return `${days}d ago`;
+    return new Date(dateStr).toLocaleDateString();
+  }
+
+  let loadedNotifs = [];
+  let readIds = new Set();
+
+  async function loadNotifications() {
+    if (!isSignedIn || !window._sb) return;
+    try {
+      const { data: notifs } = await window._sb
+        .from('inkwell_notifications')
+        .select('*')
+        .or(`user_id.eq.${currentUser.id},user_id.is.null`)
+        .order('created_at', { ascending: false })
+        .limit(20);
+      loadedNotifs = notifs || [];
+
+      const { data: reads } = await window._sb
+        .from('inkwell_notification_reads')
+        .select('notification_id')
+        .eq('user_id', currentUser.id);
+      readIds = new Set((reads || []).map(r => r.notification_id));
+
+      renderNotifDropdown();
+      updateNotifBadge();
+    } catch (e) { console.error('Failed to load notifications:', e); }
+  }
+
+  function unreadCount() {
+    return loadedNotifs.filter(n => !readIds.has(n.id)).length;
+  }
+
+  function updateNotifBadge() {
+    const count = unreadCount();
+    const badge = document.getElementById('notif-badge');
+    const mobBadge = document.getElementById('mob-notif-badge');
+    [badge, mobBadge].forEach(b => {
+      if (!b) return;
+      if (count > 0) { b.textContent = count > 9 ? '9+' : count; b.style.display = 'flex'; }
+      else { b.style.display = 'none'; }
+    });
+  }
+
+  function renderNotifDropdown() {
+    const list = document.getElementById('notif-dropdown-list');
+    if (!list) return;
+    if (!loadedNotifs.length) {
+      list.innerHTML = '<div class="notif-empty">No notifications yet.</div>';
+      return;
+    }
+    list.innerHTML = loadedNotifs.slice(0, 8).map(n => `
+      <a class="notif-item ${readIds.has(n.id) ? '' : 'unread'}" href="${n.link_url || 'notifications.html'}">
+        <div class="notif-item-title">${esc(n.title)}</div>
+        <div class="notif-item-msg">${esc(n.message)}</div>
+        <div class="notif-item-time">${timeAgoShort(n.created_at)}</div>
+      </a>`).join('');
+  }
+
+  async function markVisibleNotifsRead() {
+    const unread = loadedNotifs.filter(n => !readIds.has(n.id)).slice(0, 8);
+    if (!unread.length || !window._sb) return;
+    unread.forEach(n => readIds.add(n.id));
+    updateNotifBadge();
+    try {
+      await window._sb.from('inkwell_notification_reads')
+        .upsert(unread.map(n => ({ notification_id: n.id, user_id: currentUser.id })), { onConflict: 'notification_id,user_id' });
+    } catch (e) { console.error('Failed to mark notifications read:', e); }
+  }
+
+  if (isSignedIn) {
+    document.addEventListener('supabase:ready', loadNotifications);
+    if (window._sb) loadNotifications();
   }
 
   /* ── ADMIN BADGE: show pending request count for Tony ─────── */

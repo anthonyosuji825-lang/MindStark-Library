@@ -1331,8 +1331,15 @@ function renderAuthor() {
   const c = currentCreator;
   if (!c) return;
   const initial = (c.display_name || 'U')[0].toUpperCase();
-  document.getElementById('author-avatar').textContent = initial;
-  document.getElementById('author-name').textContent = c.display_name || 'Unknown';
+  const avatarEl = document.getElementById('author-avatar');
+  const nameEl = document.getElementById('author-name');
+  avatarEl.textContent = initial;
+  nameEl.textContent = c.display_name || 'Unknown';
+  avatarEl.style.cursor = 'pointer';
+  nameEl.style.cursor = 'pointer';
+  const goToProfile = () => window.location.href = `inkwell-profile.html?id=${c.id}`;
+  avatarEl.onclick = goToProfile;
+  nameEl.onclick = goToProfile;
   document.getElementById('author-type').textContent = c.creator_type ? c.creator_type.charAt(0).toUpperCase()+c.creator_type.slice(1) : '—';
   document.getElementById('author-bio').textContent = c.bio ? c.bio.substring(0,120)+(c.bio.length>120?'…':'') : '—';
   document.getElementById('author-reads').textContent = formatNum(c.total_reads || 0);

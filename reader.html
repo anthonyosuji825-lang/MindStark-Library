@@ -551,9 +551,9 @@
   };
 
   const PROXIES = [
-    url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-    url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
     url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+    url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+    url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
   ];
 
   /* ── The two hostnames your site runs on ── */
@@ -794,19 +794,33 @@
       return;
     }
 
-    /* ── Gutenberg book — use CORS proxies ── */
+    /* ── Gutenberg book — try several known Gutenberg URL conventions,
+       each through all proxies, since not every book's cache file uses
+       the same naming pattern (some have no "-images" variant, etc.) ── */
     setLoadSub('Connecting to Project Gutenberg…');
 
-    let html = null;
-    for (let i = 0; i < PROXIES.length; i++) {
-      setLoadProgress(20 + i * 20);
-      setLoadSub(`Trying source ${i+1} of ${PROXIES.length}…`);
-      try {
-        const res = await fetch(PROXIES[i](url), {signal:AbortSignal.timeout(12000)});
-        if (!res.ok) continue;
-        const text = await res.text();
-        if (text && text.length > 100) { html = text; break; }
-      } catch(e) {}
+    const id = bookData.id;
+    const candidates = id ? [
+      { url: `https://www.gutenberg.org/cache/epub/${id}/pg${id}-images.html`, isText: false },
+      { url: `https://www.gutenberg.org/cache/epub/${id}/pg${id}.html`, isText: false },
+      { url, isText: false }, // whatever browse.html originally supplied, as a fallback
+      { url: `https://www.gutenberg.org/files/${id}/${id}-0.txt`, isText: true }, // most reliable — plain text never redirects
+      { url: `https://www.gutenberg.org/files/${id}/${id}.txt`, isText: true },
+    ] : [{ url, isText: false }];
+
+    let html = null, htmlIsText = false;
+    outer:
+    for (let c = 0; c < candidates.length; c++) {
+      for (let i = 0; i < PROXIES.length; i++) {
+        setLoadProgress(15 + c * 15 + i * 5);
+        setLoadSub(`Trying source ${c * PROXIES.length + i + 1} of ${candidates.length * PROXIES.length}…`);
+        try {
+          const res = await fetch(PROXIES[i](candidates[c].url), {signal:AbortSignal.timeout(10000)});
+          if (!res.ok) continue;
+          const text = await res.text();
+          if (text && text.length > 100) { html = text; htmlIsText = candidates[c].isText; break outer; }
+        } catch(e) {}
+      }
     }
 
     setLoadProgress(80);
@@ -817,21 +831,35 @@
     }
     setLoadSub('Rendering book…');
     setLoadProgress(95);
-    renderBook(html);
+    renderBook(html, htmlIsText);
   }
 
   /* ── RENDER ─────────────────────────────── */
-  function renderBook(html) {
+  function renderBook(html, isPlainText) {
     const content = document.getElementById('bookContent');
-    let bodyContent = html;
-    const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-    if (bodyMatch) bodyContent = bodyMatch[1];
+    let bodyContent;
 
-    bodyContent = bodyContent
-      .replace(/<script[\s\S]*?<\/script>/gi, '')
-      .replace(/<style[\s\S]*?<\/style>/gi, '')
-      .replace(/on\w+="[^"]*"/gi, '')
-      .replace(/on\w+='[^']*'/gi, '');
+    if (isPlainText) {
+      // Plain-text Gutenberg files have no HTML structure at all — escape
+      // it and turn blank-line-separated blocks into paragraphs so it's
+      // actually readable instead of collapsing into one run-on blob.
+      const escaped = html
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      bodyContent = escaped
+        .split(/\n\s*\n/)
+        .map(block => `<p>${block.trim().replace(/\n/g, ' ')}</p>`)
+        .join('');
+    } else {
+      bodyContent = html;
+      const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+      if (bodyMatch) bodyContent = bodyMatch[1];
+
+      bodyContent = bodyContent
+        .replace(/<script[\s\S]*?<\/script>/gi, '')
+        .replace(/<style[\s\S]*?<\/style>/gi, '')
+        .replace(/on\w+="[^"]*"/gi, '')
+        .replace(/on\w+='[^']*'/gi, '');
+    }
 
     content.innerHTML = bodyContent;
 
