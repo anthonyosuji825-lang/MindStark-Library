@@ -2,6 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <script>
+    /* Apply the saved theme before first paint (no light flash). nav.js owns the toggle. */
+    (function () {
+      try {
+        var d = localStorage.getItem('ms_dark_mode');
+        if (d === null) {
+          var pr = JSON.parse(sessionStorage.getItem('ms_user_prefs') || '{}');
+          d = pr.darkMode ? '1' : '0';
+        }
+        if (d === '1') document.documentElement.setAttribute('data-theme', 'dark');
+      } catch (e) {}
+    })();
+  </script>
+  <meta name="theme-color" content="#f5f0e8"/>
   <script src="supabase.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="icon" type="image/png" href="logo.png"/>
@@ -1062,6 +1076,509 @@
       .browse-layout { padding: .9rem; }
       .book-cover { height: 145px; }
     }
+
+    /* ═══════════════════════════════════════════════════════
+       MOBILE REDESIGN  (everything here is inside media queries,
+       so desktop above 860px is completely untouched)
+    ═══════════════════════════════════════════════════════ */
+
+    /* Filter toggle is hidden on desktop */
+    .filter-toggle { display: none; }
+
+    /* ── One search bar, two modes: normal search <-> ARCHER (AI) — all screen sizes ── */
+    .search-input { padding-right: 6.4rem; }
+    .archer-mode-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
+      height: 32px; padding: 0 .8rem; border: 0; border-radius: 50px;
+      background: var(--brown); color: var(--cream);
+      font-family: 'DM Sans', sans-serif; font-size: .7rem; font-weight: 600;
+      letter-spacing: .06em; cursor: pointer; z-index: 2;
+      transition: background .3s, color .3s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .archer-mode-btn:hover { background: var(--gold); color: var(--white); }
+    .archer-mode-btn svg { color: var(--gold); margin-right: .35rem; flex-shrink: 0; }
+    .archer-mode-btn:hover svg { color: var(--white); }
+    .archer-mode-btn .am-off { display: inline-flex; align-items: center; }
+    .archer-mode-btn .am-on  { display: none; font-size: .8rem; }
+
+    .search-input { transition: background .3s, color .3s, border-color .3s, box-shadow .3s; }
+    .search-section.archer-on .archer-mode-btn,
+    .search-section.archer-on .archer-mode-btn:hover { background: rgba(200,150,62,.22); color: var(--gold); width: 32px; padding: 0; }
+    .search-section.archer-on .archer-mode-btn .am-off { display: none; }
+    .search-section.archer-on .archer-mode-btn .am-on  { display: inline; }
+    .search-section.archer-on .search-input {
+      background: var(--brown); color: var(--cream);
+      border-color: var(--gold); box-shadow: 0 0 0 3px rgba(200,150,62,.15);
+      padding-right: 3.4rem;
+    }
+    .search-section.archer-on .search-input::placeholder { color: rgba(245,240,232,.55); }
+    .search-section.archer-on .search-icon { font-size: 0; }
+    .search-section.archer-on .search-icon::before { content: '\2605'; font-size: 1.05rem; color: var(--gold); }
+
+    /* Hide ARCHER's own separate button + input row (the search bar replaces them) */
+    #as-toggle-btn { display: none !important; }
+    #as-panel #as-hdr, #as-panel #as-input-row { display: none !important; }
+    #as-panel #as-panel-inner { padding: .9rem 2.5rem 1rem; }
+    #as-panel #as-chips { margin-bottom: 0; }
+    #as-panel #as-response { margin-top: .8rem; }
+    @media (max-width: 860px) { #as-panel #as-panel-inner { padding: .8rem 1.5rem .9rem; } }
+    @media (max-width: 560px) { #as-panel #as-panel-inner { padding: .7rem 1rem .85rem; } }
+
+    @keyframes sbIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Tablet + phone: collapsible filters ─────── */
+    @media (max-width: 860px) {
+      .browse-layout { gap: .85rem; padding: 1rem 1.25rem 1.5rem; }
+
+      .filter-toggle {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: .75rem; width: 100%;
+        padding: .8rem 1rem;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        box-shadow: 0 2px 10px rgba(59,42,26,.05);
+        font-family: 'DM Sans', sans-serif;
+        color: var(--brown); cursor: pointer;
+        scroll-margin-top: 76px;
+        transition: border-color .2s, box-shadow .2s;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .filter-toggle:active { border-color: var(--gold); }
+      .filter-toggle.open { border-color: var(--border-strong); }
+      .ft-left { display: flex; align-items: center; gap: .6rem; min-width: 0; }
+      .ft-icon { flex-shrink: 0; color: var(--gold); }
+      .ft-title { font-size: .88rem; font-weight: 600; }
+      .ft-current {
+        font-size: .74rem; font-weight: 600; color: var(--gold);
+        background: rgba(200,150,62,.12);
+        padding: .18rem .65rem; border-radius: 50px;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        max-width: 52vw;
+      }
+      .ft-chevron { flex-shrink: 0; color: var(--muted); transition: transform .25s; }
+      .filter-toggle.open .ft-chevron { transform: rotate(180deg); }
+
+      /* Panel: hidden until opened, genres become chips */
+      .sidebar {
+        display: none; position: static;
+        margin-bottom: 0; padding: 1.1rem;
+        border-radius: 16px; box-shadow: var(--shadow);
+      }
+      .sidebar.open { display: block; animation: sbIn .25s ease; }
+      .sidebar-section {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+        gap: .5rem; margin-bottom: 1.15rem;
+      }
+      .sidebar-label { grid-column: 1 / -1; margin-bottom: .1rem; }
+
+      /* Genre tiles: icon on top, label below */
+      .genre-btn {
+        width: auto; margin: 0;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: .3rem; text-align: center;
+        min-height: 62px; padding: .65rem .35rem;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: var(--surface);
+        font-size: .76rem; line-height: 1.2;
+      }
+      .genre-btn .g-icon { font-size: 1.3rem; line-height: 1; }
+      .genre-btn.active {
+        border-color: var(--gold); background: rgba(200,150,62,.14);
+        box-shadow: 0 0 0 1px var(--gold) inset;
+      }
+
+      /* "All Books" and "MindStark Originals" become slim full-width rows */
+      .sidebar-section .genre-btn:first-of-type,
+      .genre-btn.originals-btn {
+        grid-column: 1 / -1; flex-direction: row; gap: .55rem;
+        min-height: 0; padding: .7rem 1rem; font-size: .85rem;
+      }
+      .genre-btn.originals-btn {
+        border-color: rgba(200,150,62,.4);
+        background: linear-gradient(135deg, rgba(200,150,62,.18), rgba(200,150,62,.06));
+      }
+
+      /* My Library: two equal buttons */
+      .sidebar-section:last-child { display: flex; flex-wrap: wrap; margin-bottom: 0; }
+      .sidebar-section:last-child .sidebar-label { width: 100%; }
+      .mybooks-link, .clear-btn {
+        flex: 1 1 140px; width: auto; margin: 0;
+        justify-content: center; text-align: center;
+        border-radius: 14px; padding: .65rem .9rem;
+      }
+    }
+
+    /* ── Phone only ──────────────────────────────── */
+    @media (max-width: 560px) {
+
+      /* Hero: compact */
+      .hero { padding: 1.25rem 1.25rem 0; }
+      .hero-inner { grid-template-columns: 1fr; gap: 0; }
+      .hero-left { padding-bottom: 1.1rem; }
+      .breadcrumb, .hero-desc { display: none; }
+      .hero h1 { font-size: 1.55rem; margin-bottom: .85rem; }
+      .hero h1 br { display: none; }
+      .hero h1 em { margin-left: .3em; }
+      .hero-stats {
+        margin-top: 0; gap: 0;
+        border: 1px solid rgba(200,150,62,.18);
+        border-radius: 12px;
+        background: rgba(255,255,255,.04);
+      }
+      .stat { flex: 1; align-items: center; padding: .55rem .25rem; gap: 0; }
+      .stat + .stat { border-left: 1px solid rgba(200,150,62,.15); }
+      .stat-num { font-size: 1rem; }
+      .stat-label { font-size: .58rem; }
+
+      /* Search: input + button on one row */
+      .search-section { padding: .8rem 1rem; }
+      .search-inner {
+        display: grid; grid-template-columns: 1fr auto;
+        gap: .5rem; align-items: stretch;
+      }
+      .search-input {
+        padding: .8rem 5.6rem .8rem 2.6rem; font-size: .88rem;
+        transition: background .3s, color .3s, border-color .3s, box-shadow .3s;
+      }
+      .search-icon { left: .9rem; }
+      .search-btn { width: auto; min-width: 76px; padding: .8rem 1.2rem; box-shadow: none; }
+
+      /* Toolbar: one tidy row */
+      .toolbar { padding: .6rem 1rem; }
+      .toolbar-inner {
+        flex-direction: row; align-items: center;
+        flex-wrap: nowrap; gap: .6rem;
+      }
+      .results-count {
+        flex: 1; min-width: 0; font-size: .78rem;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .toolbar-right { gap: .5rem; flex-shrink: 0; }
+      .sort-label, .sep { display: none; }
+      .sort-select { padding: .38rem .55rem; font-size: .78rem; max-width: 118px; }
+      .view-btn { width: 30px; height: 30px; }
+
+      /* Coming Soon: compact swipe rail */
+      .coming-soon-section { padding: 1.15rem 0 1.25rem; }
+      .cs-header { padding: 0 1.25rem; margin-bottom: .8rem; }
+      .cs-header::after {
+        content: 'Swipe \2192'; font-size: .7rem;
+        color: rgba(245,240,232,.4); letter-spacing: .04em;
+      }
+      .cs-nav, .cs-dots { display: none; }
+      .cs-title { font-size: 1.05rem; }
+
+      .cs-track-wrap {
+        overflow-x: auto; overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        scroll-padding: 0 1.25rem;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .cs-track-wrap::-webkit-scrollbar { display: none; }
+      .cs-track {
+        width: max-content; gap: .75rem;
+        transform: none !important; transition: none;
+      }
+
+      .cs-card {
+        display: grid;
+        grid-template-columns: 76px minmax(0, 1fr);
+        grid-template-rows: auto 1fr;
+        width: 262px; max-width: none; min-height: 112px;
+        border-radius: 14px;
+        background: rgba(255,255,255,.05);
+        scroll-snap-align: start;
+      }
+      .cs-card:hover { transform: none; box-shadow: none; border-color: rgba(200,150,62,.18); }
+      .cs-cover { display: contents; }
+      .cs-cover img {
+        grid-column: 1; grid-row: 1 / 3;
+        align-self: stretch; width: 100%; height: 100%;
+        object-fit: cover; min-height: 0;
+      }
+      .cs-card:hover .cs-cover img { transform: none; }
+      .cs-ribbon { display: none; }
+      .cs-date-pill {
+        position: static; grid-column: 2; grid-row: 1; justify-self: start;
+        background: none; border: 0; border-radius: 0; backdrop-filter: none;
+        padding: .8rem .9rem .2rem;
+        font-size: .62rem; text-transform: uppercase; letter-spacing: .14em;
+      }
+      .cs-info { grid-column: 2; grid-row: 2; padding: .1rem .9rem .85rem; }
+      .cs-genre, .cs-synopsis { display: none; }
+      .cs-book-title {
+        font-size: .98rem; margin-bottom: .15rem;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+        white-space: normal; overflow: hidden;
+      }
+      .cs-author { margin-bottom: 0; font-size: .74rem; }
+
+      /* Book grid: show full covers, tighter spacing */
+      .browse-layout { padding: .9rem 1rem 1.25rem; }
+      .books-grid:not(.list-view) .book-cover { height: auto; aspect-ratio: 4 / 5; }
+      .book-card { border-radius: 14px; }
+      .book-genre { font-size: .6rem; }
+
+      /* Keep the back-to-top button clear of the floating ARCHER star */
+      .back-to-top { bottom: 5.5rem; right: 1.25rem; }
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       DARK MODE
+       nav.js toggles <html data-theme="dark">. Its own generic dark
+       rules use !important and target old class names, so these rules
+       use a higher-specificity selector (html[data-theme]) to win.
+       Palette: warm espresso, same family as the brand browns.
+         page #0f0a05 · strips #120c07/#140e08 · sidebar #181109
+         cards #201610 · raised #2b1e12 · inputs #0e0904
+    ═══════════════════════════════════════════════════════ */
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --cream: #f3ebdd;           /* light text on dark surfaces */
+      --warm: #1a1208;
+      --text: #e9e0d1;
+      --muted: #a89b86;
+      --white: #201610;           /* "paper" surfaces; also makes text-on-gold dark */
+      --card-bg: #201610;
+      --surface: #130d07;
+      --border: rgba(200,150,62,.15);
+      --border-strong: rgba(200,150,62,.30);
+      --shadow: 0 4px 28px rgba(0,0,0,.45);
+      --shadow-lg: 0 16px 48px rgba(0,0,0,.55);
+      scrollbar-color: rgba(200,150,62,.35) #0f0a05;
+    }
+    html[data-theme="light"] { color-scheme: light; }
+    html[data-theme="dark"] ::selection { background: rgba(200,150,62,.35); color: #fff; }
+
+    /* Smooth cross-fade when the toggle is flipped (class added by script, not on load) */
+    html.theme-switching *, html.theme-switching *::before, html.theme-switching *::after {
+      transition: background-color .35s ease, color .35s ease, border-color .35s ease, box-shadow .35s ease !important;
+    }
+
+    /* ── Page + nav ── */
+    html[data-theme="dark"] body { background: #0f0a05 !important; color: var(--text) !important; }
+    html[data-theme="dark"] nav {
+      background: rgba(15,10,5,.88) !important;
+      border-bottom-color: var(--border) !important;
+    }
+    html[data-theme="dark"] .logo-main { color: #f3ebdd; }
+    html[data-theme="dark"] .hamburger span { background: #f3ebdd; }
+    html[data-theme="dark"] .nav-cta {
+      background: #2b1e12 !important; color: #f3ebdd !important;
+      box-shadow: inset 0 0 0 1px rgba(200,150,62,.35);
+    }
+    html[data-theme="dark"] .nav-cta:hover { background: var(--gold) !important; color: #1a1208 !important; }
+    html[data-theme="dark"] .mobile-menu { background: #0f0a05; }
+    html[data-theme="dark"] .mobile-menu a { color: #f3ebdd; }
+    html[data-theme="dark"] .mobile-menu a:hover { color: var(--gold); }
+    html[data-theme="dark"] .mobile-menu .mob-cta { background: #2b1e12; box-shadow: inset 0 0 0 1px rgba(200,150,62,.35); }
+
+    /* ── Hero ── */
+    html[data-theme="dark"] .hero {
+      background: linear-gradient(165deg, #25180c 0%, #170f08 62%, #120b06 100%);
+      box-shadow: inset 0 -1px 0 rgba(200,150,62,.12);
+    }
+    html[data-theme="dark"] .hero-stats { border-color: rgba(200,150,62,.16); }
+
+    /* ── Search ── */
+    html[data-theme="dark"] .search-section { background: #140e08; border-bottom-color: var(--border); }
+    html[data-theme="dark"] .search-input {
+      background: #0e0904 !important; color: #ece3d4 !important;
+      border-color: rgba(200,150,62,.28) !important;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,.4) !important;
+    }
+    html[data-theme="dark"] .search-input::placeholder { color: rgba(168,155,134,.8); }
+    html[data-theme="dark"] .search-input:focus {
+      border-color: var(--gold) !important;
+      box-shadow: 0 0 0 3px rgba(200,150,62,.18), inset 0 1px 3px rgba(0,0,0,.4) !important;
+    }
+    html[data-theme="dark"] .search-btn { color: #1a1208; box-shadow: 0 4px 18px rgba(200,150,62,.22); }
+    html[data-theme="dark"] .search-btn:hover { background: #dcaa52; color: #1a1208; box-shadow: 0 6px 22px rgba(200,150,62,.32); }
+
+    /* ARCHER mode of the search bar */
+    html[data-theme="dark"] .search-section.archer-on .search-input {
+      background: linear-gradient(135deg, #2f200f, #231609) !important;
+      color: #f3ebdd !important;
+      border-color: var(--gold) !important;
+      box-shadow: 0 0 0 3px rgba(200,150,62,.18) !important;
+    }
+    html[data-theme="dark"] .search-section.archer-on .search-input::placeholder { color: rgba(243,235,221,.5); }
+    html[data-theme="dark"] .archer-mode-btn {
+      background: #2b1e12; color: #f3ebdd;
+      box-shadow: inset 0 0 0 1px rgba(200,150,62,.35);
+    }
+    html[data-theme="dark"] .archer-mode-btn:hover { background: var(--gold); color: #1a1208; }
+    html[data-theme="dark"] .archer-mode-btn:hover svg { color: #1a1208; }
+    html[data-theme="dark"] .search-section.archer-on .archer-mode-btn,
+    html[data-theme="dark"] .search-section.archer-on .archer-mode-btn:hover {
+      background: rgba(200,150,62,.22); color: var(--gold); box-shadow: none;
+    }
+
+    /* ARCHER panel (chips + answer) */
+    html[data-theme="dark"] #as-panel { background: #140e08; border-bottom-color: var(--border); }
+    html[data-theme="dark"] .as-chip { background: #1e1510; color: #bfb19b; border-color: rgba(200,150,62,.2); }
+    html[data-theme="dark"] .as-chip:hover, html[data-theme="dark"] .as-chip:active {
+      color: var(--gold); border-color: var(--gold); background: rgba(200,150,62,.1);
+    }
+    html[data-theme="dark"] #as-response { background: #1b130c; border-color: var(--border); box-shadow: 0 8px 30px rgba(0,0,0,.35); }
+    html[data-theme="dark"] #as-resp-header { background: #1b130c; }
+    html[data-theme="dark"] #as-resp-label { color: #f3ebdd; }
+    html[data-theme="dark"] #as-resp-av { box-shadow: inset 0 0 0 1px rgba(200,150,62,.4); }
+    html[data-theme="dark"] #as-resp-close:hover { color: #f3ebdd; }
+    html[data-theme="dark"] #as-resp-text strong { color: #f3ebdd; }
+
+    /* ── Toolbar ── */
+    html[data-theme="dark"] .toolbar { background: #120c07; border-bottom-color: var(--border); }
+    html[data-theme="dark"] .results-count strong { color: #f3ebdd; }
+    html[data-theme="dark"] .sort-select {
+      background: #1a1208 !important; color: #ece3d4 !important;
+      border-color: rgba(200,150,62,.25) !important;
+    }
+    html[data-theme="dark"] .sort-select:focus { border-color: var(--gold) !important; }
+    html[data-theme="dark"] .view-btn {
+      background: #1a1208 !important; color: var(--muted) !important;
+      border-color: rgba(200,150,62,.2) !important;
+    }
+    html[data-theme="dark"] .view-btn.active,
+    html[data-theme="dark"] .view-btn:hover {
+      background: rgba(200,150,62,.14) !important; color: var(--gold) !important;
+      border-color: var(--gold) !important;
+    }
+
+    /* ── Filters: sidebar (desktop) / collapsible panel (mobile) ── */
+    html[data-theme="dark"] .sidebar {
+      background: #181109 !important; border-color: var(--border) !important;
+      box-shadow: 0 6px 28px rgba(0,0,0,.4);
+    }
+    html[data-theme="dark"] .genre-btn:hover { background: rgba(200,150,62,.09); color: var(--gold); }
+    html[data-theme="dark"] .genre-btn.active { background: rgba(200,150,62,.14); color: var(--gold); }
+    html[data-theme="dark"] .genre-btn.originals-btn {
+      background: rgba(200,150,62,.07); border-color: rgba(200,150,62,.32);
+    }
+    html[data-theme="dark"] .genre-btn.originals-btn:hover { background: rgba(200,150,62,.15); }
+    html[data-theme="dark"] .genre-btn.originals-btn.active { background: rgba(200,150,62,.2); }
+    html[data-theme="dark"] .mybooks-link:hover { background: rgba(200,150,62,.1); }
+    html[data-theme="dark"] .mybooks-count { color: #1a1208; }
+    html[data-theme="dark"] .clear-btn:hover { border-color: #d9885f; color: #e8956b; background: rgba(217,136,95,.08); }
+
+    html[data-theme="dark"] .filter-toggle {
+      background: #1b130c; color: #ece3d4; border-color: var(--border);
+      box-shadow: 0 2px 14px rgba(0,0,0,.35);
+    }
+    html[data-theme="dark"] .filter-toggle.open { border-color: var(--border-strong); }
+    html[data-theme="dark"] .ft-current { background: rgba(200,150,62,.16); }
+    @media (max-width: 860px) {
+      html[data-theme="dark"] .genre-btn { background: #22180f; border-color: rgba(200,150,62,.16); }
+      html[data-theme="dark"] .genre-btn:hover { background: #2b1e12; }
+      html[data-theme="dark"] .genre-btn.active {
+        background: rgba(200,150,62,.17); border-color: var(--gold);
+        box-shadow: 0 0 0 1px var(--gold) inset;
+      }
+      html[data-theme="dark"] .genre-btn.originals-btn {
+        background: linear-gradient(135deg, rgba(200,150,62,.2), rgba(200,150,62,.07));
+        border-color: rgba(200,150,62,.4);
+      }
+    }
+
+    /* ── Loading skeletons ── */
+    html[data-theme="dark"] .skeleton-card { background: #1b130c; border-color: var(--border); }
+    html[data-theme="dark"] .skeleton-cover,
+    html[data-theme="dark"] .skeleton-line,
+    html[data-theme="dark"] .skeleton-btn {
+      background: linear-gradient(90deg, #26190e 25%, #332314 50%, #26190e 75%);
+      background-size: 600px 100%;
+    }
+    html[data-theme="dark"] .spinner { border-color: rgba(200,150,62,.14); border-top-color: var(--gold); }
+
+    /* ── Book cards ── */
+    html[data-theme="dark"] .book-card {
+      background: var(--card-bg) !important;
+      border-color: rgba(200,150,62,.14) !important;
+      box-shadow: 0 2px 10px rgba(0,0,0,.25);
+    }
+    html[data-theme="dark"] .book-card:hover {
+      border-color: rgba(200,150,62,.38) !important;
+      box-shadow: 0 22px 48px rgba(0,0,0,.6), 0 0 0 1px rgba(200,150,62,.08);
+    }
+    html[data-theme="dark"] .book-card.ms-original {
+      border-color: rgba(200,150,62,.5) !important;
+      box-shadow: 0 0 0 1px rgba(200,150,62,.1), 0 8px 30px rgba(200,150,62,.1);
+    }
+    html[data-theme="dark"] .book-card.ms-original:hover {
+      box-shadow: 0 22px 48px rgba(0,0,0,.6), 0 0 34px rgba(200,150,62,.18);
+    }
+    html[data-theme="dark"] .book-cover { box-shadow: inset 0 0 0 1px rgba(255,255,255,.05); }
+    html[data-theme="dark"] .book-info h3 { color: #f3ebdd !important; }
+    html[data-theme="dark"] .ms-badge { color: #1a1208; box-shadow: 0 2px 10px rgba(0,0,0,.5); }
+    html[data-theme="dark"] .bm-btn {
+      background: rgba(15,10,5,.72); color: #e9e0d1;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.1), 0 2px 10px rgba(0,0,0,.4);
+    }
+    html[data-theme="dark"] .bm-btn:hover, html[data-theme="dark"] .bm-btn.saved {
+      background: var(--gold); color: #1a1208;
+    }
+    html[data-theme="dark"] .read-btn {
+      background: rgba(200,150,62,.15); color: #e6b45e;
+      box-shadow: inset 0 0 0 1px rgba(200,150,62,.35);
+    }
+    html[data-theme="dark"] .read-btn:hover { background: var(--gold); color: #1a1208; box-shadow: none; }
+
+    /* Fallback cover backgrounds (light pastels in light mode) */
+    html[data-theme="dark"] .bg-0, html[data-theme="dark"] .bg-1, html[data-theme="dark"] .bg-2,
+    html[data-theme="dark"] .bg-3, html[data-theme="dark"] .bg-4, html[data-theme="dark"] .bg-5,
+    html[data-theme="dark"] .bg-6, html[data-theme="dark"] .bg-7 { background: #2a1e13; }
+
+    /* ── Empty state, pagination, toast, back-to-top ── */
+    html[data-theme="dark"] .empty-state h3 { color: #f3ebdd; }
+    html[data-theme="dark"] .pag-btn {
+      background: #1b130c !important; color: #ece3d4 !important;
+      border-color: rgba(200,150,62,.22) !important;
+    }
+    html[data-theme="dark"] .pag-btn:hover:not(:disabled) {
+      background: rgba(200,150,62,.12) !important; color: var(--gold) !important;
+      border-color: var(--gold) !important;
+    }
+    html[data-theme="dark"] .toast {
+      background: #2b1e12; color: #f3ebdd;
+      border-color: rgba(200,150,62,.35); box-shadow: 0 10px 34px rgba(0,0,0,.6);
+    }
+    html[data-theme="dark"] .back-to-top {
+      background: #2b1e12; color: #f3ebdd;
+      border-color: rgba(200,150,62,.4); box-shadow: 0 6px 24px rgba(0,0,0,.55);
+    }
+    html[data-theme="dark"] .back-to-top:hover { background: var(--gold); color: #1a1208; }
+
+    /* ── Coming Soon + mid-page slider ── */
+    html[data-theme="dark"] .coming-soon-section { background: #150e07; }
+    html[data-theme="dark"] .cs-card { background: rgba(255,255,255,.035); }
+    html[data-theme="dark"] .gb-slider-wrap { background: #17100a; border-color: var(--border); }
+    html[data-theme="dark"] .gb-title, html[data-theme="dark"] .gb-book-title { color: #f3ebdd; }
+    html[data-theme="dark"] .gb-nav-btn { background: #22180f; color: #ece3d4; border-color: rgba(200,150,62,.3); }
+    html[data-theme="dark"] .gb-nav-btn:hover { background: var(--gold); color: #1a1208; border-color: var(--gold); }
+    html[data-theme="dark"] .gb-card { background: var(--card-bg); border-color: rgba(200,150,62,.14); }
+    html[data-theme="dark"] .gb-card:hover { box-shadow: 0 16px 38px rgba(0,0,0,.55); border-color: rgba(200,150,62,.35); }
+    html[data-theme="dark"] .gb-dot { background: rgba(200,150,62,.28); }
+    html[data-theme="dark"] .gb-dot.active { background: var(--gold); }
+
+    /* ── Footer ── */
+    html[data-theme="dark"] footer { background: #080503 !important; border-top-color: rgba(200,150,62,.12); }
+
+    /* ── Notification dropdown from nav.js (its dark rules key off a body class that is never set) ── */
+    html[data-theme="dark"] .notif-dropdown { background: #1e1510; border-color: rgba(200,150,62,.18); box-shadow: 0 16px 40px rgba(0,0,0,.6); }
+    html[data-theme="dark"] .notif-dropdown-header { background: #150d05; color: #e8dfd0; }
+    html[data-theme="dark"] .notif-item { border-color: rgba(200,150,62,.08); }
+    html[data-theme="dark"] .notif-item:hover { background: #150d05; }
+    html[data-theme="dark"] .notif-item.unread { background: rgba(200,150,62,.1); }
+    html[data-theme="dark"] .notif-item-title { color: #e8dfd0; }
+    html[data-theme="dark"] .notif-view-all { background: #150d05; }
   </style>
 </head>
 <body>
@@ -1148,6 +1665,10 @@
       <div class="search-input-wrap">
         <span class="search-icon">🔍</span>
         <input type="text" class="search-input" id="searchInput" placeholder="Search by title or author…"/>
+        <button type="button" class="archer-mode-btn" id="archerModeBtn" aria-pressed="false" aria-label="Switch to ARCHER AI search">
+          <span class="am-off"><svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1L8.8 5.2H13.4L9.7 7.8L11 12.5L7 9.8L3 12.5L4.3 7.8L0.6 5.2H5.2L7 1Z" fill="currentColor"/></svg>ARCHER</span>
+          <span class="am-on" aria-hidden="true">&#x2715;</span>
+        </button>
       </div>
       <button class="search-btn" id="searchBtn">Search</button>
     </div>
@@ -1278,8 +1799,18 @@
   <!-- BROWSE LAYOUT -->
   <div class="browse-layout">
 
+    <!-- FILTER TOGGLE (mobile / tablet only) -->
+    <button class="filter-toggle" id="filterToggle" type="button" aria-expanded="false" aria-controls="sidebarPanel">
+      <span class="ft-left">
+        <svg class="ft-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/><circle cx="9" cy="7" r="2.2" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="2.2" fill="currentColor" stroke="none"/><circle cx="8" cy="17" r="2.2" fill="currentColor" stroke="none"/></svg>
+        <span class="ft-title">Filters</span>
+        <span class="ft-current" id="ftCurrent">All Books</span>
+      </span>
+      <svg class="ft-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+
     <!-- SIDEBAR -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebarPanel">
       <div class="sidebar-section">
         <div class="sidebar-label">Exclusive</div>
         <button class="genre-btn originals-btn" data-filter="originals">
@@ -2118,6 +2649,136 @@
     })();
 
   
+    /* ── THEME: keep browser UI colour in sync + smooth switch ── */
+    (function() {
+      const root = document.documentElement;
+      const meta = document.querySelector('meta[name="theme-color"]');
+      let last = root.getAttribute('data-theme');
+      function sync() {
+        if (meta) meta.setAttribute('content', root.getAttribute('data-theme') === 'dark' ? '#0f0a05' : '#f5f0e8');
+      }
+      sync();
+      new MutationObserver(() => {
+        const now = root.getAttribute('data-theme');
+        sync();
+        if (now !== last) {
+          last = now;
+          root.classList.add('theme-switching');
+          clearTimeout(window.__themeT);
+          window.__themeT = setTimeout(() => root.classList.remove('theme-switching'), 450);
+        }
+      }).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+    })();
+
+    /* ── SEARCH BAR: normal <-> ARCHER mode (all screen sizes) ── */
+    (function() {
+      const section = document.querySelector('.search-section');
+      const input   = document.getElementById('searchInput');
+      const sBtn    = document.getElementById('searchBtn');
+      const modeBtn = document.getElementById('archerModeBtn');
+      if (!section || !input || !sBtn || !modeBtn) return;
+
+      const mq = window.matchMedia('(max-width: 560px)');   // only used for shorter placeholder text
+      const NORMAL_PH = input.getAttribute('placeholder');
+      let on = false;
+
+      function setMode(next) {
+        on = next;
+        section.classList.toggle('archer-on', on);
+        modeBtn.setAttribute('aria-pressed', String(on));
+        sBtn.textContent = on ? 'Ask' : 'Search';
+        input.placeholder = mq.matches
+          ? (on ? 'Describe what you want\u2026' : 'Title or author\u2026')
+          : (on ? 'Describe the kind of book you want, e.g. a dark thriller set in Africa\u2026' : NORMAL_PH);
+        const panel = document.getElementById('as-panel');
+        if (panel) panel.classList.toggle('open', on);
+        if (on) { input.value = ''; input.focus(); }
+      }
+
+      modeBtn.addEventListener('click', () => {
+        if (!on) { setMode(true); }
+        else {
+          setMode(false);
+          input.value = '';
+          const r = document.getElementById('as-response');
+          if (r) r.classList.remove('show');
+        }
+      });
+
+      /* Send the question through ARCHER's own code (archer-search.js) */
+      function askArcher() {
+        const q = input.value.trim();
+        const asInput = document.getElementById('as-input');
+        const asBtn   = document.getElementById('as-ask-btn');
+        if (!q || !asInput || !asBtn) return;
+        asInput.value = q;
+        asBtn.click();
+        input.blur();
+      }
+
+      /* Capture phase, so normal search never fires while ARCHER mode is on */
+      section.addEventListener('click', e => {
+        if (on && e.target.closest('#searchBtn')) {
+          e.stopPropagation(); e.preventDefault(); askArcher();
+        }
+      }, true);
+      section.addEventListener('keydown', e => {
+        if (on && e.key === 'Enter' && e.target === input) {
+          e.stopPropagation(); e.preventDefault(); askArcher();
+        }
+      }, true);
+
+      /* Tapping a suggestion chip shows that question in the bar */
+      document.addEventListener('click', e => {
+        const chip = e.target.closest('.as-chip');
+        if (chip && on) input.value = chip.getAttribute('data-q') || '';
+      });
+
+      /* Keep the placeholder right if the window is resized across the phone breakpoint */
+      const onChange = () => setMode(on);
+      (mq.addEventListener ? mq.addEventListener('change', onChange) : mq.addListener(onChange));
+      setMode(false);
+    })();
+
+    /* ── FILTER PANEL TOGGLE (mobile / tablet) ── */
+    (function() {
+      const toggle = document.getElementById('filterToggle');
+      const panel  = document.getElementById('sidebarPanel');
+      const label  = document.getElementById('ftCurrent');
+      if (!toggle || !panel || !label) return;
+
+      const isCompact = () => window.matchMedia('(max-width: 860px)').matches;
+
+      function setOpen(open) {
+        panel.classList.toggle('open', open);
+        toggle.classList.toggle('open', open);
+        toggle.setAttribute('aria-expanded', String(open));
+      }
+
+      /* Show the active filter's name on the toggle bar */
+      function syncLabel() {
+        const active = panel.querySelector('.genre-btn.active');
+        if (!active) { label.textContent = 'All Books'; return; }
+        const clone = active.cloneNode(true);
+        const icon = clone.querySelector('.g-icon');
+        if (icon) icon.remove();
+        label.textContent = clone.textContent.replace(/\s+/g, ' ').trim() || 'All Books';
+      }
+      new MutationObserver(syncLabel).observe(panel, { attributes: true, attributeFilter: ['class'], subtree: true });
+      syncLabel();
+
+      toggle.addEventListener('click', () => setOpen(!panel.classList.contains('open')));
+
+      /* After picking a genre / resetting, fold the panel away so the books are right there */
+      panel.addEventListener('click', e => {
+        if (!isCompact()) return;
+        if (e.target.closest('.genre-btn, .clear-btn')) {
+          setOpen(false);
+          toggle.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    })();
+
     /* ── BACK TO TOP ── */
     (function() {
       const btn = document.getElementById('backToTop');
