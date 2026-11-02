@@ -10,6 +10,18 @@
 (function () {
 
   /* ── SESSION DATA ──────────────────────────── */
+  /* A link opened in a NEW tab starts with empty sessionStorage, so the page would think the
+     reader is signed out. Restore the saved sign-in from localStorage first. */
+  try {
+    if (!sessionStorage.getItem('ms_current_user')) {
+      const saved = localStorage.getItem('ms_current_user');
+      if (saved && JSON.parse(saved)) sessionStorage.setItem('ms_current_user', saved);
+    }
+    if (!sessionStorage.getItem('ms_membership')) {
+      const savedMem = localStorage.getItem('ms_membership');
+      if (savedMem && JSON.parse(savedMem)) sessionStorage.setItem('ms_membership', savedMem);
+    }
+  } catch(e) {}
   let currentUser = null;
   try { currentUser = JSON.parse(sessionStorage.getItem('ms_current_user') || 'null'); } catch(e) {}
   const isSignedIn = currentUser && !currentUser.guest && currentUser.email;
@@ -17,6 +29,12 @@
 
   let prefs = { darkMode: false, accentColor: '#c8963e', streak: 1 };
   try { const s = JSON.parse(sessionStorage.getItem('ms_user_prefs') || '{}'); prefs = {...prefs,...s}; } catch(e) {}
+
+  /* Dark mode is a device preference: persist it beyond the tab. */
+  try {
+    const d = localStorage.getItem('ms_dark_mode');
+    if (d !== null) prefs.darkMode = (d === '1');
+  } catch(e) {}
 
   let bmCount = 0;
   try { bmCount = JSON.parse(sessionStorage.getItem('ms_bookmarks_data') || '[]').length; } catch(e) {}
@@ -85,7 +103,9 @@
       [data-theme="dark"] .book-card{background:#1e1510!important;border-color:rgba(200,150,62,.12)!important}
       [data-theme="dark"] .book-info h3{color:#e8dfd0!important}
       [data-theme="dark"] .search-input{background:#1e1510!important;color:#e8dfd0!important}
-      [data-theme="dark"] .sort-select,.view-btn,.pag-btn{background:#1e1510!important;color:#e8dfd0!important}
+      [data-theme="dark"] .sort-select,
+      [data-theme="dark"] .view-btn,
+      [data-theme="dark"] .pag-btn{background:#1e1510!important;color:#e8dfd0!important}
       [data-theme="dark"] .plan-card{background:#1e1510!important}
       [data-theme="dark"] .compare-table{background:#1e1510!important}
       [data-theme="dark"] .compare-table th{background:#150d05!important}
@@ -94,6 +114,7 @@
       [data-theme="dark"] .faq-q{color:#e8dfd0!important}
       [data-theme="dark"] .ms-sheet{background:#1a1208!important}
       [data-theme="dark"] .ms-mob-link{color:#e8dfd0!important;border-color:rgba(200,150,62,.07)!important}
+      [data-theme="dark"] .ms-sheet .ms-stat{background:#150d05!important;border-color:rgba(200,150,62,.12)!important}
       [data-theme="dark"] .ms-mob-link:hover{background:rgba(200,150,62,.08)!important}
       [data-theme="dark"] .ms-mob-stat{background:#150d05!important}
       [data-theme="dark"] .ms-mob-stat-num{color:#e8dfd0!important}
@@ -321,7 +342,17 @@
   document.head.appendChild(style);
 
   /* ── HELPER ────────────────────────────────── */
-  function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+  /* Notification links come from the DB — allow only same-site pages
+     and http(s). Blocks javascript: and data: URLs. */
+  function safeLink(u){
+    const v = String(u || '').trim();
+    if (!v) return 'notifications.html';
+    if (/^https?:\/\//i.test(v)) return esc(v);
+    if (/^[a-z][a-z0-9+.-]*:/i.test(v)) return 'notifications.html';
+    if (v.startsWith('//')) return 'notifications.html';
+    return esc(v);
+  }
   function savePrefs(){ sessionStorage.setItem('ms_user_prefs', JSON.stringify(prefs)); }
 
   /* ── USER DATA ─────────────────────────────── */
@@ -453,8 +484,8 @@
         <div class="dd-section">Library</div>
         <a href="browse.html" class="dd-item"><span class="dd-icon">📚</span> Browse Books</a>
         <a href="book.html" class="dd-item"><span class="dd-icon">🔖</span> My Books ${bmCount>0?`<span class="dd-badge">${bmCount}</span>`:''}</a>
-        <a href="arena.html" class="dd-item" id="nav-arena-link"><span class="dd-icon">⚔️</span> The Arena</a>
-        <a href="inkwell.html" class="dd-item"><span class="dd-icon">✍️</span> Inkwell</a>
+        <a href="arena.html" class="dd-item" id="nav-arena-link" target="_blank" rel="noopener"><span class="dd-icon">⚔️</span> The Arena</a>
+        <a href="inkwell.html" class="dd-item" target="_blank" rel="noopener"><span class="dd-icon">✍️</span> Inkwell</a>
         <a href="my-requests.html" class="dd-item" id="nav-requests-link"><span class="dd-icon">📋</span> My Event Requests</a>
         <div class="dd-section">Account</div>
         <a href="profile.html" class="dd-item"><span class="dd-icon">👤</span> My Profile</a>
@@ -522,8 +553,8 @@
       <a href="book.html" class="ms-mob-link"><span class="ms-mob-link-icon">🔖</span> My Books ${bmCount>0?`<span class="ms-mob-link-badge">${bmCount}</span>`:''}</a>
       <a href="membership.html" class="ms-mob-link"><span class="ms-mob-link-icon">💎</span> Membership</a>
       <a href="feeds.html" class="ms-mob-link"><span class="ms-mob-link-icon">📰</span> Feeds</a>
-      <a href="arena.html" class="ms-mob-link" id="mob-arena-link"><span class="ms-mob-link-icon">⚔️</span> The Arena</a>
-      <a href="inkwell.html" class="ms-mob-link"><span class="ms-mob-link-icon">✍️</span> Inkwell</a>
+      <a href="arena.html" class="ms-mob-link" id="mob-arena-link" target="_blank" rel="noopener"><span class="ms-mob-link-icon">⚔️</span> The Arena</a>
+      <a href="inkwell.html" class="ms-mob-link" target="_blank" rel="noopener"><span class="ms-mob-link-icon">✍️</span> Inkwell</a>
       <a href="my-requests.html" class="ms-mob-link" id="mob-requests-link"><span class="ms-mob-link-icon">📋</span> My Event Requests</a>
       <a href="about.html" class="ms-mob-link"><span class="ms-mob-link-icon">ℹ️</span> About</a>`;
 
@@ -581,6 +612,29 @@
     buildSheet();
   }
 
+  /* ── OPEN ARENA & INKWELL IN A NEW TAB ─────────────────────────
+     Covers every link to them on the page: the page's own menu, the dropdown, the mobile sheet,
+     and anything added later. A link to the page you are already on is left alone. */
+  (function newTabLinks() {
+    const here = (location.pathname.split('/').pop() || '').toLowerCase();
+    const re = /(^|\/)(arena|inkwell)\.html(?:[?#]|$)/i;
+    function mark(root) {
+      (root.querySelectorAll ? root.querySelectorAll('a[href]') : []).forEach(a => {
+        if (a.target) return;
+        const href = a.getAttribute('href') || '';
+        const m = re.exec(href);
+        if (!m || (m[2].toLowerCase() + '.html') === here) return;
+        a.target = '_blank'; a.rel = 'noopener';
+      });
+    }
+    function run() {
+      mark(document);
+      new MutationObserver(muts => muts.forEach(m => m.addedNodes.forEach(n => { if (n.nodeType === 1) { if (n.matches && n.matches('a[href]')) mark({ querySelectorAll: () => [n] }); mark(n); } }))
+      ).observe(document.body, { childList: true, subtree: true });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
+  })();
+
   /* ── GLOBAL FUNCTIONS ──────────────────────── */
   window.toggleNavDropdown = function(e) {
     e.stopPropagation();
@@ -596,6 +650,7 @@
     });
     applyDarkMode(prefs.darkMode);
     savePrefs();
+    try { localStorage.setItem('ms_dark_mode', prefs.darkMode ? '1' : '0'); } catch(err) {}
   };
 
   window.signOut = async function() {
@@ -704,7 +759,7 @@
       return;
     }
     list.innerHTML = loadedNotifs.slice(0, 8).map(n => `
-      <a class="notif-item ${readIds.has(n.id) ? '' : 'unread'}" href="${n.link_url || 'notifications.html'}">
+      <a class="notif-item ${readIds.has(n.id) ? '' : 'unread'}" href="${safeLink(n.link_url)}">
         <div class="notif-item-title">${esc(n.title)}</div>
         <div class="notif-item-msg">${esc(n.message)}</div>
         <div class="notif-item-time">${timeAgoShort(n.created_at)}</div>

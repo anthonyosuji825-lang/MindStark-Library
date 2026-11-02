@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#0e0a06"/>
   <link rel="icon" type="image/png" href="logo.png"/>
   <meta property="og:title" content="The Arena — MindStark"/>
   <meta property="og:description" content="Compete. Answer first. Win units."/>
@@ -32,15 +33,17 @@
       --arena-border-bright: rgba(200,150,62,.4);
       --arena-glow: rgba(200,150,62,.08);
       --arena-text: rgba(245,240,232,.92);
-      --arena-muted: rgba(245,240,232,.42);
+      --arena-muted: rgba(245,240,232,.5);
       --gold-dim: rgba(200,150,62,.7);
       --success: #4caf7d;
       --danger: #e05c5c;
       --danger-dim: rgba(224,92,92,.15);
+      --warn: #e0a020;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
+    [hidden] { display: none !important; }
 
     body {
       font-family: 'DM Sans', sans-serif;
@@ -49,6 +52,13 @@
       line-height: 1.6;
       min-height: 100vh;
       overflow-x: hidden;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; overflow: hidden;
+      clip: rect(0 0 0 0); white-space: nowrap;
     }
 
     /* ── AMBIENT BACKGROUND ────────────────────────────────────── */
@@ -92,6 +102,12 @@
       font-family: 'DM Mono', monospace;
     }
     .nav-balance span { color: var(--arena-muted); font-weight: 400; font-family: 'DM Sans', sans-serif; margin-right: .2rem; }
+    .speech-btn {
+      background: rgba(200,150,62,.1); border: 1px solid rgba(200,150,62,.4);
+      color: var(--gold); border-radius: 50px; padding: .35rem .75rem;
+      font-size: .8rem; cursor: pointer; transition: all .2s; font-family: inherit;
+    }
+    .speech-btn:hover { background: rgba(200,150,62,.18); }
 
     .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: .4rem; background: none; border: none; z-index: 300; }
     .hamburger span { display: block; width: 24px; height: 2px; background: var(--cream); border-radius: 2px; transition: all .3s; }
@@ -106,7 +122,7 @@
     /* ── ARENA HEADER ──────────────────────────────────────────── */
     .arena-header {
       text-align: center;
-      padding: 2.5rem 0 2rem;
+      padding: 2.5rem 0 1.25rem;
       position: relative;
     }
     .arena-eyebrow {
@@ -129,11 +145,13 @@
       font-size: .95rem; color: var(--arena-muted);
       max-width: 480px; margin: 0 auto;
     }
+    .arena-propose { margin-top: .75rem; font-size: .8rem; color: var(--arena-muted); }
+    .arena-propose a { color: var(--gold); text-decoration: none; font-weight: 600; }
 
     /* ── STATUS PILL ───────────────────────────────────────────── */
     .status-row {
       display: flex; justify-content: center; gap: 1rem;
-      flex-wrap: wrap; margin: 1.5rem 0 2.5rem;
+      flex-wrap: wrap; margin: 1.5rem 0 .75rem;
     }
     .status-pill {
       display: inline-flex; align-items: center; gap: .5rem;
@@ -153,6 +171,21 @@
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: .5; transform: scale(.7); }
     }
+
+    /* Connection indicator */
+    .conn-row { display: flex; justify-content: center; margin-bottom: 2rem; }
+    .conn {
+      display: inline-flex; align-items: center; gap: .45rem;
+      font-size: .72rem; letter-spacing: .04em; color: var(--arena-muted);
+    }
+    .conn-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--arena-muted); }
+    .conn[data-state="live"] { color: var(--success); }
+    .conn[data-state="live"] .conn-dot { background: var(--success); box-shadow: 0 0 0 3px rgba(76,175,125,.18); }
+    .conn[data-state="polling"] { color: var(--warn); }
+    .conn[data-state="polling"] .conn-dot { background: var(--warn); }
+    .conn[data-state="reconnecting"], .conn[data-state="offline"] { color: var(--danger); }
+    .conn[data-state="reconnecting"] .conn-dot,
+    .conn[data-state="offline"] .conn-dot { background: var(--danger); animation: pulse-dot 1.2s ease-in-out infinite; }
 
     /* ── MAIN GRID ─────────────────────────────────────────────── */
     .arena-grid {
@@ -183,15 +216,16 @@
       text-transform: uppercase; color: var(--gold);
       background: rgba(200,150,62,.1); padding: .2rem .65rem;
       border-radius: 50px; border: 1px solid var(--arena-border-bright);
+      font-variant-numeric: tabular-nums;
     }
+    .col-main > .card, .col-side > .card { margin-bottom: 1.5rem; }
 
     /* ── EVENT INFO CARD ───────────────────────────────────────── */
-    .event-info-card { margin-bottom: 1.5rem; }
     .event-info-body { padding: 1.4rem; }
     .event-title-display {
       font-family: 'Playfair Display', serif;
       font-size: 1.5rem; font-weight: 900; color: var(--cream);
-      margin-bottom: .4rem;
+      margin-bottom: .4rem; overflow-wrap: anywhere;
     }
     .event-type-tag {
       font-size: .7rem; letter-spacing: .15em; text-transform: uppercase;
@@ -212,7 +246,7 @@
     .event-stat-val {
       display: block; font-family: 'DM Mono', monospace;
       font-size: 1.4rem; font-weight: 500; color: var(--gold);
-      line-height: 1;
+      line-height: 1; font-variant-numeric: tabular-nums;
     }
     .event-stat-lbl {
       display: block; font-size: .68rem; text-transform: uppercase;
@@ -220,9 +254,7 @@
     }
 
     /* ── PRIZE BREAKDOWN ───────────────────────────────────────── */
-    .prize-breakdown {
-      display: flex; flex-direction: column; gap: .5rem;
-    }
+    .prize-breakdown { display: flex; flex-direction: column; gap: .5rem; }
     .prize-row {
       display: flex; align-items: center; justify-content: space-between;
       padding: .65rem .9rem; border-radius: 8px;
@@ -232,22 +264,16 @@
       display: flex; align-items: center; gap: .65rem;
       font-size: .85rem; color: var(--arena-text); font-weight: 500;
     }
-    .prize-medal {
-      font-size: 1rem; width: 24px; text-align: center;
-    }
+    .prize-medal { font-size: 1rem; width: 24px; text-align: center; }
     .prize-amount {
       font-family: 'DM Mono', monospace; font-size: .88rem;
-      color: var(--gold); font-weight: 500;
+      color: var(--gold); font-weight: 500; font-variant-numeric: tabular-nums;
     }
 
     /* ── QUESTION ARENA ────────────────────────────────────────── */
-    .question-card { margin-bottom: 1.5rem; }
     .question-body { padding: 2rem 1.4rem; min-height: 200px; display: flex; flex-direction: column; justify-content: center; }
 
-    /* Waiting state */
-    .q-waiting {
-      text-align: center; padding: 2rem 0;
-    }
+    .q-waiting { text-align: center; padding: 2rem 0; }
     .q-waiting-icon {
       font-size: 2.5rem; margin-bottom: 1rem;
       animation: float 3s ease-in-out infinite;
@@ -261,8 +287,8 @@
       font-size: 1.2rem; color: var(--cream); margin-bottom: .5rem;
     }
     .q-waiting p { font-size: .88rem; color: var(--arena-muted); }
+    .q-waiting .reveal-answer { color: var(--gold); font-size: 1.1rem; font-weight: 700; margin-top: .5rem; }
 
-    /* Active question */
     .q-number {
       font-size: .7rem; letter-spacing: .18em; text-transform: uppercase;
       color: var(--gold); font-weight: 600; margin-bottom: 1rem;
@@ -273,21 +299,22 @@
     }
     .q-text {
       font-family: 'Playfair Display', serif;
-      font-size: clamp(1.1rem, 2.5vw, 1.45rem);
+      font-size: clamp(1.2rem, 2.8vw, 1.6rem);
       font-weight: 700; color: var(--cream);
-      line-height: 1.45; margin-bottom: 1.75rem;
+      line-height: 1.45; margin-bottom: 1.75rem; overflow-wrap: anywhere;
     }
+    .q-hint { font-size: .75rem; color: var(--arena-muted); margin-top: .6rem; }
 
-    /* Answer input */
     .answer-form { display: flex; gap: .75rem; align-items: stretch; }
     .answer-input {
-      flex: 1;
+      flex: 1; min-width: 0;
       background: var(--arena-surface);
       border: 1.5px solid var(--arena-border);
       border-radius: 10px;
       padding: .85rem 1.1rem;
       font-family: 'DM Sans', sans-serif;
-      font-size: .95rem; color: var(--cream);
+      font-size: 16px; /* >=16px stops iOS zooming the page on focus */
+      color: var(--cream);
       outline: none; transition: border-color .2s;
     }
     .answer-input::placeholder { color: var(--arena-muted); }
@@ -298,14 +325,13 @@
       background: var(--gold); color: var(--brown);
       border: none; border-radius: 10px;
       padding: .85rem 1.5rem; font-family: 'DM Sans', sans-serif;
-      font-size: .9rem; font-weight: 700; cursor: pointer;
-      transition: all .2s; white-space: nowrap;
+      font-size: .95rem; font-weight: 700; cursor: pointer;
+      transition: all .2s; white-space: nowrap; min-width: 92px;
     }
     .submit-btn:hover { background: var(--cream); transform: translateY(-1px); }
     .submit-btn:active { transform: translateY(0); }
     .submit-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
 
-    /* Feedback flash */
     .answer-feedback {
       margin-top: .85rem; padding: .65rem 1rem; border-radius: 8px;
       font-size: .88rem; font-weight: 500;
@@ -316,18 +342,39 @@
       background: rgba(76,175,125,.12); border: 1px solid rgba(76,175,125,.3);
       color: var(--success);
     }
-    .answer-feedback.wrong {
+    .answer-feedback.wrong, .answer-feedback.note {
       display: block;
       background: var(--danger-dim); border: 1px solid rgba(224,92,92,.3);
       color: var(--danger);
     }
+    .answer-feedback.note {
+      background: rgba(245,240,232,.04); border-color: var(--arena-border);
+      color: var(--arena-muted);
+    }
+
+    /* Hot Seat */
+    .hs-seat {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .75rem 1rem; margin-bottom: 1rem;
+      background: var(--arena-surface);
+      border: 1.5px solid var(--arena-border); border-radius: 10px;
+    }
+    .hs-seat.me { background: rgba(200,150,62,.08); border-color: var(--gold); }
+    .hs-avatar {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      background: var(--arena-card); border: 2px solid var(--arena-border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .8rem; font-weight: 700; color: var(--gold); text-transform: uppercase;
+    }
+    .hs-seat.me .hs-avatar { border-color: var(--gold); }
+    .hs-label { font-size: .7rem; color: var(--arena-muted); letter-spacing: .1em; text-transform: uppercase; }
+    .hs-name { font-size: .92rem; font-weight: 700; color: var(--cream); overflow-wrap: anywhere; }
+    .hs-seat.me .hs-name { color: var(--gold); }
+    .hs-flag { margin-left: auto; font-size: 1.2rem; }
 
     /* ── JOIN CARD ─────────────────────────────────────────────── */
-    .join-card { margin-bottom: 1.5rem; }
     .join-body { padding: 1.4rem; }
-    .join-desc {
-      font-size: .88rem; color: var(--arena-muted); margin-bottom: 1.25rem; line-height: 1.6;
-    }
+    .join-desc { font-size: .88rem; color: var(--arena-muted); margin-bottom: 1.25rem; line-height: 1.6; }
     .join-btn {
       width: 100%; padding: 1rem; border-radius: 10px;
       background: var(--gold); color: var(--brown);
@@ -337,29 +384,45 @@
     }
     .join-btn:hover { background: var(--cream); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(200,150,62,.25); }
     .join-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
+    .join-note { font-size: .75rem; color: var(--arena-muted); margin-top: .5rem; text-align: center; }
     .already-joined {
       display: flex; align-items: center; gap: .6rem;
       padding: .85rem 1rem; border-radius: 10px;
       background: rgba(76,175,125,.08); border: 1px solid rgba(76,175,125,.25);
       font-size: .88rem; color: var(--success); font-weight: 500;
     }
+    .standing {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+      background: var(--arena-border); border: 1px solid var(--arena-border);
+      border-radius: 10px; overflow: hidden; margin-top: .85rem;
+    }
+    .standing > div { background: var(--arena-surface); padding: .7rem; text-align: center; }
+    .standing-val {
+      display: block; font-family: 'DM Mono', monospace; font-size: 1.25rem;
+      color: var(--gold); line-height: 1; font-variant-numeric: tabular-nums;
+    }
+    .standing-lbl {
+      display: block; font-size: .65rem; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--arena-muted); margin-top: .3rem;
+    }
 
     /* ── LEADERBOARD ───────────────────────────────────────────── */
     .leaderboard-list { padding: .5rem 0; }
     .lb-row {
       display: flex; align-items: center; gap: .85rem;
-      padding: .75rem 1.1rem;
+      padding: .7rem 1.1rem;
       border-bottom: 1px solid var(--arena-border);
       transition: background .15s;
     }
     .lb-row:last-child { border-bottom: none; }
     .lb-row:hover { background: var(--arena-glow); }
-    .lb-row.is-me { background: rgba(200,150,62,.05); }
+    .lb-row.is-me { background: rgba(200,150,62,.07); box-shadow: inset 3px 0 0 var(--gold); }
 
     .lb-rank {
       font-family: 'DM Mono', monospace;
       font-size: .8rem; color: var(--arena-muted);
-      width: 20px; text-align: center; flex-shrink: 0;
+      min-width: 24px; text-align: center; flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
     }
     .lb-rank.gold { color: #ffd700; }
     .lb-rank.silver { color: #c0c0c0; }
@@ -374,9 +437,8 @@
       flex-shrink: 0; text-transform: uppercase;
     }
     .lb-name {
-      flex: 1; font-size: .88rem; color: var(--arena-text);
-      font-weight: 500; truncate: ellipsis; overflow: hidden;
-      white-space: nowrap;
+      flex: 1; min-width: 0; font-size: .88rem; color: var(--arena-text);
+      font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .lb-name .you-tag {
       font-size: .65rem; color: var(--gold); margin-left: .4rem;
@@ -386,36 +448,23 @@
     .lb-score {
       font-family: 'DM Mono', monospace;
       font-size: .95rem; font-weight: 500; color: var(--gold);
-      flex-shrink: 0;
+      flex-shrink: 0; font-variant-numeric: tabular-nums;
     }
-
-    .lb-empty {
-      padding: 2rem 1.4rem; text-align: center;
-      font-size: .88rem; color: var(--arena-muted);
-    }
+    .lb-gap { text-align: center; color: var(--arena-muted); font-size: .8rem; line-height: 1; padding: .2rem 0; letter-spacing: .3em; }
+    .lb-more { padding: .6rem 1.1rem .2rem; text-align: center; font-size: .72rem; color: var(--arena-muted); }
+    .lb-empty { padding: 2rem 1.4rem; text-align: center; font-size: .88rem; color: var(--arena-muted); }
 
     /* ── PROGRESS BAR ──────────────────────────────────────────── */
-    .progress-wrap {
-      padding: .85rem 1.4rem;
-      border-top: 1px solid var(--arena-border);
-    }
+    .progress-wrap { padding: .85rem 1.4rem; border-top: 1px solid var(--arena-border); }
     .progress-label {
       display: flex; justify-content: space-between;
       font-size: .72rem; color: var(--arena-muted); margin-bottom: .5rem;
     }
-    .progress-track {
-      height: 4px; background: var(--arena-surface); border-radius: 2px; overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%; background: var(--gold);
-      border-radius: 2px; transition: width .4s ease;
-    }
+    .progress-track { height: 4px; background: var(--arena-surface); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--gold); border-radius: 2px; transition: width .4s ease; }
 
     /* ── NO EVENT STATE ────────────────────────────────────────── */
-    .no-event {
-      text-align: center; padding: 5rem 2rem;
-      grid-column: 1 / -1;
-    }
+    .no-event { text-align: center; padding: 5rem 2rem; }
     .no-event-icon { font-size: 3rem; margin-bottom: 1.5rem; opacity: .5; }
     .no-event h2 {
       font-family: 'Playfair Display', serif;
@@ -424,8 +473,7 @@
     .no-event p { color: var(--arena-muted); font-size: .92rem; max-width: 360px; margin: 0 auto; }
 
     /* ── FINISHED STATE ────────────────────────────────────────── */
-    .results-card { margin-bottom: 1.5rem; }
-    .results-body { padding: 1.75rem 1.4rem; }
+    .results-body { padding: .5rem 0; }
     .results-title {
       font-family: 'Playfair Display', serif;
       font-size: 1.3rem; font-weight: 900; color: var(--gold);
@@ -435,9 +483,7 @@
       display: flex; align-items: flex-end; justify-content: center;
       gap: .75rem; margin-bottom: 1.75rem;
     }
-    .podium-place {
-      flex: 1; max-width: 120px; text-align: center;
-    }
+    .podium-place { flex: 1; max-width: 120px; text-align: center; min-width: 0; }
     .podium-crown { font-size: 1.5rem; margin-bottom: .5rem; }
     .podium-name {
       font-size: .82rem; font-weight: 600; color: var(--cream);
@@ -452,10 +498,8 @@
     .podium-bar.first { height: 80px; border-color: var(--gold); background: rgba(200,150,62,.1); }
     .podium-bar.second { height: 56px; }
     .podium-bar.third { height: 40px; }
-    .podium-payout {
-      font-family: 'DM Mono', monospace;
-      font-size: .78rem; color: var(--gold); padding: .5rem;
-    }
+    .podium-payout { font-family: 'DM Mono', monospace; font-size: .78rem; color: var(--gold); padding: .5rem; }
+    .results-note { text-align: center; font-size: .82rem; color: var(--arena-muted); }
 
     /* ── PIN MODAL ─────────────────────────────────────────────── */
     .modal-overlay {
@@ -496,15 +540,12 @@
       background: var(--arena-surface); border: 1px solid var(--arena-border);
       border-radius: 10px; padding: 1rem 1.1rem; margin-bottom: 1.5rem;
     }
-    .modal-fee-row {
-      display: flex; justify-content: space-between; align-items: center;
-      font-size: .85rem;
-    }
+    .modal-fee-row { display: flex; justify-content: space-between; align-items: center; font-size: .85rem; }
     .modal-fee-row + .modal-fee-row { margin-top: .5rem; padding-top: .5rem; border-top: 1px solid var(--arena-border); }
     .modal-fee-row span:first-child { color: var(--arena-muted); }
     .modal-fee-row span:last-child { color: var(--gold); font-family: 'DM Mono', monospace; font-weight: 600; }
 
-    .pin-label { font-size: .8rem; color: var(--arena-muted); margin-bottom: .5rem; letter-spacing: .04em; }
+    .pin-label { display: block; font-size: .8rem; color: var(--arena-muted); margin-bottom: .5rem; letter-spacing: .04em; }
     .pin-input {
       width: 100%; background: var(--arena-surface);
       border: 1.5px solid var(--arena-border); border-radius: 10px;
@@ -516,11 +557,7 @@
     .pin-input:focus { border-color: var(--gold); }
     .pin-input::placeholder { letter-spacing: .1em; font-size: .9rem; }
 
-    .modal-err {
-      font-size: .82rem; color: var(--danger);
-      margin-bottom: 1rem; text-align: center;
-      min-height: 1.2em;
-    }
+    .modal-err { font-size: .82rem; color: var(--danger); margin-bottom: 1rem; text-align: center; min-height: 1.2em; }
 
     .modal-confirm-btn {
       width: 100%; padding: .95rem;
@@ -543,11 +580,29 @@
       font-size: .88rem; font-weight: 500;
       box-shadow: 0 8px 32px rgba(0,0,0,.4);
       transition: transform .35s cubic-bezier(.34,1.56,.64,1);
-      z-index: 999; white-space: nowrap; pointer-events: none;
+      z-index: 999; max-width: 92vw; text-align: center; pointer-events: none;
     }
     .toast.show { transform: translateX(-50%) translateY(0); }
     .toast.success { border-color: rgba(76,175,125,.5); color: var(--success); }
     .toast.error { border-color: rgba(224,92,92,.5); color: var(--danger); }
+
+    /* Host comment banner */
+    .host-banner {
+      position: fixed; bottom: 5rem; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--arena-card);
+      border: 1px solid var(--arena-border-bright);
+      border-radius: 12px; padding: .85rem 1.4rem;
+      max-width: 480px; width: 90%;
+      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+      z-index: 998; opacity: 0;
+      transition: all .4s cubic-bezier(.34,1.56,.64,1);
+      display: flex; align-items: flex-start; gap: .75rem;
+    }
+    .host-banner.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .host-banner-label { font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); margin-bottom: .2rem; }
+    .host-banner-text { font-size: .9rem; color: var(--arena-text); line-height: 1.5; overflow-wrap: anywhere; }
+    .host-banner-x { background: none; border: none; color: var(--arena-muted); cursor: pointer; font-size: .9rem; margin-left: auto; flex-shrink: 0; padding: .2rem; }
 
     /* ── LOADING SKELETON ──────────────────────────────────────── */
     .skeleton {
@@ -561,26 +616,20 @@
       100% { background-position: -200% 0; }
     }
 
-    /* ── COUNTDOWN TIMER (Grand Hall) ──────────────────────────── */
-    .countdown-wrap {
-      display: flex; align-items: center; gap: .85rem;
-      margin-bottom: 1rem;
-    }
+    /* ── COUNTDOWN TIMER ───────────────────────────────────────── */
+    .countdown-wrap { display: flex; align-items: center; gap: .85rem; margin-bottom: 1rem; }
     .countdown-bar-track {
       flex: 1; height: 6px; background: var(--arena-surface);
-      border-radius: 3px; overflow: hidden;
-      border: 1px solid var(--arena-border);
+      border-radius: 3px; overflow: hidden; border: 1px solid var(--arena-border);
     }
     .countdown-bar-fill {
-      height: 100%; background: var(--gold);
-      border-radius: 3px;
-      transition: width .5s linear, background .3s;
+      height: 100%; width: 100%; background: var(--gold); border-radius: 3px;
+      transition: width .25s linear, background .3s;
     }
     .countdown-label {
-      font-family: 'DM Mono', monospace;
-      font-size: .95rem; font-weight: 500;
-      color: var(--gold); min-width: 32px;
-      text-align: right; flex-shrink: 0;
+      font-family: 'DM Mono', monospace; font-size: .95rem; font-weight: 500;
+      color: var(--gold); min-width: 36px; text-align: right; flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
     }
 
     /* ── REVEAL ANIMATION ──────────────────────────────────────── */
@@ -589,17 +638,36 @@
 
     /* ── RESPONSIVE ────────────────────────────────────────────── */
     @media (max-width: 900px) {
-      .arena-grid { grid-template-columns: 1fr; }
       .nav-links { display: none; }
       .hamburger { display: flex; }
+
+      /* On phones the question is what matters: flatten the two columns and
+         reorder so it comes first, then entry, then details, then leaderboard. */
+      .arena-grid { grid-template-columns: 1fr; gap: 1.25rem; }
+      .col-main, .col-side { display: contents; }
+      .col-main > .card, .col-side > .card { margin-bottom: 0; }
+      .question-card   { order: 1; }
+      .join-card       { order: 2; }
+      .event-info-card { order: 3; }
+      .lb-card         { order: 4; }
     }
     @media (max-width: 540px) {
       .nav-inner { padding: .9rem 1rem; }
       .arena-wrap { padding: 1.25rem 1rem 3rem; }
+      .arena-header { padding-top: 1.5rem; }
       .event-stats { grid-template-columns: repeat(3, 1fr); }
+      .event-stat { padding: .8rem .4rem; }
+      .event-stat-val { font-size: 1.15rem; }
       .answer-form { flex-direction: column; }
-      .submit-btn { width: 100%; }
+      .submit-btn { width: 100%; padding: 1rem; }
+      .question-body { padding: 1.5rem 1.1rem; }
       .modal { padding: 1.5rem; }
+      .nav-balance > span:first-child { display: none; }   /* hide only the "Balance" label, keep the amount */
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+      .reveal { opacity: 1; transform: none; }
     }
   </style>
 </head>
@@ -623,7 +691,7 @@
           <span>Balance</span>
           <span id="nav-balance-val">—</span>
         </div>
-        <button id="speech-toggle" title="Toggle voice" style="background:rgba(200,150,62,.1);border:1px solid rgba(200,150,62,.4);color:var(--gold);border-radius:50px;padding:.35rem .75rem;font-size:.8rem;cursor:pointer;transition:all .2s;">🔊 Voice</button>
+        <button class="speech-btn" id="speech-toggle" title="Toggle voice" aria-pressed="true">🔊 Voice</button>
         <button class="hamburger" id="hamburger" aria-label="Menu">
           <span></span><span></span><span></span>
         </button>
@@ -637,8 +705,8 @@
       <div class="arena-eyebrow">The Arena</div>
       <h1 class="arena-title">Compete. Answer <em>First</em>. Win.</h1>
       <p class="arena-subtitle">Real-time intellectual combat. The fastest mind takes the prize.</p>
-      <p style="margin-top:.75rem;font-size:.8rem;color:var(--arena-muted);">
-        Want to organize an event? <a href="arena-request.html" style="color:var(--gold);text-decoration:none;font-weight:600;">Propose one →</a>
+      <p class="arena-propose">
+        Want to organize an event? <a href="arena-request.html">Propose one →</a>
       </p>
       <div class="status-row" id="status-row">
         <div class="status-pill registering">
@@ -646,13 +714,25 @@
           Loading...
         </div>
       </div>
+      <div class="conn-row">
+        <div class="conn" id="conn" data-state="connecting" role="status" aria-live="polite">
+          <span class="conn-dot"></span><span id="conn-label">Connecting…</span>
+        </div>
+      </div>
     </header>
 
     <!-- ── MAIN CONTENT ──────────────────────────────────────────── -->
     <div id="arena-content">
-      <!-- Populated by JS -->
-      <div class="arena-grid">
-        <div>
+
+      <!-- Shown when there is no event (or the event could not be loaded) -->
+      <div class="no-event" id="no-event" hidden>
+        <div class="no-event-icon">🏟</div>
+        <h2 id="no-event-title">The Arena is Empty</h2>
+        <p id="no-event-text">No events are scheduled right now. MindStark will announce the next Gauntlet soon. Stay sharp.</p>
+      </div>
+
+      <div class="arena-grid" id="arena-grid">
+        <div class="col-main">
           <div class="card event-info-card reveal">
             <div class="card-header">
               <span class="card-title">Event Details</span>
@@ -698,7 +778,7 @@
               <span class="card-title">Question</span>
               <span class="card-badge" id="q-progress-label">— / —</span>
             </div>
-            <div class="question-body" id="question-body">
+            <div class="question-body" id="question-body" aria-live="polite">
               <div class="q-waiting">
                 <div class="q-waiting-icon">⚔️</div>
                 <h3>The Arena Awaits</h3>
@@ -718,7 +798,7 @@
         </div>
 
         <!-- Right sidebar -->
-        <div>
+        <div class="col-side">
           <!-- Join / status card -->
           <div class="card join-card reveal" id="join-card">
             <div class="card-header">
@@ -731,10 +811,10 @@
           </div>
 
           <!-- Leaderboard -->
-          <div class="card reveal">
+          <div class="card lb-card reveal">
             <div class="card-header">
               <span class="card-title">Leaderboard</span>
-              <span class="card-badge" id="lb-count">0</span>
+              <span class="card-badge" id="lb-count" title="Players in this event">0</span>
             </div>
             <div id="leaderboard-list" class="leaderboard-list">
               <div class="lb-empty">No participants yet.</div>
@@ -746,11 +826,11 @@
   </div>
 
   <!-- ── PIN MODAL ───────────────────────────────────────────────── -->
-  <div class="modal-overlay" id="pin-modal">
-    <div class="modal">
-      <button class="modal-close" id="modal-close">✕</button>
-      <h2 class="modal-title">Confirm Entry</h2>
-      <p class="modal-sub">Enter your 4-digit Wallet PIN to lock in your entry fee and join the Gauntlet.</p>
+  <div class="modal-overlay" id="pin-modal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="pin-modal-title">
+      <button class="modal-close" id="modal-close" aria-label="Close">✕</button>
+      <h2 class="modal-title" id="pin-modal-title">Confirm Entry</h2>
+      <p class="modal-sub">Enter your 4-digit Wallet PIN to lock in your entry fee and join the event.</p>
       <div class="modal-fee-summary">
         <div class="modal-fee-row">
           <span>Entry Fee</span>
@@ -765,20 +845,20 @@
           <span id="modal-after">— units</span>
         </div>
       </div>
-      <p class="pin-label">Transaction PIN</p>
+      <label class="pin-label" for="pin-input">Transaction PIN</label>
       <input
-        type="password" inputmode="numeric" maxlength="4"
+        type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4"
         class="pin-input" id="pin-input"
         placeholder="••••"
         autocomplete="off"
       />
-      <div class="modal-err" id="modal-err"></div>
-      <button class="modal-confirm-btn" id="modal-confirm-btn">Confirm & Join</button>
+      <div class="modal-err" id="modal-err" role="alert"></div>
+      <button class="modal-confirm-btn" id="modal-confirm-btn">Confirm &amp; Join</button>
     </div>
   </div>
 
   <!-- ── TOAST ───────────────────────────────────────────────────── -->
-  <div class="toast" id="toast"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <!-- ── SCRIPTS ─────────────────────────────────────────────────── -->
   <script src="supabase.js"></script>
