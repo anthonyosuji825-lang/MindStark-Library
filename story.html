@@ -760,6 +760,21 @@ body.dark-mode .mobile-sheet{background:var(--warm2);}
   .reader-content{padding:2rem 1rem 4rem;font-size:.97rem;}
   .chapter-comments{padding:0 1rem 3rem;}
 }
+
+/* ── LAYOUT POLISH (phones): compact hero so the actions sit above the fold ── */
+@media (max-width:540px){
+  .story-page{padding:1.25rem 1rem 6rem;}
+  .story-hero{grid-template-columns:104px minmax(0,1fr);gap:.35rem 1rem;align-items:start;margin-bottom:2rem;}
+  .story-cover-wrap{grid-row:1 / span 4;max-width:none;margin:0;}
+  .story-cover{border-radius:12px;box-shadow:0 8px 24px rgba(59,42,26,.2);}
+  .story-info{display:contents;}
+  .story-eyebrow,.story-title,.story-author-line,.story-genre-row{grid-column:2;text-align:left;justify-content:flex-start;margin:0;}
+  .story-title{font-size:1.3rem;line-height:1.2;}
+  .story-originals-badge{top:auto;bottom:6px;left:6px;right:6px;text-align:center;white-space:nowrap;letter-spacing:.02em;font-size:.44rem;padding:.22rem .2rem;}
+  .story-stats{grid-column:1 / -1;display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:.9rem 0 0;padding:.75rem .25rem;text-align:center;}
+  .story-actions{grid-column:1 / -1;display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.9rem;}
+  .btn-read{grid-column:1 / -1;}
+}
 </style>
 </head>
 <body>
@@ -1186,6 +1201,13 @@ let readerTheme = 'cream';
 let isLiked = false;
 let isFollowing = false;
 
+/* Escape anything user-supplied before it goes near innerHTML. */
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 function formatNum(n) {
   if (!n) return '0';
   if (n >= 1000) return (n/1000).toFixed(1) + 'k';
@@ -1277,13 +1299,13 @@ function renderBookInfo() {
 
   // Cover
   if (book.cover_url) {
-    document.getElementById('story-cover').innerHTML = `<img src="${book.cover_url}" alt="${book.title}"/>`;
+    document.getElementById('story-cover').innerHTML = `<img src="${esc(book.cover_url)}" alt="${esc(book.title)}"/>`;
   }
 
   // Genre
   const genreRow = document.getElementById('story-genre-row');
   if (book.genre) {
-    genreRow.innerHTML = `<span class="genre-tag">${book.genre}</span>`;
+    genreRow.innerHTML = `<span class="genre-tag">${esc(book.genre)}</span>`;
   }
 
   // Stats
@@ -1314,7 +1336,7 @@ function renderChapters() {
     <div class="chapter-item" onclick="openReader(${i})">
       <div class="chapter-num">Ch.${String(ch.chapter_number).padStart(2,'0')}</div>
       <div class="chapter-info">
-        <div class="chapter-name">${ch.title || `Chapter ${ch.chapter_number}`}</div>
+        <div class="chapter-name">${esc(ch.title || `Chapter ${ch.chapter_number}`)}</div>
         <div class="chapter-words">${countWords(ch.content || '')} words</div>
       </div>
       <div class="chapter-read-btn">Read →</div>
@@ -1364,11 +1386,11 @@ async function loadMoreBooks() {
       return;
     }
     list.innerHTML = books.map(b => `
-      <a class="more-book-item" href="story.html?id=${b.id}">
-        <div class="more-book-cover">${b.title}</div>
+      <a class="more-book-item" href="story.html?id=${encodeURIComponent(b.id)}">
+        <div class="more-book-cover">${esc(b.title)}</div>
         <div class="more-book-info">
-          <div class="more-book-title">${b.title}</div>
-          <div class="more-book-genre">${b.genre || 'Fiction'}</div>
+          <div class="more-book-title">${esc(b.title)}</div>
+          <div class="more-book-genre">${esc(b.genre || 'Fiction')}</div>
         </div>
       </a>
     `).join('');
@@ -1397,9 +1419,10 @@ document.getElementById('btn-like').addEventListener('click', async () => {
   if (!window._sb) return;
   try {
     if (isLiked) {
-      await window._sb.from('inkwell_likes')
+      const { error: delErr } = await window._sb.from('inkwell_likes')
         .delete().eq('user_id', currentUser.id)
         .eq('content_type','book').eq('content_id', currentBook.id);
+      if (delErr) throw delErr;
       const newLikes = Math.max(0, (currentBook.total_likes||0) - 1);
       await window._sb.from('inkwell_books').update({total_likes: newLikes}).eq('id', currentBook.id);
       currentBook.total_likes = newLikes;
@@ -1408,9 +1431,10 @@ document.getElementById('btn-like').addEventListener('click', async () => {
       document.getElementById('btn-like').textContent = '♥ Like';
       isLiked = false;
     } else {
-      await window._sb.from('inkwell_likes').insert({
+      const { error: likeErr } = await window._sb.from('inkwell_likes').insert({
         user_id: currentUser.id, content_type: 'book', content_id: currentBook.id
       });
+      if (likeErr) throw likeErr;
       const newLikes = (currentBook.total_likes||0) + 1;
       await window._sb.from('inkwell_books').update({total_likes: newLikes}).eq('id', currentBook.id);
       currentBook.total_likes = newLikes;
@@ -1420,7 +1444,10 @@ document.getElementById('btn-like').addEventListener('click', async () => {
       isLiked = true;
       showToast('Added to your likes');
     }
-  } catch(e) { showToast('Already liked'); }
+  } catch(e) {
+    // 23505 = unique violation, i.e. genuinely already liked
+    showToast(e && e.code === '23505' ? 'Already liked' : 'Could not update your like. Try again.');
+  }
 });
 
 // ── FOLLOW ─────────────────────────────────────────────────────
@@ -1448,18 +1475,22 @@ async function followAuthor() {
   if (!currentCreator || !window._sb) return;
   try {
     if (isFollowing) {
-      await window._sb.from('inkwell_follows')
+      const { error: unfErr } = await window._sb.from('inkwell_follows')
         .delete().eq('follower_id', currentUser.id).eq('creator_id', currentCreator.id);
+      if (unfErr) throw unfErr;
       setFollowing(false);
       showToast('Unfollowed');
     } else {
-      await window._sb.from('inkwell_follows').insert({
+      const { error: folErr } = await window._sb.from('inkwell_follows').insert({
         follower_id: currentUser.id, creator_id: currentCreator.id
       });
+      if (folErr) throw folErr;
       setFollowing(true);
       showToast(`Now following ${currentCreator.display_name}`);
     }
-  } catch(e) { showToast('Already following'); }
+  } catch(e) {
+    showToast(e && e.code === '23505' ? 'Already following' : 'Could not update follow. Try again.');
+  }
 }
 
 document.getElementById('btn-follow').addEventListener('click', followAuthor);
@@ -1485,11 +1516,11 @@ async function loadComments() {
     list.innerHTML = comments.map(c => `
       <div class="comment-card">
         <div class="comment-top">
-          <div class="comment-avatar">${(c.profiles?.full_name||'U')[0].toUpperCase()}</div>
-          <span class="comment-author">${c.profiles?.mindstark_id || c.profiles?.full_name || 'Reader'}</span>
+          <div class="comment-avatar">${esc((c.profiles?.full_name||'U')[0].toUpperCase())}</div>
+          <span class="comment-author">${esc(c.profiles?.mindstark_id || c.profiles?.full_name || 'Reader')}</span>
           <span class="comment-time">${timeAgo(c.created_at)}</span>
         </div>
-        <div class="comment-text">${c.comment_text}</div>
+        <div class="comment-text">${esc(c.comment_text)}</div>
       </div>
     `).join('');
   } catch(e) {}
@@ -1504,20 +1535,32 @@ document.getElementById('comment-submit').addEventListener('click', async () => 
   const btn = document.getElementById('comment-submit');
   btn.disabled = true; btn.textContent = 'Posting…';
 
+  if (text.length > 2000) { showToast('Comment is too long (max 2000 characters)'); return; }
+
   try {
-    await window._sb.from('inkwell_comments').insert({
+    const { error: insErr } = await window._sb.from('inkwell_comments').insert({
       user_id: currentUser.id,
       content_type: 'book',
       content_id: currentBook.id,
       comment_text: text
     });
-    await window._sb.from('inkwell_books')
-      .update({ total_comments: (currentBook.total_comments||0) + 1 })
+    if (insErr) throw insErr;
+
+    // Counter is best-effort. Track it locally so two comments in a row
+    // don't both write the same stale "+1".
+    const newCount = (currentBook.total_comments || 0) + 1;
+    const { error: cntErr } = await window._sb.from('inkwell_books')
+      .update({ total_comments: newCount })
       .eq('id', currentBook.id);
+    if (!cntErr) {
+      currentBook.total_comments = newCount;
+      document.getElementById('stat-comments').textContent = formatNum(newCount);
+    }
     input.value = '';
     showToast('Comment posted!');
     loadComments();
   } catch(e) {
+    console.error('Comment failed:', e);
     showToast('Could not post comment. Try again.');
   } finally {
     btn.disabled = false; btn.textContent = 'Post Comment';
@@ -1552,7 +1595,7 @@ function renderReaderChapter() {
   const sanitized = (ch.content || '').replace(/\s*style="[^"]*"/gi, '').replace(/\s*class="Mso[^"]*"/gi, '');
   contentEl.innerHTML = `
     <h2 style="font-size:1.5rem;font-weight:900;margin-bottom:1.5rem;line-height:1.2;">
-      ${ch.title || `Chapter ${ch.chapter_number}`}
+      ${esc(ch.title || `Chapter ${ch.chapter_number}`)}
     </h2>
     ${sanitized || '<p style="opacity:.6;font-style:italic;">This chapter has no content yet.</p>'}
   `;
@@ -1877,8 +1920,8 @@ function renderNotes() {
   }
   body.innerHTML = bookNotes.map((n, i) => `
     <div class="r-note-card">
-      ${n.text ? `<div class="r-note-text">"${n.text.substring(0,120)}${n.text.length>120?'…':''}"</div>` : ''}
-      ${n.annotation ? `<div class="r-note-annotation">${n.annotation}</div>` : ''}
+      ${n.text ? `<div class="r-note-text">"${esc(n.text.substring(0,120))}${n.text.length>120?'…':''}"</div>` : ''}
+      ${n.annotation ? `<div class="r-note-annotation">${esc(n.annotation)}</div>` : ''}
       <div class="r-note-footer">
         <span class="r-note-date">${new Date(n.date).toLocaleDateString()}</span>
         <button class="r-note-del" onclick="deleteNote(${notes.indexOf(n)})">✕ Remove</button>
@@ -2036,10 +2079,10 @@ async function loadChapterComments(chapterId) {
       <div style="padding:.85rem;background:rgba(200,150,62,.04);border:1px solid rgba(200,150,62,.12);border-radius:10px;margin-bottom:.6rem;">
         <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;">
           <div style="width:26px;height:26px;border-radius:50%;background:rgba(200,150,62,.15);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:var(--gold);">${(c.profiles?.full_name||'U')[0].toUpperCase()}</div>
-          <span style="font-size:.78rem;font-weight:600;color:inherit;">${c.profiles?.mindstark_id||c.profiles?.full_name||'Reader'}</span>
+          <span style="font-size:.78rem;font-weight:600;color:inherit;">${esc(c.profiles?.mindstark_id||c.profiles?.full_name||'Reader')}</span>
           <span style="font-size:.68rem;opacity:.45;margin-left:auto;">${timeAgo(c.created_at)}</span>
         </div>
-        <div style="font-size:.85rem;line-height:1.6;">${c.comment_text}</div>
+        <div style="font-size:.85rem;line-height:1.6;">${esc(c.comment_text)}</div>
       </div>`).join('') : '<p style="font-size:.82rem;opacity:.45;text-align:center;padding:1rem 0;">No comments yet for this chapter.</p>';
     container.innerHTML = `<div class="chapter-comment-divider">Chapter Discussion</div>${loginPrompt}${commentForm}${commentsHtml}`;
   } catch(e) {}
@@ -2049,8 +2092,10 @@ async function postChapterComment(chapterId) {
   const input = document.getElementById('ch-comment-input');
   const text = input?.value?.trim();
   if (!text || !currentUser || !window._sb) return;
+  if (text.length > 2000) { showToast('Comment is too long (max 2000 characters)'); return; }
   try {
-    await window._sb.from('inkwell_comments').insert({ user_id: currentUser.id, content_type: 'chapter', content_id: chapterId, comment_text: text });
+    const { error: insErr } = await window._sb.from('inkwell_comments').insert({ user_id: currentUser.id, content_type: 'chapter', content_id: chapterId, comment_text: text });
+    if (insErr) throw insErr;
     input.value = '';
     showToast('Comment posted!');
     loadChapterComments(chapterId);
@@ -2075,7 +2120,9 @@ function waitForSupabase(tries = 0) {
   if (_initiated) return;
   if (window._sb) {
     _initiated = true;
-    Promise.all([checkAuth(), loadBook()]);
+    // checkAuth() never rejects (it has its own try/catch). Run it FIRST:
+    // loadBook() reads currentUser for the liked/following state.
+    checkAuth().then(loadBook);
     return;
   }
   if (tries > 40) { document.getElementById('pageLoading').classList.add('hidden'); return; }

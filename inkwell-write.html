@@ -1025,13 +1025,19 @@ async function loadChapters() {
   } catch(e) { initFreshBook(); }
 }
 
+function esc(v) {
+  return String(v == null ? '' : v)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 // ── CHAPTER RENDERING ──────────────────────────────────────────
 function renderChapterList() {
   const list = document.getElementById('chapter-list');
   list.innerHTML = chapters.map((ch, i) => `
     <div class="chapter-item ${i === activeChapterIdx ? 'active' : ''}" data-idx="${i}">
       <div class="chapter-num">${String(ch.chapter_number).padStart(2,'0')}</div>
-      <div class="chapter-name">${ch.title}</div>
+      <div class="chapter-name">${esc(ch.title)}</div>
       <div class="chapter-status ${ch.id ? 'saved' : ''}"></div>
       ${chapters.length > 1 ? `<button class="chapter-delete" data-del="${i}" title="Remove chapter">✕</button>` : ''}
     </div>
@@ -1343,7 +1349,7 @@ function openSubmitModal() {
       <div class="check-icon ${item.ok ? 'ok' : 'warn'}">${item.ok ? '✓' : '!'}</div>
       <div>
         <div class="check-text">${item.label}</div>
-        <div class="check-sub">${item.sub}</div>
+        <div class="check-sub">${esc(item.sub)}</div>
       </div>
     </div>
   `).join('');

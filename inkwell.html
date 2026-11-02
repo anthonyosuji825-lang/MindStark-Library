@@ -732,6 +732,13 @@ body.dark-mode .mobile-sheet { background: var(--ink-card); }
   .nav-inner { padding: .8rem .85rem; }
   #nav-admin-link { font-size: .62rem; padding: .2rem .5rem; }
 }
+
+/* ── LAYOUT POLISH (phones): less crowded nav ── */
+@media (max-width:640px){
+  .nav-user{display:none;}
+  .nav-right{gap:.5rem;}
+  #nav-admin-link{padding:.25rem .65rem !important;font-size:.72rem !important;}
+}
 </style>
 </head>
 <body>
@@ -1122,6 +1129,14 @@ function closeSheet() {
 }
 
 // ── TOAST ──────────────────────────────────────────────────────
+/* Writer-supplied text (titles, display names, genres) must be escaped
+   before it goes into innerHTML. */
+function esc(v) {
+  return String(v == null ? '' : v)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
@@ -1273,13 +1288,13 @@ async function loadTrending() {
       .limit(5);
     if (!books?.length) { list.innerHTML = '<div class="empty-state"><span>📖</span>No published stories yet. Be the first!</div>'; return; }
     list.innerHTML = books.map((b,i) => `
-      <a class="story-item" href="inkwell-story.html?id=${b.id}">
+      <a class="story-item" href="story.html?id=${b.id}">
         <div class="story-rank">${i+1}</div>
-        <div class="story-cover" style="background:${COVER_COLORS[i%COVER_COLORS.length]}">${b.title}</div>
+        <div class="story-cover" style="background:${COVER_COLORS[i%COVER_COLORS.length]}">${esc(b.title)}</div>
         <div class="story-info">
-          <div class="story-genre">${b.genre||'Fiction'}</div>
-          <div class="story-title">${b.title}</div>
-          <div class="story-author">by ${b.inkwell_creators?.display_name||'Unknown'}</div>
+          <div class="story-genre">${esc(b.genre||'Fiction')}</div>
+          <div class="story-title">${esc(b.title)}</div>
+          <div class="story-author">by ${esc(b.inkwell_creators?.display_name||'Unknown')}</div>
         </div>
         <div class="story-meta">
           <div class="story-reads">👁 ${formatNum(b.total_reads||0)}</div>
@@ -1306,12 +1321,12 @@ async function loadFeed() {
     list.innerHTML = combined.map(item => `
       <div class="feed-item">
         <div class="feed-top">
-          <div class="feed-avatar">${(item.inkwell_creators?.display_name||'U')[0].toUpperCase()}</div>
-          <span class="feed-author">${item.inkwell_creators?.display_name||'A Creator'}</span>
+          <div class="feed-avatar">${esc((item.inkwell_creators?.display_name||'U')[0].toUpperCase())}</div>
+          <span class="feed-author">${esc(item.inkwell_creators?.display_name||'A Creator')}</span>
           <span class="feed-action">&nbsp;${item.type==='book'?'published a story':'published a blog'}</span>
           <span class="feed-time">${timeAgo(item.published_at)}</span>
         </div>
-        <div class="feed-content"><span>${item.title}</span></div>
+        <div class="feed-content"><span>${esc(item.title)}</span></div>
         <span class="feed-tag">${item.type==='book'?'📚 Story':'✍️ Blog'}</span>
       </div>`).join('');
   } catch(e) { list.innerHTML = '<div class="empty-state"><span>✨</span>Could not load feed.</div>'; }
@@ -1359,8 +1374,8 @@ async function loadLeaderboard() {
     list.innerHTML = data.map((c,i) => `
       <div class="lb-row" style="cursor:pointer" onclick="window.location.href='inkwell-profile.html?id=${c.id}'">
         <div class="lb-rank">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div>
-        <div class="lb-avatar">${(c.display_name||'U')[0].toUpperCase()}</div>
-        <div class="lb-name">${c.display_name||'Unknown'}</div>
+        <div class="lb-avatar">${esc((c.display_name||'U')[0].toUpperCase())}</div>
+        <div class="lb-name">${esc(c.display_name||'Unknown')}</div>
         <div class="lb-score">${formatNum(c.total_reads||0)}</div>
       </div>`).join('');
   } catch(e) {}
@@ -1375,12 +1390,12 @@ async function loadNewVoices() {
     if (!data?.length) { list.innerHTML = '<div class="empty-state" style="padding:1rem 0"><span>🌱</span>New voices coming soon.</div>'; return; }
     list.innerHTML = data.map((c,i) => `
       <div class="nv-item">
-        <div class="nv-avatar" style="background:${NV_COLORS[i%NV_COLORS.length]};cursor:pointer" onclick="window.location.href='inkwell-profile.html?id=${c.id}'">${(c.display_name||'U')[0].toUpperCase()}</div>
+        <div class="nv-avatar" style="background:${NV_COLORS[i%NV_COLORS.length]};cursor:pointer" onclick="window.location.href='inkwell-profile.html?id=${c.id}'">${esc((c.display_name||'U')[0].toUpperCase())}</div>
         <div class="nv-info" style="cursor:pointer" onclick="window.location.href='inkwell-profile.html?id=${c.id}'">
-          <div class="nv-name">${c.display_name||'New Creator'}</div>
-          <div class="nv-type">${c.creator_type||'Creator'}</div>
+          <div class="nv-name">${esc(c.display_name||'New Creator')}</div>
+          <div class="nv-type">${esc(c.creator_type||'Creator')}</div>
         </div>
-        <button class="nv-follow" data-id="${c.id}" data-name="${c.display_name}">Follow</button>
+        <button class="nv-follow" data-id="${c.id}" data-name="${esc(c.display_name)}">Follow</button>
       </div>`).join('');
     list.querySelectorAll('.nv-follow').forEach(btn => {
       btn.addEventListener('click', async () => {

@@ -399,6 +399,14 @@ body.dark-mode .mobile-sheet{background:var(--warm2);}
   .card-actions{gap:.5rem;}
   .btn-approve,.btn-reject,.btn-review{font-size:.78rem;padding:.5rem 1rem;}
 }
+
+/* ── LAYOUT POLISH: tabs scroll smoothly and fade at the edge so it is clear there is more ── */
+.tabs{scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.tab-btn{scroll-snap-align:start;}
+@media (max-width:640px){
+  .tabs{padding-right:1.75rem;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 32px),transparent);}
+  .tab-btn{padding:.6rem 1rem;font-size:.84rem;}
+}
 </style>
 </head>
 <body>
@@ -666,11 +674,11 @@ async function loadAnnouncements() {
       <div class="queue-card">
         <div class="card-top">
           <div class="card-info">
-            <div class="card-name">${a.title}</div>
+            <div class="card-name">${esc(a.title)}</div>
             <div class="card-meta">${timeAgo(a.created_at)}</div>
           </div>
         </div>
-        <div class="card-body"><div class="card-text">${a.message}</div></div>
+        <div class="card-body"><div class="card-text">${esc(a.message)}</div></div>
       </div>`).join('');
   } catch (e) {
     list.innerHTML = `<div class="queue-empty"><span>⚠️</span>Could not load announcements.</div>`;
@@ -679,6 +687,19 @@ async function loadAnnouncements() {
 
 
 // ── HELPERS ────────────────────────────────────────────────────
+/* Applicant/creator text is attacker-controlled and renders in the
+   moderator's browser — always escape it. */
+function esc(v) {
+  return String(v == null ? '' : v)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+/* Only allow http(s) links from the DB (blocks javascript: URLs). */
+function safeUrl(u) {
+  const v = String(u || '').trim();
+  return /^https?:\/\//i.test(v) ? esc(v) : '#';
+}
+
 function formatNum(n) { if (n >= 1000) return (n/1000).toFixed(1)+'k'; return String(n||0); }
 function timeAgo(d) {
   if (!d) return '—';
@@ -728,7 +749,12 @@ async function checkAuth() {
     }
 
     loadAll();
-  } catch(e) { console.log('Auth:', e); loadAll(); }
+  } catch(e) {
+    // Fail CLOSED: if the admin check itself errors we must not fall
+    // through to loading the moderation queue.
+    console.error('Admin check failed:', e);
+    showToast('Could not verify admin access. Please refresh and try again.');
+  }
 }
 
 // ── LOAD ALL DATA ──────────────────────────────────────────────
@@ -858,16 +884,16 @@ function renderAppCard(app) {
   const age = calcAgeFromDob(app.date_of_birth);
   const portfolioLinks = app.portfolio_links || [];
   const experienceText = app.has_prior_experience === true
-    ? `Yes — ${app.prior_organization || 'unnamed organization'} (${app.still_with_prior_org ? 'still working there' : 'no longer there'})`
+    ? `Yes — ${esc(app.prior_organization || 'unnamed organization')} (${app.still_with_prior_org ? 'still working there' : 'no longer there'})`
     : (app.has_prior_experience === false ? 'No prior organization' : '—');
   return `
     <div class="queue-card" data-id="${app.id}" data-type="application">
       <div class="card-top">
         <div class="card-avatar">${(app.full_name||'?')[0].toUpperCase()}</div>
         <div class="card-info">
-          <div class="card-name">${app.full_name || 'Unknown'}</div>
+          <div class="card-name">${esc(app.full_name || 'Unknown')}</div>
           <div class="card-meta">
-            ID: <span>${app.mindstark_id || '—'}</span> &nbsp;·&nbsp;
+            ID: <span>${esc(app.mindstark_id || '—')}</span> &nbsp;·&nbsp;
             ${app.creator_type ? app.creator_type.charAt(0).toUpperCase()+app.creator_type.slice(1) : '—'} &nbsp;·&nbsp;
             ${timeAgo(app.created_at)}
           </div>
@@ -876,7 +902,7 @@ function renderAppCard(app) {
       </div>
 
       <div class="card-body">
-        ${app.bio ? `<div class="card-section-label">Bio</div><div class="card-text">${app.bio}</div>` : ''}
+        ${app.bio ? `<div class="card-section-label">Bio</div><div class="card-text">${esc(app.bio)}</div>` : ''}
         ${genres.length ? `<div class="card-genres">${genres.map(g=>`<span class="genre-pill">${g}</span>`).join('')}</div>` : ''}
       </div>
 
@@ -887,30 +913,30 @@ function renderAppCard(app) {
           <div class="card-section-label">Personal Details</div>
           <div class="card-text">
             ${age !== null ? `Age ${age}` : 'DOB not provided'}
-            ${app.nationality ? ` &nbsp;·&nbsp; ${app.nationality}` : ''}
-            ${app.country_of_residence ? ` &nbsp;·&nbsp; Resides in ${app.country_of_residence}` : ''}
+            ${app.nationality ? ` &nbsp;·&nbsp; ${esc(app.nationality)}` : ''}
+            ${app.country_of_residence ? ` &nbsp;·&nbsp; Resides in ${esc(app.country_of_residence)}` : ''}
           </div>
           <div class="card-section-label">Prior Experience</div>
           <div class="card-text">${experienceText}</div>
           ${portfolioLinks.length ? `<div class="card-section-label">Portfolio</div><div class="card-text">${portfolioLinks.map(l=>`<a href="${l}" target="_blank" rel="noopener">${l}</a>`).join('<br>')}</div>` : ''}
-          ${app.pitch ? `<div class="card-section-label">Pitch</div><div class="card-text">${app.pitch}</div>` : ''}
-          ${app.writing_sample_url ? `<div class="card-section-label">Writing Sample</div><a class="sample-link" href="${app.writing_sample_url}" target="_blank">📄 View Writing Sample</a>` : '<div class="card-section-label">Writing Sample</div><div class="card-text" style="color:var(--muted);font-style:italic;">No file uploaded</div>'}
+          ${app.pitch ? `<div class="card-section-label">Pitch</div><div class="card-text">${esc(app.pitch)}</div>` : ''}
+          ${app.writing_sample_url ? `<div class="card-section-label">Writing Sample</div><a class="sample-link" href="${safeUrl(app.writing_sample_url)}" target="_blank">📄 View Writing Sample</a>` : '<div class="card-section-label">Writing Sample</div><div class="card-text" style="color:var(--muted);font-style:italic;">No file uploaded</div>'}
           <div class="card-section-label">Identity Verification</div>
           <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
-            ${app.id_document_path ? `<button class="sample-link" data-doc-path="${app.id_document_path}">🪪 View ID Document</button>` : `<div class="card-text" style="color:var(--muted);font-style:italic;">No ID uploaded</div>`}
-            ${app.passport_photo_path ? `<button class="sample-link" data-doc-path="${app.passport_photo_path}">🖼️ View Passport Photo</button>` : `<div class="card-text" style="color:var(--muted);font-style:italic;">No photo uploaded</div>`}
+            ${app.id_document_path ? `<button class="sample-link" data-doc-path="${esc(app.id_document_path)}">🪪 View ID Document</button>` : `<div class="card-text" style="color:var(--muted);font-style:italic;">No ID uploaded</div>`}
+            ${app.passport_photo_path ? `<button class="sample-link" data-doc-path="${esc(app.passport_photo_path)}">🖼️ View Passport Photo</button>` : `<div class="card-text" style="color:var(--muted);font-style:italic;">No photo uploaded</div>`}
           </div>
           <div class="card-text" style="color:var(--muted);font-size:.75rem;margin-top:.4rem;">Identity data consent: ${app.identity_consent ? 'Given ✓' : 'Not given'}</div>
           <div class="card-text" style="color:var(--muted);font-size:.75rem;">Exclusivity agreement: ${app.agreed_to_exclusivity ? 'Agreed ✓' : 'Not agreed'}</div>
-          ${app.rejection_note ? `<div class="card-section-label">Editorial Note</div><div class="card-text" style="color:var(--muted);font-style:italic;">${app.rejection_note}</div>` : ''}
+          ${app.rejection_note ? `<div class="card-section-label">Editorial Note</div><div class="card-text" style="color:var(--muted);font-style:italic;">${esc(app.rejection_note)}</div>` : ''}
         </div>
       </div>
 
       <div class="card-actions">
         ${isPending ? `
-          <button class="btn-approve" data-action="approve" data-id="${app.id}" data-type="application" data-name="${app.full_name}">✓ Approve</button>
-          <button class="btn-review" data-action="review" data-id="${app.id}" data-type="application" data-name="${app.full_name}">Mark Under Review</button>
-          <button class="btn-reject" data-action="reject" data-id="${app.id}" data-type="application" data-name="${app.full_name}">✕ Reject</button>
+          <button class="btn-approve" data-action="approve" data-id="${app.id}" data-type="application" data-name="${esc(app.full_name)}">✓ Approve</button>
+          <button class="btn-review" data-action="review" data-id="${app.id}" data-type="application" data-name="${esc(app.full_name)}">Mark Under Review</button>
+          <button class="btn-reject" data-action="reject" data-id="${app.id}" data-type="application" data-name="${esc(app.full_name)}">✕ Reject</button>
         ` : `<span class="action-done">Decision recorded — ${pillLabel(app.status)}</span>`}
       </div>
     </div>`;
@@ -971,10 +997,10 @@ function renderBookCard(book) {
       <div class="card-top">
         <div class="card-avatar" style="border-radius:8px;">📖</div>
         <div class="card-info">
-          <div class="card-name">${book.title || 'Untitled'}</div>
+          <div class="card-name">${esc(book.title || 'Untitled')}</div>
           <div class="card-meta">
             by <span>${creator?.display_name || 'Unknown'}</span> &nbsp;·&nbsp;
-            ${book.genre || '—'} &nbsp;·&nbsp;
+            ${esc(book.genre || '—')} &nbsp;·&nbsp;
             ${timeAgo(book.created_at)}
           </div>
         </div>
@@ -982,7 +1008,7 @@ function renderBookCard(book) {
       </div>
 
       <div class="card-body">
-        ${book.synopsis ? `<div class="card-section-label">Synopsis</div><div class="card-text">${book.synopsis}</div>` : ''}
+        ${book.synopsis ? `<div class="card-section-label">Synopsis</div><div class="card-text">${esc(book.synopsis)}</div>` : ''}
       </div>
 
       <button class="card-expand-btn" data-expand="${book.id}">▾ View chapters</button>
@@ -990,16 +1016,16 @@ function renderBookCard(book) {
       <div class="card-expanded-content" id="expand-${book.id}">
         <div class="card-body" style="border-top:none;padding-top:0;">
           <div class="card-section-label">Read the Book</div>
-          <a class="sample-link" href="inkwell-story.html?id=${book.id}" target="_blank">📖 Open in Story Reader</a>
-          ${book.rejection_note ? `<div class="card-section-label">Previous Note</div><div class="card-text" style="color:var(--muted);font-style:italic;">${book.rejection_note}</div>` : ''}
+          <a class="sample-link" href="story.html?id=${book.id}" target="_blank">📖 Open in Story Reader</a>
+          ${book.rejection_note ? `<div class="card-section-label">Previous Note</div><div class="card-text" style="color:var(--muted);font-style:italic;">${esc(book.rejection_note)}</div>` : ''}
         </div>
       </div>
 
       <div class="card-actions">
         ${isPending ? `
-          <button class="btn-approve" data-action="publish" data-id="${book.id}" data-type="book" data-name="${book.title}">✓ Publish</button>
-          <button class="btn-review" data-action="under_review" data-id="${book.id}" data-type="book" data-name="${book.title}">Mark Under Review</button>
-          <button class="btn-reject" data-action="reject-book" data-id="${book.id}" data-type="book" data-name="${book.title}">✕ Send Back</button>
+          <button class="btn-approve" data-action="publish" data-id="${book.id}" data-type="book" data-name="${esc(book.title)}">✓ Publish</button>
+          <button class="btn-review" data-action="under_review" data-id="${book.id}" data-type="book" data-name="${esc(book.title)}">Mark Under Review</button>
+          <button class="btn-reject" data-action="reject-book" data-id="${book.id}" data-type="book" data-name="${esc(book.title)}">✕ Send Back</button>
         ` : `<span class="action-done">Decision recorded — ${pillLabel(book.status)}</span>`}
       </div>
     </div>`;
@@ -1126,23 +1152,32 @@ document.getElementById('modal-confirm-btn').addEventListener('click', async () 
   const note = document.getElementById('modal-textarea').value.trim();
   const { action, id, type, name } = pendingAction;
 
+  // supabase-js RESOLVES with { error } instead of throwing, so a bare
+  // `await ...update()` reports success even when RLS rejected it.
+  const must = async q => { const { error } = await q; if (error) throw error; };
+
   try {
     if (typeof window._sb === 'undefined') throw new Error('Supabase not connected');
 
     if (action === 'approve') {
-      // 1. Update application status
-      await window._sb.from('inkwell_applications')
-        .update({ status: 'approved', rejection_note: note || null })
-        .eq('id', id);
-
-      // 2. Get the application to create creator record
-      const { data: app } = await window._sb
+      // Order matters: create the creator record FIRST, then flip the
+      // status. If anything fails nothing is left half-approved, and a
+      // retry / double-click can't create a duplicate creator.
+      const { data: app, error: appErr } = await window._sb
         .from('inkwell_applications')
         .select('*').eq('id', id).single();
+      if (appErr || !app) throw new Error(appErr?.message || 'Application not found');
 
-      // 3. Create inkwell_creators entry
-      if (app) {
-        await window._sb.from('inkwell_creators').insert({
+      // A creator is looked up by user_id, so an application that isn't
+      // linked to an account can never become a working creator.
+      if (!app.user_id) throw new Error('This application is not linked to a user account');
+
+      const { data: existing, error: exErr } = await window._sb
+        .from('inkwell_creators').select('id').eq('user_id', app.user_id).maybeSingle();
+      if (exErr) throw exErr;
+
+      if (!existing) {
+        await must(window._sb.from('inkwell_creators').insert({
           user_id: app.user_id,
           mindstark_id: app.mindstark_id,
           display_name: app.full_name,
@@ -1150,38 +1185,43 @@ document.getElementById('modal-confirm-btn').addEventListener('click', async () 
           creator_type: app.creator_type,
           genres: app.genres,
           blog_topics: app.blog_topics,
-        });
+        }));
       }
+
+      await must(window._sb.from('inkwell_applications')
+        .update({ status: 'approved', rejection_note: note || null })
+        .eq('id', id));
+
       showToast(`✓ ${name} approved as a creator`);
 
     } else if (action === 'review') {
-      await window._sb.from('inkwell_applications')
+      await must(window._sb.from('inkwell_applications')
         .update({ status: 'under_review', rejection_note: note || null })
-        .eq('id', id);
+        .eq('id', id));
       showToast(`Marked as under review`);
 
     } else if (action === 'reject') {
-      await window._sb.from('inkwell_applications')
+      await must(window._sb.from('inkwell_applications')
         .update({ status: 'rejected', rejection_note: note || null })
-        .eq('id', id);
+        .eq('id', id));
       showToast(`Application declined`);
 
     } else if (action === 'publish') {
-      await window._sb.from('inkwell_books')
+      await must(window._sb.from('inkwell_books')
         .update({ status: 'published', published_at: new Date().toISOString(), rejection_note: note || null })
-        .eq('id', id);
+        .eq('id', id));
       showToast(`✓ "${name}" is now live`);
 
     } else if (action === 'under_review') {
-      await window._sb.from('inkwell_books')
+      await must(window._sb.from('inkwell_books')
         .update({ status: 'under_review', rejection_note: note || null })
-        .eq('id', id);
+        .eq('id', id));
       showToast(`Book marked as under review`);
 
     } else if (action === 'reject-book') {
-      await window._sb.from('inkwell_books')
+      await must(window._sb.from('inkwell_books')
         .update({ status: 'draft', rejection_note: note || null })
-        .eq('id', id);
+        .eq('id', id));
       showToast(`Book sent back for revision`);
     }
 
@@ -1190,7 +1230,8 @@ document.getElementById('modal-confirm-btn').addEventListener('click', async () 
     await loadAll();
 
   } catch(e) {
-    showToast('Something went wrong. Please try again.');
+    console.error('Moderation action failed:', e);
+    showToast(`Could not complete that action: ${e?.message || 'unknown error'}`);
     btn.disabled = false;
     btn.textContent = 'Confirm';
   }
