@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <link rel="icon" type="image/png" href="logo.png"/>
   <link rel="apple-touch-icon" href="logo.png"/>
   <meta property="og:image" content="https://mind-stark-library.vercel.app/logo.png"/>
@@ -183,6 +183,102 @@
       .form-head h1{font-size:1.6rem}
     }
   </style>
+<style id="refresh">
+:root{--gold-deep:#8a5f16;--ring:rgba(59,42,26,.1);--lift:0 1px 2px rgba(59,42,26,.05),0 30px 60px -34px rgba(59,42,26,.4)}
+html[data-theme="dark"]{--cream:#17110a;--warm:#241a10;--brown:#f0e6d6;--text:#f0e6d6;--muted:#a8967c;--white:#201710;--border:rgba(224,176,88,.2);--gold:#d9a84c;--gold-deep:#e0b058;--ring:rgba(245,240,232,.09);--lift:0 30px 60px -34px #000}
+body{-webkit-font-smoothing:antialiased}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+nav{background:color-mix(in srgb,var(--cream) 86%,transparent);-webkit-backdrop-filter:blur(18px)}
+.nav-links{gap:.25rem}
+.nav-links a{padding:.45rem .95rem;border-radius:50px;display:block}
+.nav-links a:hover{background:color-mix(in srgb,var(--gold) 12%,transparent)}
+.hamburger span{background:var(--brown)}
+.mobile-menu{background:var(--cream)}
+
+/* Left panel: always dark */
+.left-panel{background:linear-gradient(155deg,#2b1d10,#3b2a1a 60%,#2b1d10);padding:4.5rem 4rem}
+html[data-theme="dark"] .left-panel{background:linear-gradient(155deg,#120c06,#1d140b)}
+.left-content{max-width:430px}
+.left-eyebrow{color:#e0b058;font-weight:600}
+.left-content h2{font-size:clamp(2.4rem,3.6vw,3.2rem);letter-spacing:-.025em;color:#f5f0e8}
+.left-content h2 em{color:#e0b058}
+.left-content p{color:rgba(245,240,232,.62);font-size:.98rem}
+.stats-row{gap:.7rem}
+.stat-card{border-radius:16px;padding:1.15rem 1.1rem;background:rgba(245,240,232,.045)}
+.stat-num{color:#e0b058;letter-spacing:-.01em}
+.stat-label{color:rgba(245,240,232,.5);font-size:.66rem;letter-spacing:.14em}
+.perks li{color:rgba(245,240,232,.75)}
+.perk-icon{width:22px;height:22px;background:rgba(224,176,88,.16);color:#e0b058;font-weight:700}
+.testimonial{border-radius:16px;border-left-width:3px;background:rgba(245,240,232,.05)}
+.testimonial p{color:rgba(245,240,232,.7);font-size:.86rem}
+.testimonial-author{color:#e0b058}
+
+/* Right panel */
+.right-panel{padding:3rem 2rem;background:radial-gradient(60% 50% at 80% 0%,rgba(200,150,62,.1),transparent),var(--cream)}
+.right-panel::before{height:3px}
+.form-box{max-width:420px;background:var(--white);border:1px solid var(--ring);border-radius:28px;padding:2.4rem 2.2rem;box-shadow:var(--lift)}
+.form-head{margin-bottom:1.6rem}
+.form-head h1{font-size:2rem;letter-spacing:-.02em}
+.form-head p{font-size:.9rem}
+.auth-tabs{border-radius:50px;padding:.28rem;background:color-mix(in srgb,var(--brown) 7%,transparent)}
+.auth-tab{border-radius:50px;padding:.62rem}
+.auth-tab.active{background:var(--brown);color:var(--cream)}
+html[data-theme="dark"] .auth-tab.active{background:var(--gold);color:#2b1c0e;font-weight:600}
+.google-btn{border-radius:14px;border-width:1px;border-color:var(--ring);background:var(--white);padding:.9rem 1rem}
+html[data-theme="dark"] .google-btn{background:#2a1f14;color:var(--text)}
+.google-btn:hover{background:color-mix(in srgb,var(--gold) 9%,var(--white))}
+.or-divider span{text-transform:uppercase;letter-spacing:.14em;font-size:.64rem}
+.field label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.field input{border-radius:13px;border-width:1px;border-color:var(--ring);background:color-mix(in srgb,var(--brown) 3%,var(--white));padding:.88rem 1rem;color:var(--text)}
+.field input::placeholder{color:color-mix(in srgb,var(--muted) 70%,transparent)}
+.field input:focus{background:var(--white);box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 20%,transparent)}
+.pw-toggle{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;right:.5rem}
+.pw-toggle:hover{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.input-wrap input{padding-right:2.9rem}
+.forgot-link{color:var(--gold-deep);font-weight:500}
+.auth-btn{border-radius:14px;padding:.95rem;background:linear-gradient(180deg,#4a3623,#3b2a1a);color:#f5f0e8;font-weight:600;box-shadow:0 16px 28px -16px rgba(59,42,26,.8)}
+html[data-theme="dark"] .auth-btn{background:linear-gradient(180deg,#e0b058,#c8963e);color:#2b1c0e}
+.auth-btn:hover:not(:disabled){background:linear-gradient(180deg,#d9a84c,#c8963e);color:#2b1c0e}
+.switch-note a,.guest-row a,.terms-note a{color:var(--gold-deep);font-weight:600}
+.guest-row{border-top-color:var(--ring)}
+.auth-alert{border-radius:13px}
+html[data-theme="dark"] .auth-alert.success{color:#7ee2a4}
+html[data-theme="dark"] .auth-alert.error{color:#ff8f82}
+.already-in .ai-avatar{width:80px;height:80px;color:#fff;box-shadow:0 0 0 7px rgba(200,150,62,.15)}
+.go-btn{padding:.9rem 2.2rem;background:var(--brown);color:var(--cream)}
+html[data-theme="dark"] .go-btn{background:var(--gold);color:#2b1c0e;font-weight:600}
+.toast{background:#2b1d10;color:#f5f0e8}
+footer{background:#120c06}
+
+/* ID modal */
+.msid-overlay{background:rgba(20,12,5,.65)}
+.msid-modal{border-radius:30px;border:1px solid var(--ring);background:var(--white)}
+.msid-icon{width:64px;height:64px;border-radius:50%;margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--gold) 15%,transparent);color:var(--gold-deep)}
+.msid-badge-wrap{background:linear-gradient(135deg,#2b1d10,#3b2a1a);border-radius:20px}
+.msid-number{color:#e0b058;font-variant-numeric:tabular-nums}
+.msid-copy-btn{color:#e0b058}
+.msid-hint{border-radius:14px}
+.msid-hint svg{vertical-align:-2px;color:var(--gold-deep)}
+.msid-cta{background:var(--brown);color:var(--cream);font-weight:600}
+html[data-theme="dark"] .msid-cta{background:var(--gold);color:#2b1c0e}
+.msid-cta:hover{background:var(--gold);color:#2b1c0e}
+
+/* scrollbar */
+html,html *{scrollbar-width:thin;scrollbar-color:transparent transparent}
+html.ms-scrolling,html .ms-scrolling{scrollbar-color:rgba(59,42,26,.38) transparent}
+html[data-theme="dark"].ms-scrolling,html[data-theme="dark"] .ms-scrolling{scrollbar-color:rgba(224,176,88,.5) transparent}
+
+@media(max-width:900px){
+  .right-panel{padding:1.5rem 1rem;align-items:flex-start;padding-top:2.25rem}
+  .form-box{padding:2rem 1.5rem;border-radius:24px}
+}
+@media(max-width:480px){
+  .right-panel{padding:2rem .75rem 2rem}
+  .form-box{padding:1.75rem 1.25rem}
+  .form-head h1{font-size:1.7rem}
+}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
 </head>
 <body>
 
@@ -217,17 +313,17 @@
 <!-- MINDSTARK ID REVEAL MODAL -->
 <div class="msid-overlay" id="msidOverlay">
   <div class="msid-modal">
-    <span class="msid-icon">🎓</span>
+    <span class="msid-icon"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2.2 9 2.2 12 0v-5"/></svg></span>
     <h3>Welcome to MindStark!</h3>
     <p>Your account is ready. Here is your unique <strong>MindStark ID</strong> — keep it safe, you'll need it to access MindStark CONNECT.</p>
     <div class="msid-badge-wrap">
       <span class="msid-label">Your MindStark ID</span>
       <span class="msid-number" id="msidNumber">— — —</span>
       <br/>
-      <button class="msid-copy-btn" onclick="copyMsId()">📋 Copy ID</button>
+      <button class="msid-copy-btn" onclick="copyMsId()">Copy ID</button>
     </div>
     <div class="msid-hint">
-      <strong>📌 Save this number.</strong> Your MindStark ID is how you log into
+      <strong>Save this number.</strong> Your MindStark ID is how you log into
       <strong>MindStark CONNECT</strong> — our exclusive Scholar community.
       You can always find it again on your Profile page.
     </div>
@@ -271,7 +367,7 @@
 
       <!-- Already signed in -->
       <div class="already-in" id="alreadyIn" style="display:none">
-        <div class="ai-avatar">📚</div>
+        <div class="ai-avatar"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg></div>
         <h3>You're already in!</h3>
         <p id="alreadyInMsg">Welcome back! You're signed in and ready to read.</p>
         <a href="browse.html" class="go-btn">Continue Reading →</a>
@@ -316,7 +412,7 @@
             <label for="siPassword">Password</label>
             <div class="input-wrap">
               <input type="password" id="siPassword" placeholder="Your password" autocomplete="current-password"/>
-              <button class="pw-toggle" onclick="togglePw('siPassword',this)" tabindex="-1">👁</button>
+              <button class="pw-toggle" onclick="togglePw('siPassword',this)" tabindex="-1" aria-label="Show password"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
             </div>
             <span class="field-err" id="siPassErr">Please enter your password</span>
           </div>
@@ -350,7 +446,7 @@
             <label for="suPassword">Password</label>
             <div class="input-wrap">
               <input type="password" id="suPassword" placeholder="At least 8 characters" autocomplete="new-password" oninput="checkPwStrength(this.value)"/>
-              <button class="pw-toggle" onclick="togglePw('suPassword',this)" tabindex="-1">👁</button>
+              <button class="pw-toggle" onclick="togglePw('suPassword',this)" tabindex="-1" aria-label="Show password"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
             </div>
             <div class="pw-strength" id="pwStrength">
               <div class="pw-bar"><div class="pw-fill" id="pwFill"></div></div>
@@ -362,7 +458,7 @@
             <label for="suConfirm">Confirm Password</label>
             <div class="input-wrap">
               <input type="password" id="suConfirm" placeholder="Repeat your password" autocomplete="new-password"/>
-              <button class="pw-toggle" onclick="togglePw('suConfirm',this)" tabindex="-1">👁</button>
+              <button class="pw-toggle" onclick="togglePw('suConfirm',this)" tabindex="-1" aria-label="Show password"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
             </div>
             <span class="field-err" id="suConfirmErr">Passwords do not match</span>
           </div>
@@ -431,7 +527,7 @@
   function hideFE(id){ document.getElementById(id).classList.remove('show'); }
   function setBL(id,on){ const b=document.getElementById(id);b.classList.toggle('loading',on);b.disabled=on; }
   function showToast(msg){ const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500); }
-  function togglePw(inputId,btn){ const i=document.getElementById(inputId);i.type=i.type==='password'?'text':'password';btn.textContent=i.type==='password'?'👁':'🙈'; }
+  function togglePw(inputId,btn){ const i=document.getElementById(inputId);i.type=i.type==='password'?'text':'password';btn.innerHTML=i.type==='password'?'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>':'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.9 17.9A10.5 10.5 0 0 1 12 19C5.5 19 2 12 2 12a18 18 0 0 1 5.1-5.9M9.9 5.2A9.7 9.7 0 0 1 12 5c6.5 0 10 7 10 7a18 18 0 0 1-2.2 3.2M1 1l22 22"/></svg>'; }
 
   /* ── MINDSTARK ID MODAL ──────────────── */
   let _currentMsId = '';
@@ -454,8 +550,8 @@
     if (!_currentMsId) return;
     navigator.clipboard?.writeText(_currentMsId).then(() => {
       const btn = document.querySelector('.msid-copy-btn');
-      btn.textContent = '✅ Copied!';
-      setTimeout(() => { btn.textContent = '📋 Copy ID'; }, 2000);
+      btn.textContent = 'Copied ✓';
+      setTimeout(() => { btn.textContent = 'Copy ID'; }, 2000);
     });
   }
 
@@ -698,5 +794,8 @@
 </script>
 <script src="nav.js"></script>
 <script src="terms.js"></script>
+<script>
+(function(){var t=new WeakMap();document.addEventListener('scroll',function(e){var x=e.target,el=(x===document||x===document.body)?document.documentElement:x;if(!el||!el.classList)return;el.classList.add('ms-scrolling');clearTimeout(t.get(el));t.set(el,setTimeout(function(){el.classList.remove('ms-scrolling')},900))},{capture:true,passive:true})})();
+</script>
 </body>
 </html>

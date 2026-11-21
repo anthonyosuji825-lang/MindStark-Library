@@ -675,9 +675,42 @@
 
   /* Continue reading bar */
   if (isSignedIn && lastBook) {
+    if (!document.getElementById('ms-continue-style')) {
+      const cs = document.createElement('style');
+      cs.id = 'ms-continue-style';
+      cs.textContent =
+        '.continue-bar{position:relative;display:flex;align-items:center;gap:.9rem;width:calc(100% - 2rem);max-width:1240px;margin:.7rem auto .7rem;padding:.6rem .6rem .6rem .75rem;border:1px solid rgba(224,176,88,.22);border-radius:18px;overflow:hidden;flex-wrap:nowrap;' +
+          'background:radial-gradient(90% 160% at 100% 0%,rgba(224,176,88,.2),transparent 60%),linear-gradient(135deg,#2b1d10,#3b2a1a);box-shadow:0 14px 26px -18px rgba(43,29,16,.75);box-sizing:border-box}' +
+        '.continue-bar *{box-sizing:border-box}' +
+        '.continue-bar .cb-main{flex:1;min-width:0;display:flex;align-items:center;gap:.85rem;text-decoration:none;color:inherit}' +
+        '.continue-bar .cb-cover{flex:none;position:relative;width:34px;height:46px;border-radius:3px 7px 7px 3px;overflow:hidden;background:linear-gradient(155deg,#7a5530,#3b2a1a 55%,#241709);box-shadow:0 6px 12px -4px rgba(0,0,0,.7),0 0 0 1px rgba(224,176,88,.25)}' +
+        '.continue-bar .cb-cover::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(90deg,rgba(0,0,0,.45),rgba(255,255,255,.1) 70%,transparent)}' +
+        '.continue-bar .cb-cover::after{content:"";position:absolute;left:12px;right:6px;top:14px;height:1.5px;border-radius:1px;background:#e0b058;box-shadow:0 5px 0 -.5px rgba(224,176,88,.55)}' +
+        '.continue-bar .cb-text{min-width:0;display:flex;flex-direction:column;gap:2px}' +
+        '.continue-bar .cb-kicker{font:500 .72rem/1.2 "DM Sans",sans-serif;color:rgba(245,240,232,.6)}' +
+        '.continue-bar .cb-title{font:700 1rem/1.25 "Playfair Display",serif;color:#f5f0e8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+        '.continue-bar .cb-prog{display:block;height:3px;margin-top:5px;border-radius:3px;background:rgba(245,240,232,.14);overflow:hidden;max-width:220px}' +
+        '.continue-bar .cb-prog i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#c8963e,#e0b058)}' +
+        '.continue-bar .continue-bar-btn{flex:none;display:inline-flex;align-items:center;gap:.4rem;height:40px;padding:0 1.1rem 0 .95rem;border:0;border-radius:50px;background:linear-gradient(180deg,#e0b058,#c8963e);color:#2b1c0e;font:600 .85rem "DM Sans",sans-serif;text-decoration:none;white-space:nowrap;box-shadow:0 10px 18px -10px rgba(200,150,62,.9);transition:transform .15s,filter .2s}' +
+        '.continue-bar .continue-bar-btn:hover{background:linear-gradient(180deg,#f0c46c,#d9a84c);color:#2b1c0e}' +
+        '.continue-bar .continue-bar-btn:active{transform:scale(.96)}' +
+        '.continue-bar .continue-bar-btn svg{width:13px;height:13px}' +
+        '@media(max-width:600px){.continue-bar{width:calc(100% - 1.5rem);margin:.55rem auto .5rem;gap:.7rem;padding:.55rem .55rem .55rem .65rem;border-radius:16px}.continue-bar .cb-title{font-size:.92rem}.continue-bar .continue-bar-btn{height:38px;padding:0 .95rem 0 .8rem}}';
+      document.head.appendChild(cs);
+    }
+    const pctRaw = Number(lastBook.progress != null ? lastBook.progress : (lastBook.percent != null ? lastBook.percent : lastBook.pct));
+    const pct = isFinite(pctRaw) && pctRaw > 0 ? Math.min(100, Math.round(pctRaw <= 1 ? pctRaw * 100 : pctRaw)) : 0;
     const bar = document.createElement('div');
     bar.className = 'continue-bar';
-    bar.innerHTML = `<span class="continue-bar-text">📖 Continue: <span class="continue-bar-title">${esc(lastBook.title)}</span></span><a href="reader.html" class="continue-bar-btn" onclick="resumeBook()">Resume →</a>`;
+    bar.innerHTML =
+      '<a href="reader.html" class="cb-main" onclick="resumeBook()" aria-label="Continue reading ' + esc(lastBook.title) + '">' +
+        '<span class="cb-cover" aria-hidden="true"></span>' +
+        '<span class="cb-text"><span class="cb-kicker">Continue reading</span>' +
+        '<span class="cb-title">' + esc(lastBook.title) + '</span>' +
+        (pct ? '<span class="cb-prog" role="progressbar" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100"><i style="width:' + pct + '%"></i></span>' : '') +
+        '</span></a>' +
+      '<a href="reader.html" class="continue-bar-btn" onclick="resumeBook()">' +
+        '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>Resume</a>';
     const nav = document.querySelector('nav');
     if (nav && nav.nextSibling) nav.parentNode.insertBefore(bar, nav.nextSibling);
   }

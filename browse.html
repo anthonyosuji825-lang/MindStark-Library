@@ -1491,7 +1491,7 @@
       .m-bottom-nav a.active{color:var(--k-ink)}
       .m-bottom-nav a.active::before{content:'';position:absolute;top:-.35rem;width:32px;height:3px;border-radius:3px;background:var(--k-ink)}
       [data-theme="dark"] .m-bottom-nav{background:rgba(15,10,5,.96)}
-      body:has(.mobile-menu.open) .m-bottom-nav{display:none}
+      body:has(.mobile-menu.open:not([style]),.ms-sheet.open) .m-bottom-nav{display:none}
       body .back-to-top{bottom:calc(88px + env(safe-area-inset-bottom))!important}
       body .toast{bottom:calc(92px + env(safe-area-inset-bottom))!important}
     }
@@ -1552,8 +1552,8 @@ nav{transition:transform .28s ease}
 @media(max-width:860px){
   /* Top bar tucks away while scrolling down, returns on scroll up */
   body.nav-hidden nav{transform:translateY(-100%)}
-  body:has(.mobile-menu.open) nav{transform:none!important}
-  body:has(.mobile-menu.open){overflow:hidden}
+  body:has(.mobile-menu.open:not([style]),.ms-sheet.open) nav{transform:none!important}
+  body:has(.mobile-menu.open:not([style]),.ms-sheet.open){overflow:hidden}
 
   /* Genre chips: sticky under the top bar, so filters are always one tap away */
   body .sidebar{position:sticky!important;top:var(--navh,62px)!important;z-index:170;padding:.5rem 1.1rem!important;
@@ -1921,6 +1921,87 @@ html[data-theme="dark"] body .cs-card{background:#17100a!important;border:1px so
   html[data-theme="dark"] body .sort-select{background:#17100a!important}
 }
 </style>
+<style id="island">
+/* ═══ Dynamic island: bookmark confirmations ═══ */
+.ms-island{position:fixed;top:calc(10px + env(safe-area-inset-top));left:50%;z-index:9999;width:118px;height:36px;border-radius:22px;
+  background:#000;color:#fff;overflow:hidden;box-shadow:0 14px 30px -10px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.06);
+  transform:translate(-50%,-70px) scale(.7);opacity:0;pointer-events:none;
+  transition:width .5s cubic-bezier(.34,1.35,.5,1),height .5s cubic-bezier(.34,1.35,.5,1),border-radius .5s cubic-bezier(.34,1.35,.5,1),transform .45s cubic-bezier(.3,1.2,.5,1),opacity .25s ease}
+.ms-island.peek{transform:translate(-50%,0) scale(1);opacity:1}
+.ms-island.open{width:min(calc(100vw - 20px),360px);height:68px;border-radius:34px;pointer-events:auto}
+.ms-island-in{display:flex;align-items:center;gap:.8rem;height:100%;padding:0 1.05rem 0 .85rem;opacity:0;transform:scale(.94);transition:opacity .2s ease,transform .3s ease;white-space:nowrap}
+.ms-island.open .ms-island-in{opacity:1;transform:none;transition-delay:.14s}
+.ms-isl-cover{flex:none;position:relative;width:34px;height:46px;border-radius:3px 7px 7px 3px;overflow:hidden;
+  background:linear-gradient(155deg,#6b4a2a 0%,#3b2a1a 55%,#241709 100%);
+  box-shadow:0 5px 12px -3px rgba(0,0,0,.8),0 0 0 1px rgba(224,176,88,.22)}
+.ms-isl-cover::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(90deg,rgba(0,0,0,.45),rgba(255,255,255,.1) 70%,transparent)}
+.ms-isl-cover::after{content:'';position:absolute;left:12px;right:6px;top:14px;height:1.5px;border-radius:1px;background:#e0b058;box-shadow:0 5px 0 -.5px rgba(224,176,88,.55),0 -6px 0 -.5px rgba(224,176,88,.0)}
+.ms-isl-cover i{position:absolute;left:12px;right:6px;bottom:8px;height:5px;border-radius:1px;background:rgba(224,176,88,.35)}
+.ms-isl-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.ms-isl-text b{font:600 .88rem/1.2 'DM Sans',sans-serif;color:#fff;overflow:hidden;text-overflow:ellipsis}
+.ms-isl-text span{font:400 .76rem/1.25 'DM Sans',sans-serif;color:rgba(255,255,255,.62);overflow:hidden;text-overflow:ellipsis}
+.ms-isl-icon{flex:none;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#e0b058;color:#1e1208}
+.ms-island.removed .ms-isl-icon{background:rgba(255,255,255,.16);color:#fff}
+.ms-isl-icon svg{width:16px;height:16px}
+.ms-isl-icon .i-rm{display:none}.ms-island.removed .i-add{display:none}.ms-island.removed .i-rm{display:block}
+.ms-island.add .ms-isl-icon svg.i-add path{fill:currentColor}
+@media(prefers-reduced-motion:reduce){.ms-island,.ms-island-in{transition:opacity .2s!important}.ms-island{transform:translate(-50%,0)}}
+</style>
+<style id="mobile-polish">
+/* ═══ Mobile polish (≤860px): quieter cards, books sooner, calmer chrome ═══ */
+@media(max-width:860px){
+  /* 1. Get to the books faster: tighter header, one-line intro */
+  body .m-head{padding:1rem 1.1rem .35rem}
+  .m-head h1{font-size:1.85rem;letter-spacing:-.02em}
+  .m-head p{font-size:.86rem;line-height:1.45;margin-top:.3rem;max-width:19rem;color:var(--k-muted)}
+  body .coming-soon-section{padding-bottom:.6rem!important}
+  body .cs-header{margin-bottom:.55rem;align-items:baseline}
+  body .cs-title{font-size:1.2rem!important;letter-spacing:-.01em}
+  body .toolbar{padding:.25rem 1.1rem .7rem!important}
+
+  /* 2. Chips */
+  body .genre-btn{font-size:.84rem;padding:.48rem 1rem;transition:background .2s,color .2s,transform .15s}
+  body .genre-btn:active{transform:scale(.96)}
+
+  /* 3. Book cards: the cover leads, the rest is quiet */
+  body .books-grid:not(.list-view){gap:1.05rem .85rem!important}
+  body .books-grid:not(.list-view) .book-card{border-radius:16px!important;box-shadow:0 1px 2px rgba(59,42,26,.06),0 14px 22px -16px rgba(59,42,26,.45)!important;border:1px solid var(--k-line)!important}
+  body .book-info h3{font-size:.93rem;line-height:1.28;letter-spacing:-.005em}
+  body .book-author{font-size:.76rem;color:var(--k-muted);margin-bottom:.55rem}
+  body .book-downloads{display:inline-flex!important;align-items:center;gap:.3rem;font-size:.7rem;color:var(--k-muted)}
+  body .book-downloads svg{opacity:.75;flex:none}
+  /* Read: outlined like desktop, fills gold when pressed */
+  body .read-btn{background:transparent;color:var(--k-ink);border:1.5px solid var(--k-ink);padding:.28rem .85rem;font-weight:600;transition:background .15s,color .15s,border-color .15s}
+  body .book-card:active .read-btn{background:var(--k-gold);border-color:var(--k-gold);color:#fff}
+  html[data-theme="dark"] body .read-btn{background:transparent!important;color:#f3ead9!important;border:1.5px solid rgba(243,234,217,.55)!important}
+  html[data-theme="dark"] body .book-card:active .read-btn{background:var(--k-gold)!important;border-color:var(--k-gold)!important;color:#1e1208!important}
+
+  /* 4. Bookmark: a clean glyph in a frosted disc; filled gold when saved */
+  body .bm-btn{display:flex;align-items:center;justify-content:center;width:36px;height:36px;font-size:0;line-height:0;color:var(--k-ink);padding:0;
+    background:rgba(255,255,255,.82)!important;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:0!important;box-shadow:0 4px 10px -3px rgba(0,0,0,.28)!important;transition:transform .15s,background .2s,color .2s}
+  body .bm-btn svg{width:17px;height:17px}
+  body .bm-btn:active{transform:scale(.9)}
+  body .bm-btn.saved{background:var(--k-gold)!important;color:#fff}
+  body .bm-btn.saved svg{fill:currentColor}
+  html[data-theme="dark"] body .bm-btn{background:rgba(15,10,6,.62)!important;color:#f3ead9;border:1px solid rgba(255,255,255,.12)!important}
+  html[data-theme="dark"] body .bm-btn.saved{background:var(--k-gold)!important;color:#1e1208;border-color:transparent!important}
+  body .books-grid.list-view .bm-btn{width:34px;height:34px}
+
+  /* 5. Back-to-top: smaller, frosted, out of the way of the Read buttons */
+  body .back-to-top{width:38px;height:38px;right:.9rem;bottom:calc(84px + env(safe-area-inset-bottom));font-size:.95rem;
+    background:rgba(59,42,26,.72)!important;color:#f5f0e8!important;border:0!important;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 8px 16px -8px rgba(0,0,0,.5)}
+  html[data-theme="dark"] body .back-to-top{background:rgba(224,176,88,.85)!important;color:#1e1208!important}
+
+  /* 6. Bottom bar: a small gold dot marks where you are */
+  body .m-bottom-nav a{position:relative}
+  body .m-bottom-nav a.active::after{content:'';position:absolute;bottom:-1px;left:50%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--k-gold)}
+
+  /* 7. Count line */
+  body .results-count{font-size:.8rem;letter-spacing:.01em;color:var(--k-muted)}
+}
+@media(max-width:860px) and (prefers-reduced-motion:reduce){body .genre-btn,body .bm-btn,body .read-btn{transition:none}}
+</style>
+
 </head>
 <body>
 
@@ -2576,11 +2657,11 @@ html[data-theme="dark"] body .cs-card{background:#17100a!important;border:1px so
 
         const downloadsHTML = isMindStark
           ? `<span class="book-downloads" style="color:var(--gold);font-weight:600">★ Original</span>`
-          : `<span class="book-downloads">📥 ${downloads.toLocaleString()}</span>`;
+          : `<span class="book-downloads"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>${downloads.toLocaleString()}</span>`;
 
         card.innerHTML = `
           ${isMindStark ? '<div class="ms-badge">★ MindStark</div>' : ''}
-          <button class="bm-btn ${isSaved ? 'saved' : ''}" title="${isSaved ? 'Remove bookmark' : 'Add to My Books'}">🔖</button>
+          <button class="bm-btn ${isSaved ? 'saved' : ''}" title="${isSaved ? 'Remove bookmark' : 'Add to My Books'}" aria-label="${isSaved ? 'Remove bookmark' : 'Add to My Books'}"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4.5L5 21V4a1 1 0 0 1 1-1z"/></svg></button>
           <div class="book-cover ${isMindStark ? 'bg-4' : BGS[p]}">${coverHTML}${fallbackHTML}</div>
           <div class="book-info">
             <div class="book-genre">${esc(genre)}</div>
@@ -2605,7 +2686,7 @@ html[data-theme="dark"] body .cs-card{background:#17100a!important;border:1px so
             delete bookmarks[id];
             this.classList.remove('saved');
             this.title = 'Add to My Books';
-            showToast('Bookmark removed');
+            showIsland('removed', title, coverUrl);
             deleteBookmarkFromSupabase(id);
           } else {
             bookmarks[id] = {
@@ -2614,7 +2695,7 @@ html[data-theme="dark"] body .cs-card{background:#17100a!important;border:1px so
             };
             this.classList.add('saved');
             this.title = 'Remove bookmark';
-            showToast('🔖 Added to My Books!');
+            showIsland('added', title, coverUrl);
           }
           syncBookmarks();
           updateBmCount();
@@ -2735,6 +2816,34 @@ html[data-theme="dark"] body .cs-card{background:#17100a!important;border:1px so
 
     function esc(s) {
       return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    /* Dynamic island: bookmark confirmations, stays 5s */
+    let _islandEl=null,_islandT1=null,_islandT2=null;
+    function showIsland(kind, title, cover) {
+      if (!_islandEl) {
+        _islandEl = document.createElement('div');
+        _islandEl.className = 'ms-island';
+        _islandEl.setAttribute('role','status');
+        _islandEl.setAttribute('aria-live','polite');
+        _islandEl.innerHTML = '<div class="ms-island-in"><div class="ms-isl-cover" id="islCover"><i></i></div><div class="ms-isl-text"><b id="islHead"></b><span id="islSub"></span></div><div class="ms-isl-icon"><svg class="i-add" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4.5L5 21V4a1 1 0 0 1 1-1z"/></svg><svg class="i-rm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 12h12"/></svg></div></div>';
+        document.body.appendChild(_islandEl);
+      }
+      const el = _islandEl;
+      clearTimeout(_islandT1); clearTimeout(_islandT2);
+      const removed = kind === 'removed';
+      el.classList.toggle('removed', removed);
+      el.classList.toggle('add', !removed);
+      el.querySelector('#islHead').textContent = removed ? 'Removed from My Books' : 'Added to My Books';
+      el.querySelector('#islSub').textContent = title || '';
+      el.classList.add('peek');
+      void el.offsetWidth;
+      _islandT1 = setTimeout(() => el.classList.add('open'), 60);
+      /* Stays 5 seconds, then folds back into the pill and slips away */
+      _islandT2 = setTimeout(() => {
+        el.classList.remove('open');
+        setTimeout(() => el.classList.remove('peek'), 380);
+      }, 5060);
     }
 
     function showToast(msg) {
@@ -3377,7 +3486,7 @@ html[data-theme="dark"] body .cs-card{background:#17100a!important;border:1px so
     if(!mq.matches){b.classList.remove('m-float','nav-hidden');return;}
     /* Top bar: hide on scroll down, show on scroll up (not while the menu / search is open or a jump is running) */
     const y=Math.max(0,scrollY), dy=y-lastY;
-    const menuOpen=document.getElementById('mobileMenu').classList.contains('open');
+    const menuOpen=!!document.querySelector('.ms-sheet.open, .mobile-menu.open:not([style])');
     if(window.__jumping){ b.classList.add('nav-hidden'); lastY=y; }
     else if(menuOpen){ b.classList.remove('nav-hidden'); lastY=y; }
     else if(b.classList.contains('m-searching')){ lastY=y; }   /* freeze: nothing may slide over the open search bar */

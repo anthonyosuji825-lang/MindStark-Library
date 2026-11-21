@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <script src="supabase.js"></script>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <!-- Favicon & Meta -->
 <link rel="icon" type="image/png" href="logo.png"/>
 <link rel="apple-touch-icon" href="logo.png"/>
@@ -86,25 +86,6 @@
     .value-card h3{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:var(--brown);margin-bottom:.6rem}
     .value-card p{font-size:.88rem;color:var(--muted);line-height:1.75}
 
-    /* ── TEAM ────────────────────────────────── */
-    .team-section{background:var(--warm);padding:5rem 2rem;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
-    .team-inner{max-width:1100px;margin:0 auto}
-    .team-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;margin-top:3.5rem}
-    .team-card{background:var(--white);border:1px solid var(--border);border-radius:18px;overflow:hidden;text-align:center;transition:transform .3s,box-shadow .3s}
-    .team-card:hover{transform:translateY(-5px);box-shadow:0 16px 40px rgba(59,42,26,.1)}
-    .team-avatar{height:140px;display:flex;align-items:center;justify-content:center;font-size:3.5rem;position:relative}
-    .team-avatar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(to top,var(--white),transparent)}
-    .avatar-bg-0{background:linear-gradient(145deg,#f5ede0,#e8d5b8)}
-    .avatar-bg-1{background:linear-gradient(145deg,#e8eef5,#c8d8ec)}
-    .avatar-bg-2{background:linear-gradient(145deg,#edf5ed,#c4dfc4)}
-    .avatar-bg-3{background:linear-gradient(145deg,#f5edf5,#dfc4df)}
-    .team-info{padding:1.25rem 1rem 1.5rem}
-    .team-name{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--brown);margin-bottom:.2rem}
-    .team-role{font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:.6rem}
-    .team-bio{font-size:.8rem;color:var(--muted);line-height:1.6}
-    .team-note{text-align:center;margin-top:2.5rem;font-size:.88rem;color:var(--muted);font-style:italic}
-    .team-note a{color:var(--gold);text-decoration:none}
-    .team-note a:hover{text-decoration:underline}
 
     /* ── CONTACT ─────────────────────────────── */
     .contact-section{padding:5rem 2rem;max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start}
@@ -173,18 +154,95 @@
       .nav-links{display:none}
       .mission-section{grid-template-columns:1fr;gap:2.5rem}
       .values-grid{grid-template-columns:1fr 1fr}
-      .team-grid{grid-template-columns:1fr 1fr}
       .contact-section{grid-template-columns:1fr;gap:2.5rem}
       .footer-grid{grid-template-columns:1fr 1fr}
     }
     @media(max-width:560px){
       .values-grid{grid-template-columns:1fr}
-      .team-grid{grid-template-columns:1fr 1fr}
       .form-row{grid-template-columns:1fr}
       .footer-grid{grid-template-columns:1fr}
       .mission-visual{grid-template-columns:1fr 1fr}
     }
   </style>
+<style id="refresh">
+:root{--gold-deep:#8a5f16;--ring:rgba(59,42,26,.09);--lift:0 1px 2px rgba(59,42,26,.05),0 24px 48px -28px rgba(59,42,26,.34)}
+html[data-theme="dark"]{--cream:#17110a;--warm:#1d150c;--brown:#f0e6d6;--text:#f0e6d6;--muted:#a8967c;--white:#221810;--border:rgba(224,176,88,.18);--gold:#d9a84c;--gold-deep:#e0b058;--ring:rgba(245,240,232,.08);--lift:0 24px 48px -28px #000;--shadow:0 10px 40px rgba(0,0,0,.4)}
+body{-webkit-font-smoothing:antialiased}
+::selection{background:rgba(200,150,62,.3)}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+nav{background:color-mix(in srgb,var(--cream) 86%,transparent);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+.nav-links{gap:.25rem;align-items:center}
+.nav-links a{padding:.45rem .95rem;border-radius:50px;display:block;transition:background .2s,color .2s}
+.nav-links a:hover{background:color-mix(in srgb,var(--gold) 12%,transparent)}
+.nav-links a.active{background:color-mix(in srgb,var(--gold) 16%,transparent);color:var(--gold-deep)}
+.nav-links a.nav-cta{background:var(--brown);color:var(--cream)!important;box-shadow:0 8px 18px -10px rgba(59,42,26,.6);padding:.5rem 1.35rem;margin-left:.5rem}
+html[data-theme="dark"] .nav-links a.nav-cta{background:var(--gold);color:#2b1c0e!important;font-weight:600}
+.hamburger span{background:var(--brown)}
+/* dark hero panels stay dark in both themes */
+.page-header,.story-section,.cta-banner{background:linear-gradient(155deg,#2b1d10,#3b2a1a 65%,#2b1d10);color:#f5f0e8}
+html[data-theme="dark"] .page-header,html[data-theme="dark"] .story-section,html[data-theme="dark"] .cta-banner{background:linear-gradient(155deg,#100a05,#1d140b)}
+.page-header h1,.cta-inner h2,.story-inner h2{color:#f5f0e8}
+.page-header h1 em,.cta-inner h2 em{color:#e0b058}
+.page-header h1{letter-spacing:-.025em}
+.page-header{padding:5.5rem 2rem 5rem}
+.breadcrumb a{color:#e0b058}
+.label,.page-label{color:#e0b058;font-weight:600}
+.btn-gold{background:linear-gradient(180deg,#e0b058,#c8963e);color:#2b1c0e;font-weight:600;box-shadow:0 16px 28px -16px rgba(200,150,62,.9)}
+.btn-gold:hover{background:#f5f0e8;color:#2b1c0e}
+.btn-ghost{border-width:1.5px;color:rgba(245,240,232,.8)}
+.cta-banner{padding:5rem 2rem}
+.cta-inner h2{letter-spacing:-.02em}
+footer{background:#100a05}
+.footer-logo-main,.footer-col h4{color:#f5f0e8}
+.toast{background:#2b1d10;color:#f5f0e8}
+.section-head h2,.mission-text h2,.contact-info h2{letter-spacing:-.02em}
+.section-head .label,.section-label,.mission-text .label,.contact-info .label{color:var(--gold-deep);font-weight:600}
+html,html *{scrollbar-width:thin;scrollbar-color:transparent transparent}
+html.ms-scrolling,html .ms-scrolling{scrollbar-color:rgba(59,42,26,.38) transparent}
+html[data-theme="dark"].ms-scrolling,html[data-theme="dark"] .ms-scrolling{scrollbar-color:rgba(224,176,88,.5) transparent}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+.mission-section{padding:6rem 2rem;gap:5rem}
+.mission-text h2{font-size:clamp(2rem,3.8vw,2.8rem)}
+.mission-text p{font-size:1rem}
+.mission-stat{border-radius:22px;border-color:var(--ring);padding:1.75rem 1.25rem;box-shadow:0 1px 2px rgba(59,42,26,.03)}
+.mission-stat:hover{box-shadow:var(--lift)}
+.mission-stat .icon{display:flex;align-items:center;justify-content:center;border-radius:14px;background:color-mix(in srgb,var(--gold) 14%,transparent);color:var(--gold-deep);width:48px;height:48px;margin:0 auto .85rem}
+.mission-stat .num{font-size:2.2rem;letter-spacing:-.02em;color:var(--gold-deep)}
+.story-section{padding:6rem 2rem}
+.story-timeline{position:relative;margin-top:2rem}
+.story-timeline::before{content:'';position:absolute;left:99px;top:1.6rem;bottom:1.6rem;width:1px;background:linear-gradient(180deg,transparent,rgba(224,176,88,.45) 12%,rgba(224,176,88,.45) 88%,transparent)}
+.timeline-item{grid-template-columns:80px 1fr;gap:2.2rem;border-bottom:0;padding:1.4rem 0}
+.timeline-year{color:#e0b058;font-size:1.25rem;text-align:right}
+.timeline-item::before{content:'';position:absolute;left:94px;top:1.95rem;width:11px;height:11px;border-radius:50%;background:#e0b058;box-shadow:0 0 0 5px rgba(224,176,88,.18)}
+.timeline-content h4{font-size:1.02rem;color:#f5f0e8}
+.timeline-content p{color:rgba(245,240,232,.62)}
+.values-section{padding:6rem 2rem}
+.value-card{border-radius:24px;border-color:var(--ring);padding:2.2rem 2rem;box-shadow:0 1px 2px rgba(59,42,26,.03)}
+.value-card:hover{box-shadow:var(--lift)}
+.value-icon{display:flex;align-items:center;justify-content:center;border-radius:14px;background:color-mix(in srgb,var(--gold) 14%,transparent);color:var(--gold-deep);width:52px;height:52px;margin-bottom:1.2rem;transition:background .3s,color .3s}
+.value-card:hover .value-icon{background:var(--gold);color:#2b1c0e}
+.contact-section{padding:6rem 2rem}
+.contact-detail .icon{display:flex;align-items:center;justify-content:center;border-radius:14px;background:color-mix(in srgb,var(--gold) 14%,transparent);color:var(--gold-deep);border:0;width:44px;height:44px;border-radius:13px}
+.contact-form{border-radius:28px;border-color:var(--ring);padding:2.4rem;box-shadow:var(--lift)}
+.form-group label{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600}
+.form-group input,.form-group textarea,.form-group select{border-radius:13px;border-width:1px;border-color:var(--ring);background:color-mix(in srgb,var(--brown) 3%,var(--white));padding:.85rem 1rem;color:var(--text)}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 20%,transparent);background:var(--white)}
+.submit-btn{padding:1rem;background:linear-gradient(180deg,#4a3623,#3b2a1a);color:#f5f0e8;font-weight:600;box-shadow:0 16px 28px -16px rgba(59,42,26,.8)}
+html[data-theme="dark"] .submit-btn{background:linear-gradient(180deg,#e0b058,#c8963e);color:#2b1c0e}
+.submit-btn:hover{background:linear-gradient(180deg,#d9a84c,#c8963e);color:#2b1c0e}
+.submit-success .s-icon{display:flex;align-items:center;justify-content:center;border-radius:14px;background:color-mix(in srgb,var(--gold) 14%,transparent);color:var(--gold-deep);width:68px;height:68px;border-radius:50%;margin:0 auto 1rem}
+.submit-success a{color:var(--gold-deep)!important}
+@media(max-width:900px){
+  .page-header{padding:3.5rem 1.25rem 3.25rem}
+  .mission-section,.values-section,.contact-section,.story-section{padding:3.5rem 1.25rem}
+  .cta-banner{padding:3.5rem 1.25rem}
+  .timeline-item{grid-template-columns:56px 1fr;gap:1.6rem}
+  .story-timeline::before{left:67px}
+  .timeline-item::before{left:62px}
+  .contact-form{padding:1.6rem 1.25rem}
+}
+</style>
 </head>
 <body>
 
@@ -227,22 +285,22 @@
     </div>
     <div class="mission-visual" style="animation:fadeUp .6s ease .15s both">
       <div class="mission-stat">
-        <span class="icon">📚</span>
+        <span class="icon"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg></span>
         <span class="num">10K+</span>
         <span class="lbl">Books Available</span>
       </div>
       <div class="mission-stat">
-        <span class="icon">🌍</span>
+        <span class="icon"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span>
         <span class="num">52</span>
         <span class="lbl">Genres & Categories</span>
       </div>
       <div class="mission-stat">
-        <span class="icon">👥</span>
+        <span class="icon"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></span>
         <span class="num">8,400+</span>
         <span class="lbl">Active Members</span>
       </div>
       <div class="mission-stat">
-        <span class="icon">🆓</span>
+        <span class="icon"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v9H5v-9M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg></span>
         <span class="num">Free</span>
         <span class="lbl">Basic Access Always</span>
       </div>
@@ -296,83 +354,38 @@
     </div>
     <div class="values-grid">
       <div class="value-card" style="animation:fadeUp .5s ease .1s both">
-        <span class="value-icon">📖</span>
+        <span class="value-icon"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg></span>
         <h3>Open Access</h3>
         <p>We believe knowledge belongs to everyone. That's why we'll always offer a meaningful free tier — no credit card, no expiry, no strings attached.</p>
       </div>
       <div class="value-card" style="animation:fadeUp .5s ease .2s both">
-        <span class="value-icon">✨</span>
+        <span class="value-icon"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 17l.7 1.8L21.5 19.5l-1.8.7L19 22l-.7-1.8-1.8-.7 1.8-.7z"/></svg></span>
         <h3>Beautiful Experience</h3>
         <p>Reading is a pleasure, and your reading platform should be too. We obsess over design, speed, and usability so you can focus on the words that matter.</p>
       </div>
       <div class="value-card" style="animation:fadeUp .5s ease .3s both">
-        <span class="value-icon">🌍</span>
+        <span class="value-icon"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span>
         <h3>Global Community</h3>
         <p>Books connect us across cultures, languages, and generations. MindStark is for every curious mind — wherever in the world they happen to be reading.</p>
       </div>
       <div class="value-card" style="animation:fadeUp .5s ease .4s both">
-        <span class="value-icon">🔒</span>
+        <span class="value-icon"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
         <h3>Privacy First</h3>
         <p>Your reading habits are personal. We never sell your data, never show ads, and never track you beyond what's needed to improve your experience.</p>
       </div>
       <div class="value-card" style="animation:fadeUp .5s ease .5s both">
-        <span class="value-icon">🚀</span>
+        <span class="value-icon"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 15c-1.5 1.3-2 5-2 5s3.7-.5 5-2M14 4c3-2 6-2 6-2s0 3-2 6l-7 7-4-4zM9 12l-3-.5L4 13l3 1M12 15l.5 3L11 20l-1-3"/></svg></span>
         <h3>Always Improving</h3>
         <p>MindStark is never "done." We ship updates constantly, listen closely to our community, and always ask — how can we make reading better?</p>
       </div>
       <div class="value-card" style="animation:fadeUp .5s ease .6s both">
-        <span class="value-icon">💛</span>
+        <span class="value-icon"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/></svg></span>
         <h3>Reader-Centric</h3>
         <p>Every feature we build starts with one question: does this make reading more enjoyable? If the answer isn't a clear yes, we go back to the drawing board.</p>
       </div>
     </div>
   </section>
 
-  <!-- TEAM -->
-  <section class="team-section">
-    <div class="team-inner">
-      <div class="section-head">
-        <span class="label">The People Behind MindStark</span>
-        <h2>Meet the Team</h2>
-        <p>A small, passionate team of readers, builders, and book lovers.</p>
-      </div>
-      <div class="team-grid">
-        <div class="team-card" style="animation:fadeUp .5s ease .1s both">
-          <div class="team-avatar avatar-bg-0">👨‍💼</div>
-          <div class="team-info">
-            <div class="team-name">Anthony C. C. Osuji</div>
-            <div class="team-role">Founder & CEO</div>
-            <div class="team-bio">Lifelong reader, amateur philosopher. Believes every person deserves access to great ideas.</div>
-          </div>
-        </div>
-        <div class="team-card" style="animation:fadeUp .5s ease .2s both">
-          <div class="team-avatar avatar-bg-1">👩‍🎨</div>
-          <div class="team-info">
-            <div class="team-name">Valeria Ken-Sylvester</div>
-            <div class="team-role">Head of Design</div>
-            <div class="team-bio">Obsessed with beautiful typography and reading experiences that feel like home.</div>
-          </div>
-        </div>
-        <div class="team-card" style="animation:fadeUp .5s ease .3s both">
-          <div class="team-avatar avatar-bg-2">👨‍💻</div>
-          <div class="team-info">
-            <div class="team-name">Anthony C. C. Osuji</div>
-            <div class="team-role">Lead Engineer</div>
-            <div class="team-bio">Full-stack builder who reads a book a week and writes clean code the rest of the time.</div>
-          </div>
-        </div>
-        <div class="team-card" style="animation:fadeUp .5s ease .4s both">
-          <div class="team-avatar avatar-bg-3">👩‍📚</div>
-          <div class="team-info">
-            <div class="team-name">Darlington Nwokorie</div>
-            <div class="team-role">Head Librarian</div>
-            <div class="team-bio">Curates every Staff Pick. Former literature professor with a gift for finding hidden gems.</div>
-          </div>
-        </div>
-      </div>
-      <p class="team-note">Want to join us? We're always looking for passionate people. <a href="#contact-form">Say hello →</a></p>
-    </div>
-  </section>
 
   <!-- CONTACT -->
   <section class="contact-section" id="contact-form">
@@ -382,28 +395,28 @@
       <p>Have a question, suggestion, or just want to say hello? Our team reads every message and aims to reply within 24 hours.</p>
 
       <div class="contact-detail">
-        <div class="icon">📧</div>
+        <div class="icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
         <div class="info">
           <strong>Email Us</strong>
           <span>hello@mindstarklibrary.com</span>
         </div>
       </div>
       <div class="contact-detail">
-        <div class="icon">💬</div>
+        <div class="icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6A8 8 0 1 1 21 12z"/></svg></div>
         <div class="info">
           <strong>Live Chat</strong>
           <span>Available for Scholar members</span>
         </div>
       </div>
       <div class="contact-detail">
-        <div class="icon">⏰</div>
+        <div class="icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
         <div class="info">
           <strong>Response Time</strong>
           <span>Within 24 hours, Mon – Fri</span>
         </div>
       </div>
       <div class="contact-detail">
-        <div class="icon">🌍</div>
+        <div class="icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></div>
         <div class="info">
           <strong>Community</strong>
           <span>Join our reader community forums</span>
@@ -446,7 +459,7 @@
         <button class="submit-btn" id="submitBtn">Send Message →</button>
       </div>
       <div class="submit-success" id="successMsg">
-        <span class="s-icon">📬</span>
+        <span class="s-icon"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>
         <h4>Almost there — send the email</h4>
         <p>Your email app should have opened with the message ready to go.
            Press send and we'll reply within 24 hours. If nothing opened,
@@ -508,7 +521,7 @@
     </div>
     <div class="footer-bottom">
       <span>© 2026 MindStark Library. All rights reserved.</span>
-      <span>Made with ❤️ for readers everywhere.</span>
+      <span>Made with care for readers everywhere.</span>
     </div>
   </footer>
 
@@ -561,5 +574,8 @@
    <script src="nav.js"></script>
    <script src="terms.js"></script>
    <script src="archer-bubble.js"></script>
+<script>
+(function(){var t=new WeakMap();document.addEventListener('scroll',function(e){var x=e.target,el=(x===document||x===document.body)?document.documentElement:x;if(!el||!el.classList)return;el.classList.add('ms-scrolling');clearTimeout(t.get(el));t.set(el,setTimeout(function(){el.classList.remove('ms-scrolling')},900))},{capture:true,passive:true})})();
+</script>
 </body>
 </html>

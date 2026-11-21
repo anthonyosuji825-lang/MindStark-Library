@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <link rel="icon" type="image/png" href="logo.png"/>
   <link rel="apple-touch-icon" href="logo.png"/>
   <meta property="og:image" content="https://mind-stark-library.vercel.app/logo.png"/>
@@ -259,6 +259,113 @@
     color: var(--gold);
   }
   </style>
+<style id="refresh">
+:root{--gold-deep:#8a5f16;--ring:rgba(59,42,26,.09);--lift:0 1px 2px rgba(59,42,26,.05),0 24px 48px -28px rgba(59,42,26,.34)}
+html[data-theme="dark"]{--cream:#17110a;--warm:#1d150c;--brown:#f0e6d6;--text:#f0e6d6;--muted:#a8967c;--white:#221810;--border:rgba(224,176,88,.18);--gold:#d9a84c;--gold-deep:#e0b058;--ring:rgba(245,240,232,.08);--lift:0 24px 48px -28px #000;--shadow:0 10px 40px rgba(0,0,0,.4)}
+body{-webkit-font-smoothing:antialiased}
+::selection{background:rgba(200,150,62,.3)}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+nav{background:color-mix(in srgb,var(--cream) 86%,transparent);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+.nav-links{gap:.25rem;align-items:center}
+.nav-links a{padding:.45rem .95rem;border-radius:50px;display:block;transition:background .2s,color .2s}
+.nav-links a:hover{background:color-mix(in srgb,var(--gold) 12%,transparent)}
+.nav-links a.active{background:color-mix(in srgb,var(--gold) 16%,transparent);color:var(--gold-deep)}
+.nav-links a.nav-cta{background:var(--brown);color:var(--cream)!important;box-shadow:0 8px 18px -10px rgba(59,42,26,.6);padding:.5rem 1.35rem;margin-left:.5rem}
+html[data-theme="dark"] .nav-links a.nav-cta{background:var(--gold);color:#2b1c0e!important;font-weight:600}
+.hamburger span{background:var(--brown)}
+/* dark hero panels stay dark in both themes */
+.page-header,.story-section,.cta-banner{background:linear-gradient(155deg,#2b1d10,#3b2a1a 65%,#2b1d10);color:#f5f0e8}
+html[data-theme="dark"] .page-header,html[data-theme="dark"] .story-section,html[data-theme="dark"] .cta-banner{background:linear-gradient(155deg,#100a05,#1d140b)}
+.page-header h1,.cta-inner h2,.story-inner h2{color:#f5f0e8}
+.page-header h1 em,.cta-inner h2 em{color:#e0b058}
+.page-header h1{letter-spacing:-.025em}
+.page-header{padding:5.5rem 2rem 5rem}
+.breadcrumb a{color:#e0b058}
+.label,.page-label{color:#e0b058;font-weight:600}
+.btn-gold{background:linear-gradient(180deg,#e0b058,#c8963e);color:#2b1c0e;font-weight:600;box-shadow:0 16px 28px -16px rgba(200,150,62,.9)}
+.btn-gold:hover{background:#f5f0e8;color:#2b1c0e}
+.btn-ghost{border-width:1.5px;color:rgba(245,240,232,.8)}
+.cta-banner{padding:5rem 2rem}
+.cta-inner h2{letter-spacing:-.02em}
+footer{background:#100a05}
+.footer-logo-main,.footer-col h4{color:#f5f0e8}
+.toast{background:#2b1d10;color:#f5f0e8}
+.section-head h2,.mission-text h2,.contact-info h2{letter-spacing:-.02em}
+.section-head .label,.section-label,.mission-text .label,.contact-info .label{color:var(--gold-deep);font-weight:600}
+html,html *{scrollbar-width:thin;scrollbar-color:transparent transparent}
+html.ms-scrolling,html .ms-scrolling{scrollbar-color:rgba(59,42,26,.38) transparent}
+html[data-theme="dark"].ms-scrolling,html[data-theme="dark"] .ms-scrolling{scrollbar-color:rgba(224,176,88,.5) transparent}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+.mobile-menu{background:var(--cream)}
+.mobile-menu a{color:var(--brown)}
+.mobile-menu .mob-cta{background:var(--brown);color:var(--cream)!important}
+.page-header p{font-size:1.05rem}
+.billing-toggle{padding:.35rem;background:rgba(245,240,232,.07);border-color:rgba(245,240,232,.14)}
+.billing-toggle span{padding:.5rem 1.1rem}
+.billing-toggle span.active{background:linear-gradient(180deg,#e0b058,#c8963e);color:#2b1c0e;font-weight:600;box-shadow:0 6px 14px -6px rgba(200,150,62,.8)}
+.save-badge{background:rgba(110,190,110,.18);color:#9bdc95;font-weight:600}
+.plans-section{padding:5rem 2rem 4rem;margin-top:-2.75rem;position:relative;z-index:2}
+.plans-grid{gap:1.5rem;align-items:stretch}
+.plan-card{border-radius:28px;border-color:var(--ring);padding:2.3rem 2rem;display:flex;flex-direction:column;box-shadow:var(--lift)}
+.plan-card:hover{box-shadow:0 30px 56px -28px rgba(59,42,26,.45)}
+.plan-features{flex:1}
+.plan-icon{display:flex;align-items:center;justify-content:center;border-radius:14px;background:color-mix(in srgb,var(--gold) 14%,transparent);color:var(--gold-deep);width:52px;height:52px;margin-bottom:1.1rem}
+.plan-card.featured{background:linear-gradient(165deg,#3b2a1a,#2b1d10);border:1px solid rgba(224,176,88,.55);transform:none;box-shadow:0 40px 70px -34px rgba(59,42,26,.8),0 0 0 1px rgba(224,176,88,.15)}
+html[data-theme="dark"] .plan-card.featured{background:linear-gradient(165deg,#2a1d10,#1a1209)}
+.plan-card.featured:hover{transform:translateY(-4px)}
+.plan-card.featured .plan-icon{background:rgba(224,176,88,.16);color:#e0b058}
+.plan-card.featured .plan-name{color:#f5f0e8}
+.plan-card.featured .plan-price{color:#e0b058}
+.plan-name{font-size:1.4rem}
+.plan-price{letter-spacing:-.03em;font-size:2.8rem}
+.popular-tag{background:linear-gradient(180deg,#e0b058,#c8963e);color:#2b1c0e;box-shadow:0 10px 20px -8px rgba(200,150,62,.9)}
+.plan-features li::before{content:'';width:18px;height:18px;border-radius:50%;margin-top:.1rem;background:color-mix(in srgb,var(--gold) 18%,transparent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8963e' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/11px no-repeat}
+.plan-features li.no::before{background:color-mix(in srgb,var(--muted) 14%,transparent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M7 7l10 10M17 7L7 17'/%3E%3C/svg%3E") center/9px no-repeat}
+.plan-btn{padding:1rem;font-weight:600}
+.plan-btn.outline{border-width:1.5px;border-color:color-mix(in srgb,var(--brown) 30%,transparent);color:var(--brown)}
+.plan-btn.gold{background:linear-gradient(180deg,#d9a84c,#b9822f);color:#fff;box-shadow:0 16px 28px -16px rgba(160,100,30,.9)}
+html[data-theme="dark"] .plan-btn.gold{color:#2b1c0e}
+.plan-btn.gold:hover:not(:disabled){background:linear-gradient(180deg,#e0b058,#c8963e)}
+.plan-btn.cream{background:linear-gradient(180deg,#f7f2e9,#ece2d0);color:#2b1c0e}
+.trust-badges{margin-top:2.75rem;gap:1rem 1.75rem}
+.trust-badge{padding:.5rem 1rem;border-radius:50px;border:1px solid var(--ring);background:var(--white)}
+.trust-badge svg{color:var(--gold-deep)}
+.compare-section{padding:4rem 2rem 5rem}
+.compare-table{border-radius:24px;border:1px solid var(--ring);box-shadow:var(--lift);overflow:hidden}
+.compare-table th{background:color-mix(in srgb,var(--brown) 5%,var(--white));border-bottom:1px solid var(--ring)}
+.compare-table th.feat{background:#3b2a1a;color:#e0b058}
+html[data-theme="dark"] .compare-table th.feat{background:#2a1d10}
+.compare-table td{border-bottom-color:var(--ring)}
+.compare-table td.feat{background:color-mix(in srgb,var(--gold) 7%,transparent)}
+.cat-row td{background:color-mix(in srgb,var(--brown) 5%,var(--white))!important}
+.cat-row td.feat{background:color-mix(in srgb,var(--gold) 10%,var(--white))!important}
+.cx{color:color-mix(in srgb,var(--muted) 55%,transparent)}
+.faq-section{padding:2rem 2rem 5rem;max-width:760px}
+.faq-item{border:1px solid var(--ring);border-radius:18px;background:var(--white);margin-bottom:.65rem;padding:0 1.3rem;transition:border-color .2s,box-shadow .3s}
+.faq-item.open{border-color:var(--border);box-shadow:var(--lift)}
+.faq-q{padding:1.2rem 0;color:var(--brown)}
+.faq-icon{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--gold) 14%,transparent);color:var(--gold-deep)}
+.modal-overlay{background:rgba(20,12,5,.65)}
+.modal{border-radius:30px;border:1px solid var(--ring);background:var(--white)}
+.modal-icon{width:76px;height:76px;border-radius:50%;margin:0 auto 1.1rem;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--gold) 14%,transparent);font-size:2.2rem}
+.modal-plan-badge{color:var(--gold-deep)}
+.modal-btn{background:var(--brown);color:var(--cream);font-weight:600}
+html[data-theme="dark"] .modal-btn{background:var(--gold);color:#2b1c0e}
+.modal-btn:hover{background:var(--gold);color:#2b1c0e}
+.connect-promo{border-radius:18px}
+@media(max-width:900px){
+  .plans-section{padding:3rem 1.25rem 2.5rem;margin-top:-1.5rem}
+  .plan-card.featured{order:-1}
+  .page-header{padding:3.5rem 1.25rem 4.5rem}
+  .compare-section{padding:2.5rem 1.25rem}
+  .faq-section{padding:1.5rem 1.25rem 3rem}
+}
+@media(max-width:600px){
+  .compare-table th,.compare-table td{padding:.7rem .4rem;font-size:.74rem}
+  .faq-item{padding:0 1rem}
+}
+</style>
 </head>
 <body>
 
@@ -313,7 +420,7 @@
 
     <!-- BASIC -->
     <div class="plan-card">
-      <div class="plan-icon">📖</div>
+      <div class="plan-icon"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg></div>
       <div class="plan-name">Basic</div>
       <div class="plan-tagline">Perfect for casual readers</div>
       <div class="plan-price-wrap">
@@ -338,8 +445,8 @@
 
     <!-- READER PRO -->
     <div class="plan-card featured">
-      <div class="popular-tag">⭐ Most Popular</div>
-      <div class="plan-icon">🚀</div>
+      <div class="popular-tag">Most Popular</div>
+      <div class="plan-icon"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 15c-1.5 1.3-2 5-2 5s3.7-.5 5-2M14 4c3-2 6-2 6-2s0 3-2 6l-7 7-4-4zM9 12l-3-.5L4 13l3 1M12 15l.5 3L11 20l-1-3"/></svg></div>
       <div class="plan-name">Reader Pro</div>
       <div class="plan-tagline">For the dedicated reader</div>
       <div class="plan-price-wrap">
@@ -365,7 +472,7 @@
 
     <!-- SCHOLAR -->
     <div class="plan-card">
-      <div class="plan-icon">🎓</div>
+      <div class="plan-icon"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2.2 9 2.2 12 0v-5"/></svg></div>
       <div class="plan-name">Scholar</div>
       <div class="plan-tagline">For serious learners &amp; researchers</div>
       <div class="plan-price-wrap">
@@ -392,10 +499,10 @@
   </div>
 
   <div class="trust-badges">
-    <span class="trust-badge">🔒 Secured by Paystack</span>
-    <span class="trust-badge">↩️ Cancel anytime</span>
-    <span class="trust-badge">💳 Card, Transfer &amp; USSD</span>
-    <span class="trust-badge">🇳🇬 NGN pricing</span>
+    <span class="trust-badge"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Secured by Paystack</span>
+    <span class="trust-badge"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg> Cancel anytime</span>
+    <span class="trust-badge"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Card, Transfer &amp; USSD</span>
+    <span class="trust-badge"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 22V4M4 4h13l-2 4 2 4H4"/></svg> NGN pricing</span>
   </div>
 </div>
 
@@ -513,7 +620,7 @@
   </div>
   <div class="footer-bottom">
     <span>© 2026 MindStark Library. All rights reserved.</span>
-    <span>Made with ❤️ for readers everywhere.</span>
+    <span>Made with care for readers everywhere.</span>
   </div>
 </footer>
 
@@ -769,5 +876,8 @@
 <script src="nav.js"></script>
 <script src="terms.js"></script>
 <script src="supabase.js"></script>
+<script>
+(function(){var t=new WeakMap();document.addEventListener('scroll',function(e){var x=e.target,el=(x===document||x===document.body)?document.documentElement:x;if(!el||!el.classList)return;el.classList.add('ms-scrolling');clearTimeout(t.get(el));t.set(el,setTimeout(function(){el.classList.remove('ms-scrolling')},900))},{capture:true,passive:true})})();
+</script>
 </body>
-</html>
+</html> a
