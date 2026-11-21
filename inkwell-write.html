@@ -6,6 +6,7 @@
 <link rel="icon" type="image/png" href="logo.png"/>
 <title>Write — MindStark Inkwell</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,800;0,900;1,400;1,700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script>try{if(localStorage.getItem('ms_dark_mode')==='1')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
 <style>
 /* ── TOKENS ────────────────────────────────────────────────── */
 :root {
@@ -29,8 +30,8 @@
   --danger: #b42323;
   --nav-h: 60px;
 }
-body.dark-mode {
-  --cream: #0d0905;
+html[data-theme="dark"] {
+  --cream: #0f0a05;
   --warm: #17100a;
   --warm2: #21170f;
   --paper: #15100a;
@@ -121,9 +122,6 @@ nav {
 }
 .icon-btn:hover { background: color-mix(in srgb, var(--gold) 14%, transparent); border-color: var(--border-bright); color: var(--gold-deep); }
 .icon-btn:active { transform: scale(.94); }
-.dark-toggle .i-sun { display: none; }
-body.dark-mode .dark-toggle .i-sun { display: block; }
-body.dark-mode .dark-toggle .i-moon { display: none; }
 
 .btn-sm {
   padding: .5rem 1.1rem; border-radius: 50px; border: 1px solid transparent;
@@ -466,17 +464,6 @@ body.focus-mode .focus-exit { display: inline-flex; align-items: center; gap: .4
 }
 .toast.show { transform: translateX(-50%) translateY(0); }
 
-/* ── SCROLLBARS: hairline, only while scrolling ────────────── */
-html, html * { scrollbar-width: thin; scrollbar-color: transparent transparent; }
-html.ms-scrolling, html .ms-scrolling { scrollbar-color: rgba(59,42,26,.38) transparent; }
-html:has(body.dark-mode).ms-scrolling, body.dark-mode .ms-scrolling { scrollbar-color: rgba(224,176,88,.5) transparent; }
-html::-webkit-scrollbar, html *::-webkit-scrollbar { width: 6px; height: 6px; background: transparent; }
-html *::-webkit-scrollbar-thumb { background: transparent; border-radius: 6px; }
-html .ms-scrolling::-webkit-scrollbar-thumb { background: rgba(59,42,26,.38); }
-body.dark-mode .ms-scrolling::-webkit-scrollbar-thumb { background: rgba(224,176,88,.5); }
-.toolbar { scrollbar-width: none; }
-.toolbar::-webkit-scrollbar { display: none; }
-
 /* ── RESPONSIVE ────────────────────────────────────────────── */
 .mob-only { display: none; }
 
@@ -520,10 +507,57 @@ body.dark-mode .ms-scrolling::-webkit-scrollbar-thumb { background: rgba(224,176
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+
+/* ── ACCOUNT MENU (nav.js) ───────────────────────────────── */
+.nav-links{list-style:none;display:flex;align-items:center}
+.notif-bell-wrap,.nav-links li:has(>.notif-bell-wrap){display:none!important}
+.actions-btn{display:none}
+.hamburger.ms-avatar-btn{border:0;background:none}
+
+/* ── DESIGN POLISH ───────────────────────────────────────── */
+.toolbar-group{background:color-mix(in srgb,var(--brown) 5%,transparent);padding:.15rem .2rem}
+.tool-btn.active{box-shadow:inset 0 0 0 1px var(--border-bright)}
+.save-status{font-size:.7rem}
+.chapter-item.active{box-shadow:0 8px 18px -12px rgba(59,42,26,.5)}
+.add-chapter-btn{font-weight:600}
+@media (min-width:768px){
+  .toolbar{padding:.55rem 1.1rem}
+  .editor-inner{min-height:min(78vh,920px);background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 7%,var(--paper)) 0,var(--paper) 150px)}
+  .editor-inner::before{content:'';position:absolute;left:4rem;right:4rem;top:0;height:3px;border-radius:0 0 4px 4px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.75}
+  body.focus-mode .editor-inner::before{display:none}
+  .chapter-title-input{font-size:2.3rem}
+  #editor{font-size:1.16rem;line-height:2}
+  html[data-theme="dark"] .editor-inner{background:linear-gradient(180deg,#1b130c 0,#15100a 160px);border-color:rgba(224,176,88,.12)}
+}
+@media (max-width:767px){
+  .nav-links{display:none}
+  .actions-btn{display:inline-flex}
+  .nav-inner{gap:.4rem}
+  /* chapters: a bottom sheet instead of a side drawer */
+  .sidebar-panel{top:auto;left:0;right:0;bottom:0;width:100%;max-width:none;height:min(90dvh,100%);border-right:0;border-top:1px solid var(--border-bright);border-radius:26px 26px 0 0;transform:translateY(105%);box-shadow:0 -24px 60px -16px rgba(20,12,5,.5)}
+  .sidebar-panel.open{transform:none}
+  .sidebar-panel:not(.open){box-shadow:none}
+  .sidebar-overlay.open{left:0;right:0;top:0;bottom:min(90dvh,calc(100dvh - var(--nav-h)))}
+  .panel-head{position:relative;padding-top:1.55rem}
+  .panel-footer{padding:.75rem 1.1rem calc(.75rem + env(safe-area-inset-bottom))}
+  .word-count-display{margin-bottom:.6rem}
+  .panel-actions{flex-direction:row;flex-wrap:wrap;gap:.45rem}
+  .panel-actions .btn-sm{flex:1 1 calc(50% - .25rem);padding:.6rem .8rem}
+  .panel-actions .btn-brown-sm{flex-basis:100%}
+  .panel-head::before{content:'';position:absolute;top:.6rem;left:50%;transform:translateX(-50%);width:40px;height:5px;border-radius:3px;background:var(--border-bright);opacity:.7}
+  /* the page itself runs edge to edge */
+  .editor-wrap{padding:0 0 3rem}
+  .editor-inner{border:0;border-radius:0;box-shadow:none;background:transparent;padding:1.4rem 1.15rem 2.4rem;min-height:100%}
+  .toolbar{padding:.4rem .5rem}
+  .toolbar-group{background:none;padding:0}
+  .tool-btn{min-width:40px;height:40px}
+}
+/* primary buttons in dark mode match the rest of the site */
+html[data-theme="dark"] .btn-brown-sm,html[data-theme="dark"] .modal-submit,html[data-theme="dark"] .nbm-create,html[data-theme="dark"] .btn-brown-sm:hover,html[data-theme="dark"] .modal-submit:hover,html[data-theme="dark"] .nbm-create:hover{background:linear-gradient(180deg,#e0b058,#c8963e);color:#1e1208;box-shadow:0 10px 22px -12px rgba(200,150,62,.7)}
+html[data-theme="dark"] .btn-brown-sm:hover,html[data-theme="dark"] .modal-submit:hover,html[data-theme="dark"] .nbm-create:hover{filter:brightness(1.08)}
 </style>
 </head>
 <body>
-<script>try{if(localStorage.getItem('inkwell-theme')==='dark')document.body.classList.add('dark-mode');}catch(e){}</script>
 
 <!-- ── NAVBAR ─────────────────────────────────────────────────── -->
 <nav>
@@ -537,17 +571,13 @@ body.dark-mode .ms-scrolling::-webkit-scrollbar-thumb { background: rgba(224,176
       <span class="save-status" id="save-status">—</span>
     </div>
     <div class="nav-right">
-      <button class="icon-btn dark-toggle" id="dark-toggle" title="Toggle dark mode" aria-label="Toggle dark mode">
-        <svg class="i-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
-        <svg class="i-sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
-      </button>
+      <ul class="nav-links"><li><a href="signin.html" class="nav-cta">Sign In</a></li></ul>
       <button class="btn-sm btn-outline-sm mob-only" id="nav-save-btn">Save draft</button>
       <button class="btn-sm btn-brown-sm mob-only" id="nav-submit-btn">Submit
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </button>
-      <button class="hamburger" id="hamburger" aria-label="Menu">
-        <span></span><span></span><span></span>
-      </button>
+      <button class="icon-btn actions-btn" id="actions-btn" aria-label="Book actions"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></button>
+      <button class="hamburger" id="hamburger" aria-label="Open menu"></button>
     </div>
   </div>
 </nav>
@@ -809,14 +839,6 @@ body.dark-mode .ms-scrolling::-webkit-scrollbar-thumb { background: rgba(224,176
 <script src="supabase.js"></script>
 <script>
 
-// ── DARK MODE ──────────────────────────────────────────────────
-const darkToggle = document.getElementById('dark-toggle');
-if (localStorage.getItem('inkwell-theme') === 'dark') document.body.classList.add('dark-mode');
-darkToggle.addEventListener('click', () => {
-  document.body.classList.toggle('dark-mode');
-  localStorage.setItem('inkwell-theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
-});
-
 // ── TOAST ──────────────────────────────────────────────────────
 function showToast(msg, duration = 3000) {
   const t = document.getElementById('toast');
@@ -825,7 +847,7 @@ function showToast(msg, duration = 3000) {
 }
 
 // ── MOBILE NAV SHEET ───────────────────────────────────────────
-const hamburger = document.getElementById('hamburger');
+const hamburger = document.getElementById('actions-btn');
 const sheetOverlay = document.getElementById('sheetOverlay');
 const mobileSheet = document.getElementById('mobileSheet');
 hamburger.addEventListener('click', () => {
@@ -1486,5 +1508,6 @@ document.addEventListener('supabase:ready', async () => {
   }, { capture: true, passive: true });
 })();
 </script>
+<script src="nav.js"></script>
 </body>
 </html>

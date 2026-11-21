@@ -27,6 +27,32 @@
   const isSignedIn = currentUser && !currentUser.guest && currentUser.email;
   const isGuest    = currentUser && currentUser.guest;
 
+  /* ── SESSION SYNC ──────────────────────────────
+     A page can know the reader is signed in (Supabase session) while the saved sign-in used by this
+     header is missing: opened by typing the address, storage cleared, or signed in on a page that did
+     not save it. Rebuild it once from the real session and refresh, so the header shows the account
+     instead of "Sign In". */
+  function syncSession() {
+    if (isSignedIn || isGuest || !window._sb || !window._sb.auth) return;
+    try { if (sessionStorage.getItem('ms_nav_synced')) return; } catch(e) {}
+    window._sb.auth.getSession().then(res => {
+      const u = res && res.data && res.data.session && res.data.session.user;
+      if (!u) return;
+      const m = u.user_metadata || {};
+      const user = { id: u.id, email: u.email, name: m.full_name || m.name || (u.email || '').split('@')[0], avatar: m.avatar_url || m.picture || '' };
+      try {
+        sessionStorage.setItem('ms_nav_synced', '1');
+        const j = JSON.stringify(user);
+        sessionStorage.setItem('ms_current_user', j);
+        localStorage.setItem('ms_current_user', j);
+      } catch(e) { return; }
+      location.reload();
+    }).catch(() => {});
+  }
+  if (!isSignedIn && !isGuest) {
+    if (window._sb) syncSession(); else document.addEventListener('supabase:ready', syncSession);
+  }
+
   let prefs = { darkMode: false, accentColor: '#c8963e', streak: 1 };
   try { const s = JSON.parse(sessionStorage.getItem('ms_user_prefs') || '{}'); prefs = {...prefs,...s}; } catch(e) {}
 
@@ -368,7 +394,7 @@
     .bm-badge{border-color:#f5f0e8;background:#3b2a1a;top:-6px;right:-4px}
 
     /* Dropdown */
-    .nav-dropdown{border-radius:20px;border:1px solid rgba(59,42,26,.1);box-shadow:0 30px 70px -20px rgba(43,29,16,.45),0 4px 14px rgba(43,29,16,.08);min-width:292px;transform-origin:top right;animation:msPop .22s cubic-bezier(.2,.9,.3,1.1)}
+    .nav-dropdown{border-radius:20px;border:1px solid rgba(59,42,26,.1);box-shadow:0 30px 70px -20px rgba(43,29,16,.45),0 4px 14px rgba(43,29,16,.08);min-width:292px;max-height:calc(100vh - 6.5rem);max-height:calc(100dvh - 6.5rem);overflow-y:auto;overscroll-behavior:contain;transform-origin:top right;animation:msPop .22s cubic-bezier(.2,.9,.3,1.1)}
     .dd-header{padding:1.15rem 1.25rem 1rem;background:radial-gradient(120% 140% at 100% 0%,rgba(200,150,62,.35),transparent 60%),linear-gradient(135deg,#2b1d10,#4a3220)}
     .dd-avatar-large{width:48px;height:48px;overflow:hidden;border:2px solid rgba(245,240,232,.35)}
     .dd-avatar-large img{border:0!important;width:100%!important;height:100%!important}
@@ -893,7 +919,7 @@
   window.signOut = async function() {
   if (window._sb) await window._sb.auth.signOut();
   sessionStorage.clear();
-  localStorage.removeItem('ms_current_user');
+  localStorage.removeItem('ms_current_user'); sessionStorage.removeItem('ms_nav_synced');
   localStorage.removeItem('ms_membership');
   showNavToast('👋 Signed out. See you soon!');
   setTimeout(() => {
