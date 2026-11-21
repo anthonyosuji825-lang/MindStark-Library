@@ -1091,4 +1091,35 @@
     });
   }
 
+  /* ── MEMBERSHIP SYNC ─────────────────────────────────────────
+     The header reads the plan from sessionStorage, which is empty in a fresh tab or on a page the
+     reader opened directly (Inkwell, Arena...). Ask the database once, save the result for the whole
+     device, and refresh a single time so the badge and purple Scholar card show on every page. */
+  if (isSignedIn && currentUser && currentUser.id) {
+    const syncMembership = async () => {
+      try {
+        if (!window._sb) return;
+        /* profiles is locked down: the signed-in reader's own row comes from my_profile() */
+        const { data: p } = await window._sb.rpc('my_profile');
+        if (!p) return;
+        const raw = (p.membership_plan || '').toLowerCase();
+        const plan = p.membership_active === true && ['pro', 'scholar', 'reader pro'].includes(raw)
+          ? (raw === 'scholar' ? 'scholar' : 'pro') : null;
+        if (plan === memberPlan) return;
+        const key = 'ms_mem_synced_' + (plan || 'none');
+        if (sessionStorage.getItem(key)) return;
+        sessionStorage.setItem(key, '1');
+        if (plan) {
+          const j = JSON.stringify({ active: true, plan });
+          sessionStorage.setItem('ms_membership', j); localStorage.setItem('ms_membership', j);
+        } else {
+          sessionStorage.removeItem('ms_membership'); localStorage.removeItem('ms_membership');
+        }
+        location.reload();
+      } catch (e) {}
+    };
+    document.addEventListener('supabase:ready', syncMembership);
+    if (window._sb) syncMembership();
+  }
+
 })();

@@ -735,10 +735,15 @@ body.dark-mode .mobile-sheet { background: var(--ink-card); }
 
 /* ── LAYOUT POLISH (phones): less crowded nav ── */
 @media (max-width:640px){
-  .nav-user{display:none;}
-  .nav-right{gap:.5rem;}
+  .nav-user{display:none !important;}
+  .nav-right{gap:.5rem;min-width:0;}
+  .dark-toggle{display:none !important;}
   #nav-admin-link{padding:.25rem .65rem !important;font-size:.72rem !important;}
 }
+
+/* ── Editorial desk link (admins only) ── */
+.admin-chip{align-items:center;gap:.4rem;margin-top:.9rem;width:fit-content;padding:.4rem .95rem;border-radius:50px;font-size:.78rem;font-weight:600;letter-spacing:.03em;color:var(--gold-deep,var(--gold));text-decoration:none;border:1px solid var(--border-bright);background:color-mix(in srgb,var(--gold) 8%,transparent);transition:background .2s}
+.admin-chip:hover{background:color-mix(in srgb,var(--gold) 18%,transparent)}
 </style>
 <style id="refresh">
 /* ═══ Design refresh: layered over the original styles; markup and scripts untouched ═══ */
@@ -956,9 +961,8 @@ body.dark-mode .ms-scrolling::-webkit-scrollbar-thumb{background:rgba(224,176,88
 </style>
 </head>
 <body>
-<script>try{if(localStorage.getItem('inkwell-theme')==='dark')document.body.classList.add('dark-mode');}catch(e){}</script>
 
-<!-- ── NAVBAR ─────────────────────────────────────────────────── -->
+<!-- ── NAVBAR (nav.js builds the profile menu, bell, dark mode and mobile sheet) ── -->
 <nav>
   <div class="nav-inner">
     <a class="logo" href="index.html">
@@ -966,37 +970,19 @@ body.dark-mode .ms-scrolling::-webkit-scrollbar-thumb{background:rgba(224,176,88
       <span class="logo-sub">Inkwell</span>
     </a>
     <ul class="nav-links">
-      <li><a href="index.html">Library</a></li>
       <li><a href="browse.html">Browse</a></li>
-      <li><a href="arena.html">Arena</a></li>
+      <li><a href="book.html">My Books</a></li>
+      <li><a href="membership.html">Membership</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="feeds.html">Feeds</a></li>
       <li><a href="inkwell.html" class="active">Inkwell</a></li>
+      <li><a href="signin.html" class="nav-cta">Sign In</a></li>
     </ul>
-    <div class="nav-right">
-      <a href="inkwell-admin.html" id="nav-admin-link" style="display:none;font-size:.78rem;color:var(--gold);text-decoration:none;font-weight:600;letter-spacing:.04em;border:1px solid var(--border-bright);padding:.3rem .85rem;border-radius:50px;transition:all .2s;" onmouseover="this.style.background='rgba(200,150,62,.1)'" onmouseout="this.style.background='transparent'">Editorial</a>
-      <div class="nav-user" id="nav-user">
-        <div class="nav-user-dot"></div>
-        <span id="nav-username">Writer</span>
-      </div>
-      <button class="dark-toggle" id="dark-toggle" title="Toggle dark mode" aria-label="Toggle dark mode"></button>
-      <a href="signin.html" class="nav-cta" id="nav-signin">Sign In</a>
-      <button class="hamburger" id="hamburger" aria-label="Menu">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
+    <button class="hamburger" id="hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
-
-<!-- ── MOBILE SHEET ────────────────────────────────────────────── -->
-<div class="mobile-sheet-overlay" id="sheetOverlay">
-  <div class="mobile-sheet" id="mobileSheet">
-    <div class="sheet-handle"></div>
-    <a href="index.html" onclick="closeSheet()">Library</a>
-    <a href="browse.html" onclick="closeSheet()">Browse</a>
-    <a href="arena.html" onclick="closeSheet()">Arena</a>
-    <a href="inkwell.html" onclick="closeSheet()">Inkwell</a>
-    <a href="signin.html" class="mob-cta" onclick="closeSheet()">Sign In</a>
-  </div>
-</div>
 
 <!-- ── PAGE ───────────────────────────────────────────────────── -->
 <div class="page-wrap">
@@ -1011,6 +997,7 @@ body.dark-mode .ms-scrolling::-webkit-scrollbar-thumb{background:rgba(224,176,88
         <button class="btn-primary" id="become-creator-btn">✍️ Become a Creator</button>
         <a href="browse.html" class="btn-secondary">Explore Stories</a>
       </div>
+      <a href="inkwell-admin.html" id="nav-admin-link" class="admin-chip" style="display:none">✎ Editorial desk</a>
     </div>
     <div class="hero-visual reveal">
       <div class="quill-card">
@@ -1316,33 +1303,6 @@ body.dark-mode .ms-scrolling::-webkit-scrollbar-thumb{background:rgba(224,176,88
 <script src="nav.js"></script>
 <script>
 
-// ── DARK MODE ──────────────────────────────────────────────────
-const darkToggle = document.getElementById('dark-toggle');
-const savedTheme = localStorage.getItem('inkwell-theme');
-if (savedTheme === 'dark') document.body.classList.add('dark-mode');
-darkToggle.addEventListener('click', () => {
-  document.body.classList.toggle('dark-mode');
-  localStorage.setItem('inkwell-theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
-});
-
-// ── MOBILE NAV ─────────────────────────────────────────────────
-const hamburger = document.getElementById('hamburger');
-const sheetOverlay = document.getElementById('sheetOverlay');
-const mobileSheet = document.getElementById('mobileSheet');
-hamburger.addEventListener('click', () => {
-  hamburger.classList.toggle('open');
-  sheetOverlay.classList.toggle('open');
-  mobileSheet.classList.toggle('open');
-  document.body.style.overflow = mobileSheet.classList.contains('open') ? 'hidden' : '';
-});
-sheetOverlay.addEventListener('click', e => { if (e.target === sheetOverlay) closeSheet(); });
-function closeSheet() {
-  hamburger.classList.remove('open');
-  sheetOverlay.classList.remove('open');
-  mobileSheet.classList.remove('open');
-  document.body.style.overflow = '';
-}
-
 // ── TOAST ──────────────────────────────────────────────────────
 /* Writer-supplied text (titles, display names, genres) must be escaped
    before it goes into innerHTML. */
@@ -1386,14 +1346,9 @@ async function checkAuth() {
     }
 
     currentUser = user;
-    const navSignin = document.getElementById('nav-signin');
-    const navUser = document.getElementById('nav-user');
-    if (navSignin) navSignin.style.display = 'none';
-    if (navUser) navUser.style.display = 'flex';
 
     const { data: profile } = await window._sb.from('profiles').select('mindstark_id, full_name').eq('id', user.id).single();
     if (profile) {
-      document.getElementById('nav-username').textContent = profile.mindstark_id || profile.full_name || 'Writer';
       document.getElementById('app-mindstark-id').value = profile.mindstark_id || '';
       document.getElementById('app-name').value = profile.full_name || '';
     }
@@ -1401,7 +1356,7 @@ async function checkAuth() {
     // Check if admin
     const { data: adminRow } = await window._sb
       .from('inkwell_admins').select('id').eq('user_id', user.id).single();
-    if (adminRow) document.getElementById('nav-admin-link').style.display = 'inline-block';
+    if (adminRow) document.getElementById('nav-admin-link').style.display = 'inline-flex';
 
     // Check if approved creator
     const { data: creatorData } = await window._sb

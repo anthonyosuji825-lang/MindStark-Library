@@ -257,6 +257,10 @@
       pointer-events: none; z-index: 99997;
     }
     #archer-tooltip.show { opacity: 1; transform: translateY(0); }
+    @media (max-width: 860px) {
+      body:has(.m-bottom-nav) #archer-fab { bottom: calc(84px + env(safe-area-inset-bottom)); }
+      body:has(.m-bottom-nav) #archer-tooltip { bottom: calc(150px + env(safe-area-inset-bottom)); }
+    }
     @media (max-width: 480px) {
       #archer-sidebar { width: 100%; border-left: none; }
       #archer-fab { bottom: 18px; right: 18px; }
