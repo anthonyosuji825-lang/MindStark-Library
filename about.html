@@ -2,15 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <script src="supabase.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <!-- Favicon & Meta -->
 <link rel="icon" type="image/png" href="logo.png"/>
 <link rel="apple-touch-icon" href="logo.png"/>
 <meta property="og:image" content="https://mind-stark-library.vercel.app/logo.png"/>
-<meta property="og:title" content="MindStark Library"/>
-<meta property="og:description" content="70,000+ free books. Read anywhere, anytime."/>
+<meta property="og:title" content="About MindStark Library — Our Mission"/>
+<meta property="og:description" content="Learn about MindStark Library — built for readers who love great books."/>
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://mind-stark-library.vercel.app"/>
+<meta property="og:url" content="https://mind-stark-library.vercel.app/about.html"/>
   <title>About — MindStark Library</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
@@ -446,8 +447,11 @@
       </div>
       <div class="submit-success" id="successMsg">
         <span class="s-icon">📬</span>
-        <h4>Message Sent!</h4>
-        <p>Thanks for reaching out. We'll get back to you within 24 hours.</p>
+        <h4>Almost there — send the email</h4>
+        <p>Your email app should have opened with the message ready to go.
+           Press send and we'll reply within 24 hours. If nothing opened,
+           email us directly at
+           <a href="mailto:hello@mindstarklibrary.com" style="color:var(--gold);font-weight:600;">hello@mindstarklibrary.com</a>.</p>
       </div>
     </div>
   </section>
@@ -527,7 +531,22 @@
         return;
       }
 
-      /* TODO: send to your backend/email service here */
+      /* No backend yet: previously this just showed "Message Sent!" and
+         threw the message away. Hand off to the visitor's mail client so
+         the message actually reaches support, and only then confirm.
+         Replace this with a real endpoint when one exists. */
+      const lname = document.getElementById('lname').value.trim();
+      const to    = 'hello@mindstarklibrary.com';
+      const body  =
+        `Name: ${fname}${lname ? ' ' + lname : ''}\n` +
+        `Email: ${email}\n` +
+        `Topic: ${subject}\n\n` +
+        `${message}\n`;
+      const href =
+        `mailto:${to}?subject=${encodeURIComponent('[MindStark] ' + subject)}` +
+        `&body=${encodeURIComponent(body)}`;
+      window.location.href = href;
+
       document.getElementById('formWrap').style.display   = 'none';
       document.getElementById('successMsg').style.display = 'block';
     });
@@ -541,7 +560,6 @@
   </script>
    <script src="nav.js"></script>
    <script src="terms.js"></script>
-   <script src="supabase.js"></script>
    <script src="archer-bubble.js"></script>
 </body>
 </html>

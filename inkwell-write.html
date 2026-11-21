@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<link rel="icon" type="image/png" href="logo.png"/>
+<title>Write — MindStark Inkwell</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,800;0,900;1,400;1,700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ── TOKENS ────────────────────────────────────────────────── */
+:root {
+  --cream: #f6f1e7;
+  --warm: #efe7d6;
+  --warm2: #e8ddc8;
+  --paper: #fffdf8;
+  --brown: #3b2a1a;
+  --gold: #c8963e;
+  --gold-deep: #8a5f16;
+  --rust: #a0522d;
+  --text: #2c1e0f;
+  --muted: #7a6652;
+  --white: #ffffff;
+  --border: rgba(59,42,26,.11);
+  --border-bright: rgba(200,150,62,.42);
+  --shadow: 0 1px 2px rgba(59,42,26,.05), 0 24px 48px -28px rgba(59,42,26,.28);
+  --card-bg: #ffffff;
+  --surface: #faf6ef;
+  --green: #3f7a55;
+  --danger: #b42323;
+  --nav-h: 60px;
+}
+body.dark-mode {
+  --cream: #0d0905;
+  --warm: #17100a;
+  --warm2: #21170f;
+  --paper: #15100a;
+  --brown: #f5f0e8;
+  --gold: #d9a84c;
+  --gold-deep: #e0b058;
+  --text: rgba(245,240,232,.9);
+  --muted: rgba(245,240,232,.52);
+  --border: rgba(245,240,232,.09);
+  --border-bright: rgba(224,176,88,.4);
+  --card-bg: #1a120b;
+  --surface: #120c07;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 28px 56px -28px rgba(0,0,0,.7);
+  --green: #6fbf8b;
+  --danger: #ff8a80;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  line-height: 1.6;
+  height: 100vh; height: 100dvh;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  transition: background .3s, color .3s;
+}
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(60% 45% at 50% 0%, rgba(200,150,62,.10), transparent 65%),
+    radial-gradient(40% 40% at 100% 100%, rgba(160,82,45,.05), transparent 70%);
+}
+button { font-family: inherit; }
+svg { display: block; flex-shrink: 0; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+::selection { background: rgba(200,150,62,.3); }
+
+/* ── NAVBAR ────────────────────────────────────────────────── */
+nav {
+  position: relative; z-index: 200; flex-shrink: 0;
+  height: var(--nav-h);
+  background: color-mix(in srgb, var(--cream) 88%, transparent);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  transition: background .3s, transform .35s cubic-bezier(.4,0,.2,1), margin .35s;
+}
+.nav-inner {
+  height: 100%; display: flex; align-items: center; gap: 1rem;
+  padding: 0 1.25rem; max-width: 1600px; margin: 0 auto;
+}
+.logo { display: flex; flex-direction: column; line-height: 1; text-decoration: none; flex-shrink: 0; }
+.logo-main { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 900; color: var(--brown); letter-spacing: -.01em; }
+.logo-sub { font-size: .56rem; letter-spacing: .3em; text-transform: uppercase; color: var(--gold); margin-top: 2px; }
+
+.nav-center { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: .85rem; }
+.book-title-input {
+  width: 100%; max-width: 420px; min-width: 0;
+  background: transparent; border: 1px solid transparent; border-radius: 10px; outline: none;
+  font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700;
+  color: var(--brown); text-align: center; padding: .4rem .75rem;
+  text-overflow: ellipsis; transition: background .2s, border-color .2s;
+}
+.book-title-input::placeholder { color: var(--muted); font-weight: 400; font-style: italic; }
+.book-title-input:hover { background: color-mix(in srgb, var(--brown) 5%, transparent); }
+.book-title-input:focus { background: var(--card-bg); border-color: var(--border-bright); text-align: left; }
+
+.save-status {
+  display: inline-flex; align-items: center; gap: .45rem; flex-shrink: 0;
+  font-family: 'DM Mono', monospace; font-size: .68rem; color: var(--muted);
+  padding: .28rem .7rem; border-radius: 50px; white-space: nowrap;
+  background: color-mix(in srgb, var(--brown) 5%, transparent);
+  transition: color .2s, background .2s;
+}
+.save-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); opacity: .8; }
+.save-status.saved { color: var(--green); background: color-mix(in srgb, var(--green) 11%, transparent); }
+.save-status.saved::before { background: var(--green); opacity: 1; }
+
+.nav-right { display: flex; align-items: center; gap: .55rem; flex-shrink: 0; }
+.icon-btn {
+  width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: transparent; border: 1px solid var(--border); color: var(--muted);
+  cursor: pointer; transition: background .2s, color .2s, border-color .2s, transform .15s;
+}
+.icon-btn:hover { background: color-mix(in srgb, var(--gold) 14%, transparent); border-color: var(--border-bright); color: var(--gold-deep); }
+.icon-btn:active { transform: scale(.94); }
+.dark-toggle .i-sun { display: none; }
+body.dark-mode .dark-toggle .i-sun { display: block; }
+body.dark-mode .dark-toggle .i-moon { display: none; }
+
+.btn-sm {
+  padding: .5rem 1.1rem; border-radius: 50px; border: 1px solid transparent;
+  font-size: .8rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+  display: inline-flex; align-items: center; justify-content: center; gap: .45rem;
+  transition: background .2s, color .2s, border-color .2s, transform .15s, box-shadow .2s;
+}
+.btn-sm:active { transform: scale(.97); }
+.btn-outline-sm { background: transparent; color: var(--brown); border-color: var(--border-bright); }
+.btn-outline-sm:hover { border-color: var(--gold); color: var(--gold-deep); background: color-mix(in srgb, var(--gold) 8%, transparent); }
+.btn-brown-sm { background: var(--brown); color: var(--cream); box-shadow: 0 8px 18px -10px rgba(59,42,26,.6); }
+.btn-brown-sm:hover { background: var(--gold); color: #fff; }
+.btn-gold-sm { background: var(--gold); color: #fff; }
+
+.hamburger {
+  display: none; width: 40px; height: 40px; border-radius: 50%;
+  align-items: center; justify-content: center; flex-direction: column; gap: 5px;
+  cursor: pointer; background: transparent; border: 1px solid var(--border);
+}
+.hamburger span { display: block; width: 17px; height: 2px; background: var(--brown); border-radius: 2px; transition: all .3s; }
+.hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ── MOBILE ACTION SHEET ───────────────────────────────────── */
+.mobile-sheet-overlay {
+  display: none; position: fixed; inset: 0; z-index: 400;
+  background: rgba(20,12,5,.5); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+}
+.mobile-sheet-overlay.open { display: block; animation: fadeIn .25s ease; }
+@keyframes fadeIn { from { opacity: 0; } }
+.mobile-sheet {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 401;
+  background: var(--card-bg); border-radius: 26px 26px 0 0;
+  padding: .75rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom));
+  box-shadow: 0 -20px 60px -10px rgba(20,12,5,.45);
+  transform: translateY(100%); transition: transform .38s cubic-bezier(.25,1,.5,1);
+}
+.mobile-sheet.open { transform: translateY(0); }
+.sheet-handle { width: 40px; height: 5px; background: var(--border-bright); border-radius: 3px; margin: 0 auto 1.2rem; opacity: .7; }
+.mob-sheet-actions { display: flex; flex-direction: column; gap: .65rem; margin-bottom: .85rem; }
+.mob-sheet-btn {
+  display: block; text-align: center; padding: .95rem; border-radius: 50px;
+  font-size: .92rem; font-weight: 600; cursor: pointer; border: 1px solid transparent;
+  transition: transform .15s, background .2s; text-decoration: none;
+}
+.mob-sheet-btn:active { transform: scale(.98); }
+.mob-gold { background: linear-gradient(180deg, #d9a84c, #c8963e); color: #fff; box-shadow: 0 12px 24px -12px rgba(200,150,62,.8); }
+.mob-outline { background: transparent; color: var(--brown); border-color: var(--border-bright); }
+.mob-back { color: var(--muted); font-size: .85rem; text-align: center; display: block; padding: .6rem; text-decoration: none; }
+
+/* ── LAYOUT ────────────────────────────────────────────────── */
+.write-layout { flex: 1; min-height: 0; display: flex; position: relative; z-index: 1; overflow: hidden; }
+
+/* ── SIDEBAR ───────────────────────────────────────────────── */
+.sidebar-panel {
+  position: absolute; z-index: 10; top: 0; bottom: 0; left: 0;
+  width: 88vw; max-width: 340px;
+  background: var(--surface); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+  transform: translateX(-100%);
+  box-shadow: 8px 0 40px -10px rgba(20,12,5,.35);
+  transition: transform .35s cubic-bezier(.4,0,.2,1), margin .35s cubic-bezier(.4,0,.2,1);
+}
+.sidebar-panel.open { transform: translateX(0); }
+.sidebar-overlay { display: none; position: fixed; inset: 0; z-index: 9; background: rgba(20,12,5,.4); }
+.sidebar-overlay.open { display: block; left: min(88vw, 340px); }
+.sidebar-panel:not(.open) { box-shadow: none; }
+
+.panel-head {
+  padding: 1.1rem 1.25rem .9rem; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.panel-title { font-size: .66rem; letter-spacing: .2em; text-transform: uppercase; color: var(--gold-deep); font-weight: 700; }
+.panel-toggle {
+  width: 30px; height: 30px; border-radius: 50%; border: 0; background: transparent; color: var(--muted);
+  display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: background .2s, color .2s;
+}
+.panel-toggle:hover { background: color-mix(in srgb, var(--brown) 8%, transparent); color: var(--brown); }
+
+.sidebar-scroll { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-bottom: 1rem; }
+
+/* Book details */
+.book-meta { padding: 0 1.25rem 1.25rem; border-bottom: 1px solid var(--border); }
+.meta-row { display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 1rem; }
+.meta-field { margin-bottom: 1rem; }
+.meta-row .meta-field { margin-bottom: 0; }
+.meta-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .5rem; }
+.meta-label { display: block; font-size: .64rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: .4rem; }
+.meta-hint { font-size: .72rem; color: var(--muted); line-height: 1.5; }
+.meta-input, .meta-select, .meta-textarea {
+  width: 100%; background: var(--card-bg); border: 1px solid var(--border); border-radius: 11px;
+  padding: .65rem .8rem; font-family: 'DM Sans', sans-serif; font-size: .84rem; color: var(--text);
+  outline: none; transition: border-color .2s, box-shadow .2s;
+}
+.meta-select { appearance: none; -webkit-appearance: none; padding-right: 2rem; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a6652' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right .8rem center; }
+.meta-textarea { resize: none; min-height: 92px; line-height: 1.55; }
+.meta-input::placeholder, .meta-textarea::placeholder { color: var(--muted); }
+.meta-input:focus, .meta-select:focus, .meta-textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 18%, transparent); }
+.meta-select option { background: var(--card-bg); color: var(--text); }
+
+.cover-upload {
+  width: 104px; aspect-ratio: 2/3; border-radius: 6px 12px 12px 6px; position: relative; overflow: hidden; cursor: pointer;
+  border: 1.5px dashed var(--border-bright); background: var(--card-bg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .35rem;
+  transition: border-color .2s, background .2s, transform .25s cubic-bezier(.34,1.4,.64,1); flex-shrink: 0;
+}
+.cover-upload:hover { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 6%, var(--card-bg)); transform: translateY(-2px); }
+.cover-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 2; }
+.cover-upload-icon { color: var(--gold-deep); }
+.cover-upload-text { font-size: .68rem; color: var(--muted); text-align: center; padding: 0 .4rem; line-height: 1.35; }
+.cover-upload-text span { color: var(--gold-deep); font-weight: 600; }
+.cover-preview { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; }
+.cover-upload::after { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background: linear-gradient(90deg, rgba(0,0,0,.18) 0, rgba(255,255,255,.12) 4%, transparent 11%); }
+
+/* Chapters */
+.chapter-list-wrap { padding: 1.1rem 1rem 0; }
+.chapters-head { display: flex; align-items: center; justify-content: space-between; padding: 0 .25rem; margin-bottom: .7rem; }
+.chapters-head .panel-title { display: flex; align-items: center; gap: .5rem; }
+.count-pill { font-family: 'DM Mono', monospace; font-size: .64rem; letter-spacing: 0; color: var(--muted); background: color-mix(in srgb, var(--brown) 7%, transparent); padding: .08rem .45rem; border-radius: 50px; font-weight: 500; }
+.chapter-list { display: flex; flex-direction: column; gap: .2rem; }
+.chapter-item {
+  position: relative; display: flex; align-items: center; gap: .7rem;
+  padding: .6rem .7rem; border-radius: 12px; cursor: pointer; border: 1px solid transparent;
+  transition: background .18s, border-color .18s;
+}
+.chapter-item:hover { background: color-mix(in srgb, var(--brown) 6%, transparent); }
+.chapter-item.active { background: var(--card-bg); border-color: var(--border-bright); box-shadow: 0 6px 16px -10px rgba(59,42,26,.4); }
+.chapter-item.active::before { content: ''; position: absolute; left: -1px; top: 24%; bottom: 24%; width: 3px; border-radius: 3px; background: var(--gold); }
+.chapter-num { font-family: 'DM Mono', monospace; font-size: .7rem; color: var(--gold-deep); flex-shrink: 0; min-width: 20px; }
+.chapter-name { flex: 1; font-size: .86rem; color: var(--brown); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chapter-item.active .chapter-name { font-weight: 600; }
+.chapter-status { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; background: var(--border-bright); opacity: .6; }
+.chapter-status.saved { background: var(--green); opacity: 1; }
+.chapter-delete {
+  display: none; background: none; border: none; cursor: pointer; color: var(--muted);
+  font-size: .72rem; width: 24px; height: 24px; border-radius: 6px; line-height: 1; flex-shrink: 0; transition: background .2s, color .2s;
+}
+.chapter-delete:hover { color: var(--danger); background: color-mix(in srgb, var(--danger) 12%, transparent); }
+.chapter-item:hover .chapter-delete { display: block; }
+.chapter-item:hover .chapter-status { display: none; }
+@media (hover: none) { .chapter-delete { display: block; } .chapter-item .chapter-status { display: none; } }
+
+.add-chapter-btn {
+  width: 100%; margin-top: .65rem; padding: .75rem; background: transparent;
+  border: 1.5px dashed var(--border-bright); border-radius: 12px; color: var(--muted);
+  font-size: .82rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .45rem;
+  transition: border-color .2s, color .2s, background .2s;
+}
+.add-chapter-btn:hover { border-color: var(--gold); color: var(--gold-deep); background: color-mix(in srgb, var(--gold) 6%, transparent); }
+
+.panel-footer { flex-shrink: 0; padding: 1rem 1.25rem calc(1rem + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); background: var(--surface); }
+.word-count-display { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: .85rem; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.word-count-display .wc-num { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 800; letter-spacing: 0; color: var(--brown); text-transform: none; }
+.word-count-display .wc-num small { font-family: 'DM Sans', sans-serif; font-size: .72rem; font-weight: 500; color: var(--muted); margin-left: .3rem; }
+.panel-actions { display: flex; flex-direction: column; gap: .5rem; }
+.panel-actions .btn-sm { width: 100%; padding: .65rem 1rem; }
+.panel-actions .desk-hide { display: none; }
+
+/* ── EDITOR AREA ───────────────────────────────────────────── */
+.editor-area { flex: 1; min-width: 0; display: flex; flex-direction: column; position: relative; }
+
+.toolbar {
+  flex-shrink: 0; display: flex; align-items: center; gap: .2rem;
+  padding: .5rem 1rem; overflow-x: auto; overflow-y: hidden; white-space: nowrap;
+  background: color-mix(in srgb, var(--card-bg) 85%, transparent);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  transition: opacity .3s, transform .3s;
+}
+.toolbar-group { display: flex; gap: .1rem; align-items: center; padding: .15rem; border-radius: 11px; }
+.toolbar-divider { width: 1px; height: 20px; background: var(--border); margin: 0 .35rem; flex-shrink: 0; }
+.tool-btn {
+  min-width: 34px; height: 34px; border-radius: 9px; background: transparent; border: none; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: .4rem; padding: 0 .4rem;
+  font-size: .86rem; color: var(--muted); font-weight: 700; flex-shrink: 0;
+  transition: background .15s, color .15s, transform .1s;
+}
+.tool-btn:hover { background: color-mix(in srgb, var(--brown) 8%, transparent); color: var(--brown); }
+.tool-btn:active { transform: scale(.92); }
+.tool-btn.active { background: color-mix(in srgb, var(--gold) 20%, transparent); color: var(--gold-deep); }
+.tool-btn .tb-serif { font-family: 'Playfair Display', serif; font-size: 1rem; }
+.tool-btn-wide { font-size: .74rem; letter-spacing: .02em; }
+.toolbar-spacer { flex: 1; min-width: .5rem; }
+.tool-btn.focus-btn { font-size: .76rem; font-weight: 600; padding: 0 .8rem; border: 1px solid var(--border); border-radius: 50px; color: var(--brown); }
+.tool-btn.focus-btn:hover { border-color: var(--border-bright); color: var(--gold-deep); }
+
+.sidebar-toggle-btn { color: var(--brown); }
+
+/* Page */
+.editor-wrap {
+  flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;
+  padding: 2.25rem 1.5rem 5rem; display: flex; justify-content: center; align-items: flex-start;
+}
+.editor-inner {
+  width: 100%; max-width: 760px;
+  background: var(--paper); border: 1px solid var(--border); border-radius: 20px; box-shadow: var(--shadow);
+  padding: 3.4rem 4rem 4.2rem; position: relative;
+  transition: background .3s, box-shadow .4s, border-color .4s, max-width .4s;
+}
+.chapter-head { margin-bottom: 2.2rem; }
+.chapter-kicker { font-family: 'DM Mono', monospace; font-size: .7rem; letter-spacing: .24em; text-transform: uppercase; color: var(--gold-deep); margin-bottom: .55rem; display: flex; align-items: center; gap: .75rem; }
+.chapter-kicker::after { content: ''; flex: 0 0 38px; height: 1px; background: var(--gold); opacity: .6; }
+.chapter-title-input {
+  width: 100%; background: transparent; border: none; outline: none;
+  font-family: 'Playfair Display', serif; font-size: 2.1rem; font-weight: 800; line-height: 1.2; letter-spacing: -.015em;
+  color: var(--brown); padding: .1rem 0;
+}
+.chapter-title-input::placeholder { color: var(--muted); font-weight: 400; font-style: italic; opacity: .6; }
+
+#editor {
+  min-height: 52vh; outline: none;
+  font-family: 'Lora', 'Playfair Display', Georgia, serif;
+  font-size: 1.14rem; line-height: 1.95; color: var(--text); caret-color: var(--gold);
+  overflow-wrap: anywhere;
+}
+#editor:empty::before, #editor:has(> br:only-child)::before { content: attr(data-placeholder); color: var(--muted); pointer-events: none; font-style: italic; opacity: .7; }
+#editor p, #editor div { margin-bottom: 1.05em; }
+#editor h1 { font-family: 'Playfair Display', serif; font-size: 1.9rem; font-weight: 900; margin: 1.6em 0 .6em; line-height: 1.2; }
+#editor h2 { font-family: 'Playfair Display', serif; font-size: 1.45rem; font-weight: 700; margin: 1.4em 0 .55em; line-height: 1.3; }
+#editor h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; margin: 1.2em 0 .5em; }
+#editor blockquote { border-left: 3px solid var(--gold); padding: .15rem 0 .15rem 1.2rem; margin: 1.5em 0; color: var(--muted); font-style: italic; }
+#editor strong, #editor b { font-weight: 600; }
+#editor em, #editor i { font-style: italic; }
+#editor u { text-decoration: underline; text-decoration-color: var(--gold); text-underline-offset: 4px; text-decoration-thickness: 1.5px; }
+
+.editor-footer {
+  flex-shrink: 0; padding: .5rem 1.25rem calc(.5rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border); background: color-mix(in srgb, var(--card-bg) 85%, transparent);
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  transition: opacity .3s;
+}
+.editor-wc { font-family: 'DM Mono', monospace; font-size: .72rem; color: var(--muted); display: flex; align-items: center; gap: .9rem; }
+.editor-wc span.n { color: var(--gold-deep); font-weight: 500; }
+.editor-wc .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--muted); opacity: .6; }
+.editor-hint { font-size: .72rem; color: var(--muted); }
+
+/* ── FOCUS MODE ────────────────────────────────────────────── */
+body.focus-mode nav { margin-top: calc(var(--nav-h) * -1); transform: translateY(-100%); }
+body.focus-mode .sidebar-panel { transform: translateX(-100%) !important; margin-left: -340px; }
+body.focus-mode .toolbar, body.focus-mode .editor-footer { opacity: 0; }
+body.focus-mode .toolbar:hover, body.focus-mode .toolbar:focus-within, body.focus-mode .editor-footer:hover { opacity: 1; }
+body.focus-mode .editor-inner { background: transparent; border-color: transparent; box-shadow: none; max-width: 700px; }
+.focus-exit {
+  display: none; position: fixed; top: 1rem; right: 1.25rem; z-index: 300;
+  padding: .5rem 1rem; border-radius: 50px; font-size: .76rem; font-weight: 600; cursor: pointer;
+  background: var(--card-bg); color: var(--brown); border: 1px solid var(--border-bright);
+  box-shadow: 0 10px 24px -12px rgba(0,0,0,.4); opacity: .55; transition: opacity .2s;
+}
+.focus-exit:hover { opacity: 1; }
+body.focus-mode .focus-exit { display: inline-flex; align-items: center; gap: .45rem; }
+
+/* ── MODALS ────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 500; padding: 1.5rem;
+  background: rgba(20,12,5,.55); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .25s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.submit-modal, .new-book-modal {
+  background: var(--card-bg); border: 1px solid var(--border-bright); border-radius: 26px; width: 100%;
+  max-height: calc(100dvh - 3rem); overflow-y: auto;
+  box-shadow: 0 40px 80px -30px rgba(0,0,0,.6);
+  transform: translateY(20px) scale(.97); transition: transform .35s cubic-bezier(.34,1.4,.64,1);
+}
+.submit-modal { max-width: 500px; }
+.new-book-modal { max-width: 450px; }
+.modal-overlay.open .submit-modal, .modal-overlay.open .new-book-modal { transform: none; }
+@media (max-width: 640px) {
+  .modal-overlay { align-items: flex-end; padding: 0; }
+  .submit-modal, .new-book-modal { border-radius: 26px 26px 0 0; max-height: 92dvh; }
+}
+.submit-modal-header, .nbm-header { padding: 1.5rem 1.6rem 1.1rem; position: relative; }
+.submit-modal-handle, .nbm-handle { display: none; width: 40px; height: 5px; background: var(--border-bright); border-radius: 3px; margin: -.5rem auto 1rem; opacity: .7; }
+@media (max-width: 640px) { .submit-modal-handle, .nbm-handle { display: block; } }
+.submit-modal-label, .nbm-label { font-size: .64rem; letter-spacing: .2em; text-transform: uppercase; color: var(--gold-deep); font-weight: 700; margin-bottom: .35rem; }
+.submit-modal-title, .nbm-title { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 800; color: var(--brown); line-height: 1.25; padding-right: 2rem; }
+.modal-close {
+  position: absolute; top: 1.2rem; right: 1.2rem; width: 32px; height: 32px; border-radius: 50%; border: 0;
+  background: color-mix(in srgb, var(--brown) 7%, transparent); color: var(--muted); font-size: .85rem; cursor: pointer; transition: background .2s, color .2s;
+}
+.modal-close:hover { background: color-mix(in srgb, var(--brown) 14%, transparent); color: var(--brown); }
+
+.submit-modal-body { padding: .25rem 1.6rem 1.25rem; }
+.submit-checklist { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1.1rem; }
+.check-item { display: flex; align-items: center; gap: .85rem; padding: .75rem .9rem; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); }
+.check-icon { width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: .85rem; font-weight: 700; }
+.check-icon.ok { background: color-mix(in srgb, var(--green) 15%, transparent); color: var(--green); }
+.check-icon.warn { background: color-mix(in srgb, var(--gold) 18%, transparent); color: var(--gold-deep); }
+.check-text { font-size: .86rem; color: var(--brown); font-weight: 600; }
+.check-sub { font-size: .74rem; color: var(--muted); margin-top: .1rem; }
+.submit-note { font-size: .8rem; color: var(--muted); line-height: 1.7; background: var(--warm); border: 1px solid var(--border); border-radius: 14px; padding: .95rem 1rem; }
+
+.submit-modal-footer, .nbm-footer { padding: 1rem 1.6rem 1.6rem; display: flex; gap: .7rem; }
+.modal-cancel, .nbm-cancel {
+  flex: 1; padding: .85rem; border-radius: 50px; background: transparent; border: 1px solid var(--border-bright);
+  color: var(--muted); font-size: .9rem; font-weight: 500; cursor: pointer; transition: border-color .2s, color .2s;
+}
+.modal-cancel:hover, .nbm-cancel:hover { border-color: var(--brown); color: var(--brown); }
+.modal-submit, .nbm-create {
+  flex: 2; padding: .85rem; border-radius: 50px; background: var(--brown); border: none; color: var(--cream);
+  font-size: .9rem; font-weight: 600; cursor: pointer; transition: background .2s, color .2s, transform .15s;
+  box-shadow: 0 12px 24px -14px rgba(59,42,26,.7);
+}
+.modal-submit:hover, .nbm-create:hover { background: var(--gold); color: #fff; }
+.modal-submit:active, .nbm-create:active { transform: scale(.98); }
+.modal-submit:disabled { opacity: .4; cursor: not-allowed; }
+
+.submit-success { display: none; text-align: center; padding: 2.5rem 1.75rem 2.75rem; }
+.submit-success.visible { display: block; }
+.submit-success-icon { width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 1.2rem; display: flex; align-items: center; justify-content: center; color: var(--green); background: color-mix(in srgb, var(--green) 14%, transparent); }
+.submit-success h2 { font-family: 'Playfair Display', serif; font-size: 1.45rem; color: var(--brown); margin-bottom: .6rem; }
+.submit-success p { font-size: .86rem; color: var(--muted); line-height: 1.75; }
+
+.nbm-body { padding: .25rem 1.6rem 1.25rem; }
+.form-group { margin-bottom: 1rem; }
+.form-label { display: block; font-size: .64rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: .45rem; }
+.form-input, .form-select {
+  width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: .8rem .95rem;
+  font-family: 'DM Sans', sans-serif; font-size: .92rem; color: var(--text); outline: none; transition: border-color .2s, box-shadow .2s;
+}
+.form-select { appearance: none; -webkit-appearance: none; padding-right: 2.2rem; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a6652' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right .9rem center; }
+.form-input::placeholder { color: var(--muted); }
+.form-input:focus, .form-select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 18%, transparent); }
+.form-select option { background: var(--card-bg); color: var(--text); }
+
+/* ── TOAST ─────────────────────────────────────────────────── */
+.toast {
+  position: fixed; bottom: calc(1.75rem + env(safe-area-inset-bottom)); left: 50%;
+  transform: translateX(-50%) translateY(140px);
+  background: var(--brown); color: var(--cream); padding: .75rem 1.5rem; border-radius: 50px;
+  font-size: .86rem; font-weight: 500; box-shadow: 0 14px 32px -12px rgba(0,0,0,.5);
+  transition: transform .4s cubic-bezier(.34,1.4,.64,1); z-index: 999; white-space: nowrap; pointer-events: none; max-width: 92vw; overflow: hidden; text-overflow: ellipsis;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── SCROLLBARS: hairline, only while scrolling ────────────── */
+html, html * { scrollbar-width: thin; scrollbar-color: transparent transparent; }
+html.ms-scrolling, html .ms-scrolling { scrollbar-color: rgba(59,42,26,.38) transparent; }
+html:has(body.dark-mode).ms-scrolling, body.dark-mode .ms-scrolling { scrollbar-color: rgba(224,176,88,.5) transparent; }
+html::-webkit-scrollbar, html *::-webkit-scrollbar { width: 6px; height: 6px; background: transparent; }
+html *::-webkit-scrollbar-thumb { background: transparent; border-radius: 6px; }
+html .ms-scrolling::-webkit-scrollbar-thumb { background: rgba(59,42,26,.38); }
+body.dark-mode .ms-scrolling::-webkit-scrollbar-thumb { background: rgba(224,176,88,.5); }
+.toolbar { scrollbar-width: none; }
+.toolbar::-webkit-scrollbar { display: none; }
+
+/* ── RESPONSIVE ────────────────────────────────────────────── */
+.mob-only { display: none; }
+
+@media (min-width: 768px) {
+  .nav-inner { padding: 0 2rem; }
+  .sidebar-panel {
+    position: relative; transform: none !important; box-shadow: none; flex-shrink: 0;
+    width: 320px; max-width: none; margin-left: -320px; opacity: 0; pointer-events: none;
+    transition: margin .35s cubic-bezier(.4,0,.2,1), opacity .25s;
+  }
+  .sidebar-panel.open { margin-left: 0; opacity: 1; pointer-events: auto; }
+  body.focus-mode .sidebar-panel { margin-left: -320px; opacity: 0; }
+  .sidebar-overlay { display: none !important; }
+  .hamburger { display: none; }
+  .mob-only { display: inline-flex; }
+  .panel-actions .mobile-only-btn { display: none; }
+}
+
+@media (max-width: 767px) {
+  .hamburger { display: flex; }
+  .nav-inner { padding: 0 .85rem; gap: .5rem; }
+  .logo-sub { display: none; }
+  .nav-center { justify-content: flex-start; }
+  .book-title-input { font-size: .92rem; text-align: left; padding: .4rem .5rem; }
+  .save-status { display: none; }
+  .toolbar { padding: .4rem .6rem; gap: .1rem; }
+  .toolbar-divider { margin: 0 .2rem; }
+  .tool-btn { min-width: 36px; height: 36px; }
+  .tool-btn.focus-btn span { display: none; }
+  .tool-btn.focus-btn { padding: 0; min-width: 36px; border: 0; }
+  .editor-wrap { padding: 1rem .75rem 4rem; }
+  .editor-inner { border-radius: 16px; padding: 1.6rem 1.25rem 2.4rem; }
+  .chapter-title-input { font-size: 1.55rem; }
+  .chapter-head { margin-bottom: 1.4rem; }
+  #editor { font-size: 1.04rem; line-height: 1.9; min-height: 45vh; }
+  .editor-footer { padding: .4rem .9rem calc(.4rem + env(safe-area-inset-bottom)); }
+  .editor-hint { display: none; }
+  .focus-exit { top: .75rem; right: .75rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+</style>
+</head>
+<body>
+<script>try{if(localStorage.getItem('inkwell-theme')==='dark')document.body.classList.add('dark-mode');}catch(e){}</script>
+
+<!-- ── NAVBAR ─────────────────────────────────────────────────── -->
+<nav>
+  <div class="nav-inner">
+    <a class="logo" href="inkwell.html">
+      <span class="logo-main">MindStark</span>
+      <span class="logo-sub">Inkwell</span>
+    </a>
+    <div class="nav-center">
+      <input class="book-title-input" id="book-title" placeholder="Untitled Book…" maxlength="100" autocomplete="off" aria-label="Book title"/>
+      <span class="save-status" id="save-status">—</span>
+    </div>
+    <div class="nav-right">
+      <button class="icon-btn dark-toggle" id="dark-toggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+        <svg class="i-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="i-sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <button class="btn-sm btn-outline-sm mob-only" id="nav-save-btn">Save draft</button>
+      <button class="btn-sm btn-brown-sm mob-only" id="nav-submit-btn">Submit
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ── MOBILE ACTION SHEET ────────────────────────────────────── -->
+<div class="mobile-sheet-overlay" id="sheetOverlay">
+  <div class="mobile-sheet" id="mobileSheet">
+    <div class="sheet-handle"></div>
+    <div class="mob-sheet-actions">
+      <button class="mob-sheet-btn mob-gold" id="mob-submit-btn">Submit for publishing</button>
+      <button class="mob-sheet-btn mob-outline" id="mob-save-btn">Save draft</button>
+      <button class="mob-sheet-btn mob-outline" id="mob-new-book-btn">+ New book</button>
+    </div>
+    <a href="inkwell.html" class="mob-back">← Back to Inkwell</a>
+  </div>
+</div>
+
+<!-- ── SIDEBAR OVERLAY (mobile tap-to-close) ─────────────────── -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<button class="focus-exit" id="focus-exit" type="button">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+  Exit focus
+</button>
+
+<!-- ── WRITE LAYOUT ───────────────────────────────────────────── -->
+<div class="write-layout">
+
+  <!-- SIDEBAR PANEL -->
+  <div class="sidebar-panel" id="sidebarPanel">
+
+    <div class="panel-head">
+      <span class="panel-title">Your book</span>
+      <button class="panel-toggle" id="panel-close" title="Close panel" aria-label="Close panel">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- Scrollable content -->
+    <div class="sidebar-scroll">
+
+      <!-- Book Meta -->
+      <div class="book-meta">
+        <div class="meta-row">
+          <div class="meta-field">
+            <div class="cover-upload" id="cover-upload">
+              <input type="file" id="cover-input" accept="image/*" aria-label="Upload cover"/>
+              <img class="cover-preview" id="cover-preview" alt="Cover preview"/>
+              <div class="cover-upload-icon" id="cover-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="1.8"/><path d="m21 15-5-5L5 21"/></svg>
+              </div>
+              <div class="cover-upload-text" id="cover-text">Upload<br/><span>cover</span></div>
+            </div>
+          </div>
+          <div class="meta-col">
+            <div class="meta-field" style="margin-bottom:0">
+              <label class="meta-label" for="book-genre">Genre</label>
+              <select class="meta-select" id="book-genre">
+                <option value="">Select genre…</option>
+                <option>Romance</option>
+                <option>Thriller</option>
+                <option>Sci-Fi</option>
+                <option>Fantasy</option>
+                <option>Mystery</option>
+                <option>Horror</option>
+                <option>Adventure</option>
+                <option>Historical</option>
+                <option>Literary Fiction</option>
+                <option>Drama</option>
+                <option>Comedy</option>
+                <option>Young Adult</option>
+              </select>
+            </div>
+            <div class="meta-hint">Portrait covers (2:3) look best.</div>
+          </div>
+        </div>
+        <div class="meta-field" style="margin-bottom:0">
+          <label class="meta-label" for="book-synopsis">Synopsis</label>
+          <textarea class="meta-textarea" id="book-synopsis" placeholder="A short description of your story…"></textarea>
+        </div>
+      </div>
+
+      <!-- Chapters -->
+      <div class="chapter-list-wrap">
+        <div class="chapters-head">
+          <div class="panel-title">Chapters <span class="count-pill" id="chapter-count">1</span></div>
+        </div>
+        <div class="chapter-list" id="chapter-list">
+          <!-- Populated by JS -->
+        </div>
+        <button class="add-chapter-btn" id="add-chapter-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Add chapter
+        </button>
+      </div>
+
+    </div><!-- /sidebar-scroll -->
+
+    <!-- Panel Footer -->
+    <div class="panel-footer">
+      <div class="word-count-display">
+        <span>Total</span>
+        <span class="wc-num"><span id="total-words">0</span><small>words</small></span>
+      </div>
+      <div class="panel-actions">
+        <button class="btn-sm btn-brown-sm mobile-only-btn" id="panel-submit-btn">Submit for publishing</button>
+        <button class="btn-sm btn-outline-sm mobile-only-btn" id="panel-save-btn">Save draft</button>
+        <button class="btn-sm btn-outline-sm" id="panel-new-book-btn" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          New book
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /sidebar-panel -->
+
+  <!-- EDITOR AREA -->
+  <div class="editor-area">
+
+    <!-- Toolbar -->
+    <div class="toolbar" role="toolbar" aria-label="Formatting">
+      <button class="tool-btn sidebar-toggle-btn" id="sidebar-toggle-btn" title="Toggle chapters panel" aria-label="Toggle chapters panel">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg>
+      </button>
+      <div class="toolbar-divider"></div>
+
+      <div class="toolbar-group">
+        <button class="tool-btn" title="Undo" aria-label="Undo" onclick="fmt('undo')"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+        <button class="tool-btn" title="Redo" aria-label="Redo" onclick="fmt('redo')"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
+      </div>
+      <div class="toolbar-divider"></div>
+
+      <div class="toolbar-group">
+        <button class="tool-btn" id="tool-bold" title="Bold (Ctrl+B)" aria-label="Bold" onclick="fmt('bold')"><span class="tb-serif" style="font-weight:900">B</span></button>
+        <button class="tool-btn" id="tool-italic" title="Italic (Ctrl+I)" aria-label="Italic" onclick="fmt('italic')"><span class="tb-serif" style="font-style:italic">I</span></button>
+        <button class="tool-btn" id="tool-underline" title="Underline (Ctrl+U)" aria-label="Underline" onclick="fmt('underline')"><span class="tb-serif" style="text-decoration:underline;text-underline-offset:3px">U</span></button>
+      </div>
+      <div class="toolbar-divider"></div>
+
+      <div class="toolbar-group">
+        <button class="tool-btn tool-btn-wide" title="Heading 1" onclick="fmtBlock('h1')">H1</button>
+        <button class="tool-btn tool-btn-wide" title="Heading 2" onclick="fmtBlock('h2')">H2</button>
+        <button class="tool-btn" title="Blockquote" aria-label="Blockquote" onclick="fmtBlock('blockquote')"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M4 17.5c0-4.2 1.7-7 5-8.5l.9 1.4C8.2 11.5 7.5 12.7 7.4 14H10v5H4zM14 17.5c0-4.2 1.7-7 5-8.5l.9 1.4c-1.7 1.1-2.4 2.3-2.5 3.6H20v5h-6z" transform="translate(-1 -3)"/></svg></button>
+        <button class="tool-btn" title="Paragraph" aria-label="Paragraph" onclick="fmtBlock('p')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 4v16M17 4v16M13 4H9.5a4.5 4.5 0 0 0 0 9H13"/></svg></button>
+      </div>
+      <div class="toolbar-divider"></div>
+
+      <div class="toolbar-group">
+        <button class="tool-btn" title="Align left" aria-label="Align left" onclick="fmt('justifyLeft')"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 6h16M4 10.5h10M4 15h16M4 19.5h10"/></svg></button>
+        <button class="tool-btn" title="Align center" aria-label="Align center" onclick="fmt('justifyCenter')"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 6h16M7 10.5h10M4 15h16M7 19.5h10"/></svg></button>
+        <button class="tool-btn" title="Align right" aria-label="Align right" onclick="fmt('justifyRight')"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 6h16M10 10.5h10M4 15h16M10 19.5h10"/></svg></button>
+      </div>
+
+      <div class="toolbar-spacer"></div>
+      <button class="tool-btn focus-btn" id="focus-btn" type="button" title="Focus mode (Esc to exit)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+        <span>Focus</span>
+      </button>
+    </div>
+
+    <!-- Editor -->
+    <div class="editor-wrap">
+      <div class="editor-inner">
+        <div class="chapter-head">
+          <div class="chapter-kicker" id="chapter-kicker">Chapter 01</div>
+          <input class="chapter-title-input" id="chapter-title" placeholder="Chapter title…" autocomplete="off" aria-label="Chapter title"/>
+        </div>
+        <div id="editor"
+          contenteditable="true"
+          data-placeholder="Begin your story here… Let the words flow."
+          spellcheck="true"></div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="editor-footer">
+      <div class="editor-wc">
+        <span>Chapter: <span class="n" id="chapter-words">0</span> words</span>
+        <span class="dot"></span>
+        <span id="chapter-read">—</span>
+      </div>
+      <div class="editor-hint">Autosaves when you pause</div>
+    </div>
+
+  </div><!-- /editor-area -->
+
+</div><!-- /write-layout -->
+
+<!-- ── SUBMIT MODAL ───────────────────────────────────────────── -->
+<div class="modal-overlay" id="submit-modal-overlay">
+  <div class="submit-modal">
+    <div class="submit-modal-header">
+      <div class="submit-modal-handle"></div>
+      <div class="submit-modal-label">Ready to publish?</div>
+      <div class="submit-modal-title">Submit for Editorial Review</div>
+      <button class="modal-close" id="submit-modal-close" aria-label="Close">✕</button>
+    </div>
+
+    <div class="submit-modal-body" id="submit-modal-body">
+      <div class="submit-checklist" id="submit-checklist">
+        <!-- Populated by JS -->
+      </div>
+      <div class="submit-note">
+        Once submitted, your book goes to the MindStark editorial team for review. They may suggest edits before it goes live. You'll hear back soon — keep writing in the meantime.
+      </div>
+    </div>
+
+    <div class="submit-success" id="submit-success">
+      <div class="submit-success-icon">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      </div>
+      <h2>Submitted!</h2>
+      <p>Your book is now with the editorial team. They'll review it carefully and reach out. Not quite ready yet just means keep going — great writing takes time.</p>
+    </div>
+
+    <div class="submit-modal-footer" id="submit-modal-footer">
+      <button class="modal-cancel" id="submit-cancel-btn">Cancel</button>
+      <button class="modal-submit" id="submit-confirm-btn">Submit book →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── NEW BOOK MODAL ──────────────────────────────────────────── -->
+<div class="modal-overlay" id="new-book-overlay">
+  <div class="new-book-modal">
+    <div class="nbm-header">
+      <div class="nbm-handle"></div>
+      <div class="nbm-label">Start fresh</div>
+      <div class="nbm-title">Create a new book</div>
+      <button class="modal-close" id="nbm-close" aria-label="Close">✕</button>
+    </div>
+    <div class="nbm-body">
+      <div class="form-group">
+        <label class="form-label" for="new-book-title">Book title</label>
+        <input type="text" class="form-input" id="new-book-title" placeholder="Enter your book title…" maxlength="100"/>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label" for="new-book-genre">Genre</label>
+        <select class="form-select" id="new-book-genre">
+          <option value="">Select genre…</option>
+          <option>Romance</option><option>Thriller</option><option>Sci-Fi</option>
+          <option>Fantasy</option><option>Mystery</option><option>Horror</option>
+          <option>Adventure</option><option>Historical</option>
+          <option>Literary Fiction</option><option>Drama</option>
+          <option>Comedy</option><option>Young Adult</option>
+        </select>
+      </div>
+    </div>
+    <div class="nbm-footer">
+      <button class="nbm-cancel" id="nbm-cancel">Cancel</button>
+      <button class="nbm-create" id="nbm-create">Create book →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ── SCRIPTS ────────────────────────────────────────────────── -->
+<script src="supabase.js"></script>
+<script>
+
+// ── DARK MODE ──────────────────────────────────────────────────
+const darkToggle = document.getElementById('dark-toggle');
+if (localStorage.getItem('inkwell-theme') === 'dark') document.body.classList.add('dark-mode');
+darkToggle.addEventListener('click', () => {
+  document.body.classList.toggle('dark-mode');
+  localStorage.setItem('inkwell-theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+});
+
+// ── TOAST ──────────────────────────────────────────────────────
+function showToast(msg, duration = 3000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+// ── MOBILE NAV SHEET ───────────────────────────────────────────
+const hamburger = document.getElementById('hamburger');
+const sheetOverlay = document.getElementById('sheetOverlay');
+const mobileSheet = document.getElementById('mobileSheet');
+hamburger.addEventListener('click', () => {
+  hamburger.classList.toggle('open');
+  sheetOverlay.classList.toggle('open');
+  mobileSheet.classList.toggle('open');
+  document.body.style.overflow = mobileSheet.classList.contains('open') ? 'hidden' : '';
+});
+sheetOverlay.addEventListener('click', e => { if (e.target === sheetOverlay) closeSheet(); });
+function closeSheet() {
+  hamburger.classList.remove('open');
+  sheetOverlay.classList.remove('open');
+  mobileSheet.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ── SIDEBAR PANEL ──────────────────────────────────────────────
+const sidebarPanel = document.getElementById('sidebarPanel');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+function openSidebar() {
+  sidebarPanel.classList.add('open');
+  sidebarOverlay.classList.add('open');
+}
+function closeSidebar() {
+  sidebarPanel.classList.remove('open');
+  sidebarOverlay.classList.remove('open');
+}
+
+document.getElementById('sidebar-toggle-btn').addEventListener('click', () => {
+  if (sidebarPanel.classList.contains('open')) closeSidebar();
+  else openSidebar();
+});
+document.getElementById('panel-close').addEventListener('click', closeSidebar);
+sidebarOverlay.addEventListener('click', closeSidebar);
+
+// ── STATE ──────────────────────────────────────────────────────
+let currentUser = null;
+let currentCreator = null;
+let currentBook = null;
+let chapters = [];
+let activeChapterIdx = 0;
+let autoSaveTimer = null;
+let isDirty = false;
+
+// ── AUTH CHECK ─────────────────────────────────────────────────
+async function checkAuth() {
+  try {
+    if (!window._sb) return;
+    const { data: { user } } = await window._sb.auth.getUser();
+    if (!user) { window.location.href = 'signin.html'; return; }
+    currentUser = user;
+
+    // Check if admin — admins can write without being a creator
+    const { data: adminRow } = await window._sb
+      .from('inkwell_admins')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+
+    // Check if approved creator
+    const { data: creator } = await window._sb
+      .from('inkwell_creators')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
+
+    if (!creator && !adminRow) {
+      showToast('You need to be an approved creator to write here.', 5000);
+      setTimeout(() => window.location.href = 'inkwell.html', 3000);
+      return;
+    }
+
+    // If admin but not creator, create a virtual creator profile
+    currentCreator = creator || {
+      id: user.id,
+      user_id: user.id,
+      display_name: 'Anthony',
+      creator_type: 'novelist',
+    };
+
+    loadUserBooks();
+  } catch(e) { console.log('Auth:', e); }
+}
+
+// ── LOAD USER BOOKS ────────────────────────────────────────────
+async function loadUserBooks() {
+  try {
+    if (!window._sb) { initFreshBook(); return; }
+    const { data: books } = await window._sb
+      .from('inkwell_books')
+      .select('*')
+      .eq('creator_id', currentCreator.id)
+      .in('status', ['draft', 'submitted', 'under_review'])
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (books && books.length > 0) {
+      currentBook = books[0];
+      document.getElementById('book-title').value = currentBook.title || '';
+      document.getElementById('book-synopsis').value = currentBook.synopsis || '';
+      document.getElementById('book-genre').value = currentBook.genre || '';
+      if (currentBook.cover_url && window.showCoverPreview) window.showCoverPreview(currentBook.cover_url);
+      loadChapters();
+    } else {
+      initFreshBook();
+    }
+  } catch(e) { initFreshBook(); }
+}
+
+function initFreshBook() {
+  chapters = [{ id: null, chapter_number: 1, title: 'Chapter 1', content: '', words: 0 }];
+  renderChapterList();
+  loadChapter(0);
+}
+
+// ── LOAD CHAPTERS ──────────────────────────────────────────────
+async function loadChapters() {
+  try {
+    if (!window._sb || !currentBook) return;
+    const { data } = await window._sb
+      .from('inkwell_chapters')
+      .select('*')
+      .eq('book_id', currentBook.id)
+      .order('chapter_number', { ascending: true });
+
+    if (data && data.length > 0) {
+      chapters = data.map(c => ({
+        id: c.id,
+        chapter_number: c.chapter_number,
+        title: c.title || `Chapter ${c.chapter_number}`,
+        content: c.content || '',
+        words: countWords(c.content || '')
+      }));
+    } else {
+      chapters = [{ id: null, chapter_number: 1, title: 'Chapter 1', content: '', words: 0 }];
+    }
+    renderChapterList();
+    loadChapter(0);
+  } catch(e) { initFreshBook(); }
+}
+
+function esc(v) {
+  return String(v == null ? '' : v)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ── CHAPTER RENDERING ──────────────────────────────────────────
+function renderChapterList() {
+  const list = document.getElementById('chapter-list');
+  list.innerHTML = chapters.map((ch, i) => `
+    <div class="chapter-item ${i === activeChapterIdx ? 'active' : ''}" data-idx="${i}">
+      <div class="chapter-num">${String(ch.chapter_number).padStart(2,'0')}</div>
+      <div class="chapter-name">${esc(ch.title)}</div>
+      <div class="chapter-status ${ch.id ? 'saved' : ''}"></div>
+      ${chapters.length > 1 ? `<button class="chapter-delete" data-del="${i}" title="Remove chapter">✕</button>` : ''}
+    </div>
+  `).join('');
+
+  list.querySelectorAll('.chapter-item').forEach(item => {
+    item.addEventListener('click', e => {
+      // Don't trigger if delete button was clicked
+      if (e.target.classList.contains('chapter-delete')) return;
+      const idx = parseInt(item.dataset.idx);
+      if (idx !== activeChapterIdx) {
+        saveCurrentChapterLocally();
+        activeChapterIdx = idx;
+        loadChapter(idx);
+        renderChapterList();
+        if (window.innerWidth < 768) closeSidebar();
+      }
+    });
+  });
+
+  list.querySelectorAll('.chapter-delete').forEach(btn => {
+    btn.addEventListener('click', async e => {
+      e.stopPropagation();
+      const idx = parseInt(btn.dataset.del);
+      const ch = chapters[idx];
+      if (!confirm(`Remove "${ch.title}"? This cannot be undone.`)) return;
+
+      // Delete from Supabase if saved
+      if (ch.id && window._sb) {
+        try { await window._sb.from('inkwell_chapters').delete().eq('id', ch.id); } catch(e) {}
+      }
+
+      chapters.splice(idx, 1);
+      // Re-number chapters
+      chapters.forEach((c, i) => c.chapter_number = i + 1);
+      // Adjust active index
+      if (activeChapterIdx >= chapters.length) activeChapterIdx = chapters.length - 1;
+      renderChapterList();
+      loadChapter(activeChapterIdx);
+      showToast('Chapter removed');
+    });
+  });
+
+  updateTotalWordCount();
+}
+
+function loadChapter(idx) {
+  const ch = chapters[idx];
+  if (!ch) return;
+  const editor = document.getElementById('editor');
+  editor.innerHTML = ch.content || '';
+  document.getElementById('chapter-title').value = ch.title || '';
+  updateChapterWordCount();
+}
+
+function saveCurrentChapterLocally() {
+  const editor = document.getElementById('editor');
+  const title = document.getElementById('chapter-title').value.trim();
+  if (chapters[activeChapterIdx]) {
+    chapters[activeChapterIdx].content = editor.innerHTML;
+    chapters[activeChapterIdx].title = title || `Chapter ${chapters[activeChapterIdx].chapter_number}`;
+    chapters[activeChapterIdx].words = countWords(editor.innerText || editor.textContent);
+  }
+}
+
+// ── ADD CHAPTER ────────────────────────────────────────────────
+document.getElementById('add-chapter-btn').addEventListener('click', () => {
+  saveCurrentChapterLocally();
+  const num = chapters.length + 1;
+  chapters.push({ id: null, chapter_number: num, title: `Chapter ${num}`, content: '', words: 0 });
+  activeChapterIdx = chapters.length - 1;
+  renderChapterList();
+  loadChapter(activeChapterIdx);
+  document.getElementById('chapter-title').focus();
+  if (window.innerWidth < 768) closeSidebar();
+});
+
+// ── EDITOR EVENTS ──────────────────────────────────────────────
+const editor = document.getElementById('editor');
+
+editor.addEventListener('input', () => {
+  updateChapterWordCount();
+  markDirty();
+});
+
+editor.addEventListener('keydown', e => {
+  // Tab = indent
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    document.execCommand('insertHTML', false, '&nbsp;&nbsp;&nbsp;&nbsp;');
+  }
+  // Enter in empty blockquote = exit
+  if (e.key === 'Enter') {
+    const sel = window.getSelection();
+    if (sel.rangeCount) {
+      const node = sel.getRangeAt(0).startContainer;
+      const bq = node.closest ? node.closest('blockquote') : null;
+      if (bq && bq.textContent.trim() === '') {
+        e.preventDefault();
+        document.execCommand('formatBlock', false, 'p');
+      }
+    }
+  }
+});
+
+// Chapter title
+document.getElementById('chapter-title').addEventListener('input', function() {
+  if (chapters[activeChapterIdx]) {
+    chapters[activeChapterIdx].title = this.value || `Chapter ${chapters[activeChapterIdx].chapter_number}`;
+    renderChapterList();
+  }
+  markDirty();
+});
+
+// Book title
+document.getElementById('book-title').addEventListener('input', markDirty);
+document.getElementById('book-synopsis').addEventListener('input', markDirty);
+document.getElementById('book-genre').addEventListener('change', markDirty);
+
+// ── WORD COUNT ─────────────────────────────────────────────────
+function countWords(text) {
+  return text.trim().split(/\s+/).filter(w => w.length > 0).length;
+}
+function updateChapterWordCount() {
+  const text = editor.innerText || editor.textContent || '';
+  const count = countWords(text);
+  if (chapters[activeChapterIdx]) chapters[activeChapterIdx].words = count;
+  document.getElementById('chapter-words').textContent = count.toLocaleString();
+}
+function updateTotalWordCount() {
+  const total = chapters.reduce((s, c) => s + (c.words || 0), 0);
+  document.getElementById('total-words').textContent = total.toLocaleString();
+}
+
+// ── FORMATTING ─────────────────────────────────────────────────
+function fmt(cmd) {
+  document.execCommand(cmd, false, null);
+  editor.focus();
+  updateToolbarState();
+}
+function fmtBlock(tag) {
+  document.execCommand('formatBlock', false, tag);
+  editor.focus();
+}
+function updateToolbarState() {
+  document.getElementById('tool-bold').classList.toggle('active', document.queryCommandState('bold'));
+  document.getElementById('tool-italic').classList.toggle('active', document.queryCommandState('italic'));
+  document.getElementById('tool-underline').classList.toggle('active', document.queryCommandState('underline'));
+}
+editor.addEventListener('keyup', updateToolbarState);
+editor.addEventListener('mouseup', updateToolbarState);
+
+// ── COVER UPLOAD ───────────────────────────────────────────────
+document.getElementById('cover-input').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const preview = document.getElementById('cover-preview');
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+    document.getElementById('cover-icon').style.display = 'none';
+    document.getElementById('cover-text').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+  markDirty();
+});
+
+// Upload cover to Supabase Storage and return URL
+async function uploadCover() {
+  const input = document.getElementById('cover-input');
+  const file = input?.files?.[0];
+  if (!file || !window._sb) return null;
+  try {
+    const ext = file.name.split('.').pop();
+    const fileName = `covers/${currentUser.id}_${Date.now()}.${ext}`;
+    const { data, error } = await window._sb.storage
+      .from('inkwell-files')
+      .upload(fileName, file, { upsert: true });
+    if (error) return null;
+    const { data: urlData } = window._sb.storage
+      .from('inkwell-files')
+      .getPublicUrl(fileName);
+    return urlData?.publicUrl || null;
+  } catch(e) { return null; }
+}
+
+// ── DIRTY STATE ────────────────────────────────────────────────
+function markDirty() {
+  isDirty = true;
+  setSaveStatus('Unsaved changes');
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(saveAll, 30000); // auto-save every 30s
+}
+function setSaveStatus(msg, isSaved = false) {
+  const el = document.getElementById('save-status');
+  el.textContent = msg;
+  el.className = 'save-status' + (isSaved ? ' saved' : '');
+}
+
+// ── SAVE ───────────────────────────────────────────────────────
+async function saveAll() {
+  saveCurrentChapterLocally();
+  setSaveStatus('Saving…');
+
+  const title = document.getElementById('book-title').value.trim() || 'Untitled';
+  const synopsis = document.getElementById('book-synopsis').value.trim();
+  const genre = document.getElementById('book-genre').value;
+
+  try {
+    if (!window._sb) {
+      setSaveStatus('Saved locally', true);
+      isDirty = false;
+      renderChapterList();
+      return;
+    }
+
+    // Upload cover if a new file was selected
+    const coverInput = document.getElementById('cover-input');
+    let coverUrl = currentBook?.cover_url || null;
+    if (coverInput?.files?.[0]) {
+      const uploaded = await uploadCover();
+      if (uploaded) coverUrl = uploaded;
+    }
+
+    // Upsert book
+    let bookId = currentBook?.id;
+    if (!bookId) {
+      const { data: newBook, error: bookErr } = await window._sb
+        .from('inkwell_books')
+        .insert({
+          creator_id: currentCreator.id,
+          title, synopsis, genre, cover_url: coverUrl, status: 'draft'
+        })
+        .select().single();
+      if (bookErr) throw bookErr;
+      currentBook = newBook;
+      bookId = newBook.id;
+    } else {
+      await window._sb.from('inkwell_books')
+        .update({ title, synopsis, genre, cover_url: coverUrl })
+        .eq('id', bookId);
+    }
+
+    // Save chapters
+    for (let i = 0; i < chapters.length; i++) {
+      const ch = chapters[i];
+      if (ch.id) {
+        await window._sb.from('inkwell_chapters')
+          .update({ title: ch.title, content: ch.content, updated_at: new Date().toISOString() })
+          .eq('id', ch.id);
+      } else {
+        const { data: newCh } = await window._sb.from('inkwell_chapters')
+          .insert({ book_id: bookId, chapter_number: ch.chapter_number, title: ch.title, content: ch.content })
+          .select().single();
+        if (newCh) chapters[i].id = newCh.id;
+      }
+    }
+
+    setSaveStatus('Saved ✓', true);
+    isDirty = false;
+    renderChapterList();
+    showToast('Draft saved');
+  } catch(e) {
+    setSaveStatus('Save failed');
+    showToast('Could not save. Please try again.');
+  }
+}
+
+// Save buttons
+document.getElementById('nav-save-btn').addEventListener('click', saveAll);
+document.getElementById('panel-save-btn').addEventListener('click', saveAll);
+document.getElementById('mob-save-btn').addEventListener('click', () => { saveAll(); closeSheet(); });
+
+// ── SUBMIT MODAL ───────────────────────────────────────────────
+function openSubmitModal() {
+  saveCurrentChapterLocally();
+  const title = document.getElementById('book-title').value.trim();
+  const genre = document.getElementById('book-genre').value;
+  const synopsis = document.getElementById('book-synopsis').value.trim();
+  const totalWords = chapters.reduce((s,c) => s+(c.words||0), 0);
+  const chapterCount = chapters.length;
+
+  const checklist = [
+    {
+      ok: !!title,
+      label: 'Book has a title',
+      sub: title || 'Add a title to continue'
+    },
+    {
+      ok: !!genre,
+      label: 'Genre selected',
+      sub: genre || 'Select a genre for your book'
+    },
+    {
+      ok: !!synopsis,
+      label: 'Synopsis written',
+      sub: synopsis ? synopsis.substring(0,60)+'…' : 'Write a short synopsis'
+    },
+    {
+      ok: chapterCount >= 1,
+      label: `${chapterCount} chapter${chapterCount !== 1 ? 's' : ''} written`,
+      sub: totalWords.toLocaleString() + ' total words'
+    },
+  ];
+
+  document.getElementById('submit-checklist').innerHTML = checklist.map(item => `
+    <div class="check-item">
+      <div class="check-icon ${item.ok ? 'ok' : 'warn'}">${item.ok ? '✓' : '!'}</div>
+      <div>
+        <div class="check-text">${item.label}</div>
+        <div class="check-sub">${esc(item.sub)}</div>
+      </div>
+    </div>
+  `).join('');
+
+  const allGood = checklist.every(c => c.ok);
+  document.getElementById('submit-confirm-btn').disabled = !allGood;
+  if (!allGood) document.getElementById('submit-confirm-btn').title = 'Complete all checklist items to submit';
+
+  document.getElementById('submit-modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSubmitModal() {
+  document.getElementById('submit-modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Submit buttons
+[
+  'nav-submit-btn', 'panel-submit-btn'
+].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('click', openSubmitModal);
+});
+
+document.getElementById('mob-submit-btn').addEventListener('click', () => { closeSheet(); openSubmitModal(); });
+document.getElementById('submit-modal-close').addEventListener('click', closeSubmitModal);
+document.getElementById('submit-cancel-btn').addEventListener('click', closeSubmitModal);
+document.getElementById('submit-modal-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('submit-modal-overlay')) closeSubmitModal();
+});
+
+// Confirm submit
+document.getElementById('submit-confirm-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('submit-confirm-btn');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+
+  try {
+    await saveAll();
+    if (currentBook?.id && window._sb) {
+      await window._sb.from('inkwell_books')
+        .update({ status: 'submitted' })
+        .eq('id', currentBook.id);
+    }
+    document.getElementById('submit-modal-body').style.display = 'none';
+    document.getElementById('submit-modal-footer').style.display = 'none';
+    document.getElementById('submit-success').classList.add('visible');
+    showToast('Book submitted for review!');
+  } catch(e) {
+    showToast('Something went wrong. Please try again.');
+    btn.disabled = false; btn.textContent = 'Submit Book →';
+  }
+});
+
+// ── NEW BOOK MODAL ─────────────────────────────────────────────
+function openNewBookModal() {
+  document.getElementById('new-book-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeNewBookModal() {
+  document.getElementById('new-book-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('mob-new-book-btn').addEventListener('click', () => { closeSheet(); openNewBookModal(); });
+document.getElementById('nbm-close').addEventListener('click', closeNewBookModal);
+document.getElementById('nbm-cancel').addEventListener('click', closeNewBookModal);
+document.getElementById('new-book-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('new-book-overlay')) closeNewBookModal();
+});
+
+document.getElementById('nbm-create').addEventListener('click', async () => {
+  const title = document.getElementById('new-book-title').value.trim();
+  const genre = document.getElementById('new-book-genre').value;
+  if (!title) { showToast('Please enter a book title'); return; }
+
+  const btn = document.getElementById('nbm-create');
+  btn.disabled = true; btn.textContent = 'Creating…';
+
+  try {
+    if (window._sb && currentCreator) {
+      const { data: newBook, error } = await window._sb
+        .from('inkwell_books')
+        .insert({ creator_id: currentCreator.id, title, genre, status: 'draft' })
+        .select().single();
+      if (error) throw error;
+      currentBook = newBook;
+    }
+    document.getElementById('book-title').value = title;
+    document.getElementById('book-genre').value = genre;
+    document.getElementById('book-synopsis').value = '';
+    chapters = [{ id: null, chapter_number: 1, title: 'Chapter 1', content: '', words: 0 }];
+    activeChapterIdx = 0;
+    renderChapterList();
+    loadChapter(0);
+    closeNewBookModal();
+    showToast(`"${title}" created`);
+    document.getElementById('editor').focus();
+  } catch(e) {
+    showToast('Could not create book. Please try again.');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Create Book →';
+  }
+});
+
+// ── KEYBOARD SHORTCUTS ─────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  const isMac = navigator.platform.toUpperCase().includes('MAC');
+  const mod = isMac ? e.metaKey : e.ctrlKey;
+  if (mod && e.key === 's') { e.preventDefault(); saveAll(); }
+});
+
+// ── BEFORE UNLOAD ──────────────────────────────────────────────
+window.addEventListener('beforeunload', e => {
+  if (isDirty) { e.preventDefault(); e.returnValue = ''; }
+});
+
+// ── INIT ───────────────────────────────────────────────────────
+document.addEventListener('supabase:ready', async () => {
+  await checkAuth();
+  setSaveStatus('Ready');
+});
+
+</script>
+
+<!-- ── POLISH LAYER (design behaviours; core logic above is untouched) ── -->
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+
+  /* Chapters panel: open by default on desktop, tuck away on phones */
+  const panel = $('sidebarPanel');
+  const mq = window.matchMedia('(min-width: 768px)');
+  function syncPanel() {
+    if (mq.matches) panel.classList.add('open');
+    else { panel.classList.remove('open'); $('sidebarOverlay').classList.remove('open'); }
+  }
+  syncPanel();
+  mq.addEventListener ? mq.addEventListener('change', syncPanel) : mq.addListener(syncPanel);
+
+  /* Focus mode */
+  function setFocus(on) {
+    document.body.classList.toggle('focus-mode', on);
+    if (on) $('editor').focus();
+  }
+  $('focus-btn').addEventListener('click', () => setFocus(true));
+  $('focus-exit').addEventListener('click', () => setFocus(false));
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && document.body.classList.contains('focus-mode')) setFocus(false);
+  });
+
+  /* New book from the chapters panel (desktop had no way to start one) */
+  $('panel-new-book-btn').addEventListener('click', () => { if (typeof openNewBookModal === 'function') openNewBookModal(); if (window.innerWidth < 768) closeSidebar(); });
+
+  /* Chapter kicker, chapter count, reading time */
+  function refresh() {
+    try {
+      const ch = chapters[activeChapterIdx];
+      const n = ch ? ch.chapter_number : 1;
+      $('chapter-kicker').textContent = 'Chapter ' + String(n).padStart(2, '0');
+      $('chapter-count').textContent = chapters.length;
+      const w = ch ? (ch.words || 0) : 0;
+      $('chapter-read').textContent = w ? '~' + Math.max(1, Math.round(w / 230)) + ' min read' : '—';
+    } catch (e) {}
+  }
+  ['loadChapter', 'renderChapterList', 'updateChapterWordCount'].forEach(name => {
+    const orig = window[name];
+    if (typeof orig !== 'function') return;
+    window[name] = function () { const r = orig.apply(this, arguments); refresh(); return r; };
+  });
+  refresh();
+
+  /* Show a saved cover when a book is loaded */
+  window.showCoverPreview = function (url) {
+    if (!url) return;
+    const p = $('cover-preview');
+    p.src = url; p.style.display = 'block';
+    $('cover-icon').style.display = 'none';
+    $('cover-text').style.display = 'none';
+  };
+
+  /* Scrollbar: appears only while that element is scrolling */
+  const timers = new WeakMap();
+  document.addEventListener('scroll', e => {
+    const t = e.target;
+    const el = (t === document || t === document.body) ? document.documentElement : t;
+    if (!el || !el.classList) return;
+    el.classList.add('ms-scrolling');
+    clearTimeout(timers.get(el));
+    timers.set(el, setTimeout(() => el.classList.remove('ms-scrolling'), 900));
+  }, { capture: true, passive: true });
+})();
+</script>
+</body>
+</html>

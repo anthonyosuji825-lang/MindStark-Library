@@ -564,7 +564,7 @@
   };
 
   window.agreeTerms = function () {
-    sessionStorage.setItem('ms_terms_agreed', 'true');
+    localStorage.setItem('ms_terms_agreed', 'true');
     closeTerms();
     /* Show a brief confirmation toast if available */
     if (window.showNavToast) {
@@ -577,5 +577,17 @@
       setTimeout(() => t.remove(), 3000);
     }
   };
+
+  /* ── AUTO-SHOW ON FIRST VISIT ──────────────────── */
+(function autoShowTerms() {
+  if (!localStorage.getItem('ms_terms_agreed')) {
+    // Wait for page to fully load before showing
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => setTimeout(openTerms, 800));
+    } else {
+      setTimeout(openTerms, 800);
+    }
+  }
+})();
 
 })();

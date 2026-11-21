@@ -6,7 +6,7 @@
 */
 
 const SUPABASE_URL  = 'https://wgcpuohwyarhjlndmnlj.supabase.co';
-const SUPABASE_ANON = 'sb_publishable_aCM0iO7qCRXWSnnzzynAlA_mHRquGLQ';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnY3B1b2h3eWFyaGpsbmRtbmxqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MzEzODYsImV4cCI6MjA4OTIwNzM4Nn0.W3SMmePgAdRR7v6_NWRlIoPYmo5HMF8mmTiwELkZclo';
 
 /* Prevent redirect loops */
 if (window.location.hostname.includes('vercel.app') &&
@@ -35,11 +35,11 @@ async function msGetUser() {
 
 async function msGetProfile(userId) {
   if (!window._sb || !userId) return null;
-  const { data } = await window._sb
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .single();
+  /* Full-column reads of profiles only work for your OWN row now
+     (see 08-profiles-authenticated-columns.sql) — the database enforces
+     that via my_profile(), not via the userId argument, so this always
+     returns the signed-in caller's profile regardless of what userId is. */
+  const { data } = await window._sb.rpc('my_profile');
   return data;
 }
 
@@ -74,11 +74,13 @@ function msIsScholar(profile) {
 }
 
 /* ── NEW: Get profile by MindStark ID ────────────────────── */
+/* Only the public columns — looking someone else up by their MindStark ID
+   must never return their email, ARCHER memory, or membership status. */
 async function msGetProfileByMsId(msId) {
   if (!window._sb || !msId) return null;
   const { data } = await window._sb
     .from('profiles')
-    .select('*')
+    .select('id, full_name, avatar_url, mindstark_id')
     .eq('mindstark_id', msId)
     .single();
   return data;

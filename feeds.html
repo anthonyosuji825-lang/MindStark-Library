@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/><!-- Favicon & Meta -->
+  <meta charset="UTF-8"/>
+  <script src="supabase.js"></script>
+  <!-- Favicon & Meta -->
 <link rel="icon" type="image/png" href="logo.png"/>
 <link rel="apple-touch-icon" href="logo.png"/>
 <meta property="og:image" content="https://mind-stark-library.vercel.app/logo.png"/>
-<meta property="og:title" content="MindStark Library"/>
-<meta property="og:description" content="70,000+ free books. Read anywhere, anytime."/>
+<meta property="og:title" content="Feeds — MindStark Library"/>
+<meta property="og:description" content="Latest reading news, literary updates and book discoveries."/>
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://mind-stark-library.vercel.app"/>
+<meta property="og:url" content="https://mind-stark-library.vercel.app/feeds.html"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
   <title>News — MindStark Library</title>
@@ -243,7 +245,7 @@
   <div class="mobile-menu" id="mobileMenu">
     <a href="browse.html" onclick="closeMobile()">Browse</a>
     <a href="book.html" onclick="closeMobile()">My Books</a>
-    <a href="news.html" onclick="closeMobile()">News</a>
+    <a href="feeds.html" onclick="closeMobile()">News</a>
     <a href="membership.html" onclick="closeMobile()">Membership</a>
     <a href="about.html" onclick="closeMobile()">About</a>
     <a href="feeds.html" onclick="closeMobile()">Feeds</a>
@@ -434,6 +436,16 @@
 
     if (API_KEY !== '93be56655e2c43c0ce68660704c9c0ERE') $banner.classList.add('hidden');
 
+    /* ── MOBILE MENU (nav.js may replace this, but the inline
+           menu links call closeMobile(), so it must exist) ── */
+    function closeMobile() {
+      const hb = document.getElementById('hamburger');
+      const mm = document.getElementById('mobileMenu');
+      if (hb) hb.classList.remove('open');
+      if (mm) mm.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
     /* ── FETCH ────────────────────────────────── */
     async function fetchNews() {
       page = 1;
@@ -445,28 +457,30 @@
         setTimeout(showMockData, 800);
         return;
       }
-const direct = `${GNEWS_BASE}?q=${encodeURIComponent(currentQ)}&lang=en&max=${MAX}&sortby=${currentSort}&apikey=${API_KEY}`;
+      const direct = `${GNEWS_BASE}?q=${encodeURIComponent(currentQ)}&lang=en&max=${MAX}&sortby=${currentSort}&apikey=${API_KEY}`;
 
-/* Try multiple proxies in order until one works */
-const proxies = [
-  `https://corsproxy.io/?${encodeURIComponent(direct)}`,
-  `https://api.allorigins.win/raw?url=${encodeURIComponent(direct)}`,
-  `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(direct)}`,
-];
+      /* Try multiple proxies in order until one works */
+      const proxies = [
+        `https://corsproxy.io/?${encodeURIComponent(direct)}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(direct)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(direct)}`,
+      ];
 
-let data = null;
-for (const url of proxies) {
-  try {
-    const res  = await fetch(url, { signal: AbortSignal.timeout(8000) });
-    const text = await res.text();
-    data = JSON.parse(text);
-    if (data.articles) break;
-  } catch(e) { continue; }
-}
+      /* NOTE: everything below runs inside the try so that a total
+         proxy failure reaches showError() instead of becoming an
+         unhandled rejection that leaves the page spinning. */
+      try {
+        let data = null;
+        for (const url of proxies) {
+          try {
+            const res  = await fetch(url, { signal: AbortSignal.timeout(8000) });
+            const text = await res.text();
+            data = JSON.parse(text);
+            if (data.articles) break;
+          } catch(e) { continue; }
+        }
 
-if (!data) throw new Error('Could not reach news service. Please try again.');
-
-try {
+        if (!data) throw new Error('Could not reach news service. Please try again.');
 
         if (data.errors) throw new Error(data.errors.join(', '));
 
@@ -659,20 +673,6 @@ try {
       document.getElementById('nlEmail').value = '';
     }
 
-    /* ── MOBILE MENU ──────────────────────────── */
-    const hamburger  = document.getElementById('hamburger');
-    const mobileMenu = document.getElementById('mobileMenu');
-    hamburger.addEventListener('click', () => {
-      hamburger.classList.toggle('open');
-      mobileMenu.classList.toggle('open');
-      document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
-    });
-    function closeMobile() {
-      hamburger.classList.remove('open');
-      mobileMenu.classList.remove('open');
-      document.body.style.overflow = '';
-    }
-
     /* ── TOAST ────────────────────────────────── */
     function showToast(msg) {
       const t = document.getElementById('toast');
@@ -686,7 +686,6 @@ try {
   </script>
    <script src="nav.js"></script>
    <script src="terms.js"></script>
-   <script src="supabase.js"></script>
    <script src="archer-bubble.js"></script>
 </body>
 </html>

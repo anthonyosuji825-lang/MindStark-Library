@@ -51,21 +51,6 @@ const MY_BOOKS = [
     }
   },
 
-  /* ── EXAMPLE BOOK 3 ─────────────────────────── */
-  {
-    id:             "ms-003",
-    title:          "Port Harcourt After Dark",
-    authors:        [{ name: "Your Name" }],
-    subjects:       ["Mystery -- Crime Fiction -- Nigerian Noir"],
-    download_count: 0,
-    _mindstark:     true,
-
-    formats: {
-      "text/html":  "https://mind-stark-library.vercel.app/books/ms-003.html",
-      "image/jpeg": "https://mind-stark-library.vercel.app/covers/ms-003.jpg"
-    }
-  },
-
   /* ── ADD MORE BOOKS BELOW THIS LINE ─────────────
   {
     id:             "ms-004",

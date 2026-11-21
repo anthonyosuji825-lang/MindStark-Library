@@ -1,6 +1,62 @@
 (function () {
   const SUPABASE_FUNCTION_URL =
     "https://wgcpuohwyarhjlndmnlj.supabase.co/functions/v1/archer";
+  const SUPABASE_URL = "https://wgcpuohwyarhjlndmnlj.supabase.co";
+  const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnY3B1b2h3eWFyaGpsbmRtbmxqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MzEzODYsImV4cCI6MjA4OTIwNzM4Nn0.W3SMmePgAdRR7v6_NWRlIoPYmo5HMF8mmTiwELkZclo";
+
+  // Load archer memory from Supabase using user's auth token.
+  // archer_memory is no longer readable via a direct column select for
+  // anyone but the row's own owner (see 08-profiles-authenticated-columns.sql),
+  // so this goes through my_profile(), which always returns the signed-in
+  // caller's own row. userId is accepted for backward compatibility but is
+  // no longer used to pick the row — the database does that from the
+  // auth token itself.
+  async function loadArcherMemory(userId) {
+    try {
+      if (window._sb) {
+        var { data, error } = await window._sb.rpc('my_profile');
+        if (error || !data) return null;
+        return data.archer_memory || null;
+      }
+
+      // Fallback for the unlikely case the SDK client isn't on window yet.
+      var res = await fetch(SUPABASE_URL + "/rest/v1/rpc/my_profile", {
+        method: "POST",
+        headers: {
+          "apikey": SUPABASE_ANON,
+          "Authorization": "Bearer " + SUPABASE_ANON,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({})
+      });
+      var data2 = await res.json();
+      return (data2 && data2.archer_memory) ? data2.archer_memory : null;
+    } catch(e) { return null; }
+  }
+
+  // Save archer memory to Supabase using user's auth token
+  async function saveArcherMemory(userId, memory) {
+    try {
+      // Get the live session token from Supabase SDK
+      var token = null;
+      if (window._sb) {
+        var session = await window._sb.auth.getSession();
+        token = session?.data?.session?.access_token || null;
+      }
+      if (!token) return; // Can't save without auth token
+
+      await fetch(SUPABASE_URL + "/rest/v1/profiles?id=eq." + userId, {
+        method: "PATCH",
+        headers: {
+          "apikey": SUPABASE_ANON,
+          "Authorization": "Bearer " + token,
+          "Content-Type": "application/json",
+          "Prefer": "return=minimal"
+        },
+        body: JSON.stringify({ archer_memory: memory })
+      });
+    } catch(e) { }
+  }
 
   const style = document.createElement("style");
   style.textContent = `
@@ -11,35 +67,27 @@
     #archer-overlay {
       position: absolute; inset: 0;
       background: rgba(20,10,5,0.35);
-      opacity: 0;
-      transition: opacity 0.35s ease;
-      pointer-events: none;
-      backdrop-filter: blur(2px);
+      opacity: 0; transition: opacity 0.35s ease;
+      pointer-events: none; backdrop-filter: blur(2px);
     }
     #archer-overlay.open { opacity: 1; pointer-events: all; }
 
     #archer-sidebar {
-      position: absolute;
-      top: 0; right: 0; bottom: 0;
-      width: 400px;
+      position: absolute; top: 0; right: 0; bottom: 0; width: 400px;
       background: rgba(245,240,232,0.15);
       backdrop-filter: blur(28px) saturate(1.8);
       -webkit-backdrop-filter: blur(28px) saturate(1.8);
       border-left: 1px solid rgba(200,150,62,0.2);
       box-shadow: -20px 0 60px rgba(59,42,26,0.25);
-      display: flex;
-      flex-direction: column;
+      display: flex; flex-direction: column;
       transform: translateX(100%);
       transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
-      pointer-events: all;
-      overflow: hidden;
+      pointer-events: all; overflow: hidden;
     }
     #archer-sidebar::before {
-      content: '';
-      position: absolute; inset: 0;
+      content: ''; position: absolute; inset: 0;
       background: linear-gradient(160deg, rgba(245,240,232,0.55) 0%, rgba(237,229,213,0.35) 100%);
-      pointer-events: none;
-      z-index: 0;
+      pointer-events: none; z-index: 0;
     }
     #archer-sidebar.open { transform: translateX(0); }
 
@@ -50,7 +98,6 @@
       display: flex; align-items: center; gap: 13px;
       background: rgba(59,42,26,0.9);
     }
-
     #archer-sigil {
       width: 42px; height: 42px; border-radius: 50%;
       background: rgba(200,150,62,0.15);
@@ -58,21 +105,17 @@
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0; position: relative;
     }
-    #archer-sigil img { border-radius: 50%; }
+    #archer-sigil svg { width: 21px; height: 21px; }
     #archer-dot {
       position: absolute; bottom: 1px; right: 1px;
       width: 9px; height: 9px; border-radius: 50%;
-      background: #6ab04c;
-      border: 2px solid #3b2a1a;
+      background: #6ab04c; border: 2px solid #3b2a1a;
       box-shadow: 0 0 6px rgba(106,176,76,0.6);
     }
-
     #archer-titles { flex: 1; }
     #archer-titles strong {
-      display: block;
-      font-family: 'Playfair Display', serif;
-      font-size: 14px; font-weight: 700;
-      color: #f5f0e8;
+      display: block; font-family: 'Playfair Display', serif;
+      font-size: 14px; font-weight: 700; color: #f5f0e8;
       letter-spacing: 0.08em; text-transform: uppercase;
     }
     #archer-titles span {
@@ -80,30 +123,23 @@
       font-family: 'DM Sans', sans-serif;
       letter-spacing: 0.1em; text-transform: uppercase;
     }
-
     #archer-close-btn {
       width: 30px; height: 30px; border-radius: 50%;
       background: rgba(245,240,232,0.07);
       border: 1px solid rgba(245,240,232,0.12);
-      color: rgba(245,240,232,0.5);
-      font-size: 15px; cursor: pointer;
+      color: rgba(245,240,232,0.5); font-size: 15px; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: all 0.2s; font-family: 'DM Sans', sans-serif;
     }
     #archer-close-btn:hover { background: rgba(245,240,232,0.15); color: #f5f0e8; }
 
     #archer-messages {
-      position: relative; z-index: 1;
-      flex: 1; overflow-y: auto;
-      padding: 18px 15px;
-      display: flex; flex-direction: column; gap: 13px;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(200,150,62,0.2) transparent;
+      position: relative; z-index: 1; flex: 1; overflow-y: auto;
+      padding: 18px 15px; display: flex; flex-direction: column; gap: 13px;
+      scrollbar-width: thin; scrollbar-color: rgba(200,150,62,0.2) transparent;
     }
-
     .archer-msg { display: flex; gap: 9px; align-items: flex-start; }
     .archer-msg.user { flex-direction: row-reverse; }
-
     .archer-av {
       width: 28px; height: 28px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
@@ -119,24 +155,23 @@
       background: rgba(59,42,26,0.1); color: #7a6652;
       border: 1px solid rgba(59,42,26,0.1);
     }
-
     .archer-bubble-msg {
       max-width: 80%; padding: 10px 14px; border-radius: 16px;
-      font-size: 13.5px; line-height: 1.65;
-      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px; line-height: 1.65; font-family: 'DM Sans', sans-serif;
     }
     .archer-msg.archer .archer-bubble-msg {
-      background: rgba(255,255,255,0.72);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(200,150,62,0.14);
-      color: #2c1e0f; border-top-left-radius: 4px;
+      background: rgba(255,255,255,0.72); backdrop-filter: blur(10px);
+      border: 1px solid rgba(200,150,62,0.14); color: #2c1e0f;
+      border-top-left-radius: 4px;
     }
     .archer-msg.user .archer-bubble-msg {
-      background: rgba(59,42,26,0.84);
-      backdrop-filter: blur(10px);
+      background: rgba(59,42,26,0.84); backdrop-filter: blur(10px);
       color: #f5f0e8; border-top-right-radius: 4px;
     }
-
+    .archer-msg.error .archer-bubble-msg {
+      background: rgba(180,50,50,0.08);
+      border: 1px solid rgba(180,50,50,0.2); color: #8b2e2e;
+    }
     .archer-typing { display: flex; gap: 5px; align-items: center; padding: 3px 0; }
     .archer-typing span {
       width: 6px; height: 6px; border-radius: 50%; background: #c8963e;
@@ -148,107 +183,80 @@
       0%,80%,100% { transform: translateY(0); opacity: 0.6; }
       40% { transform: translateY(-7px); opacity: 1; }
     }
+    .archer-status {
+      font-size: 11px; color: rgba(59,42,26,0.4);
+      font-family: 'DM Sans', sans-serif; font-style: italic;
+      text-align: center; padding: 4px 0;
+    }
 
     #archer-chips {
       position: relative; z-index: 1;
-      display: flex; flex-wrap: wrap; gap: 7px;
-      padding: 0 15px 12px;
+      display: flex; flex-wrap: wrap; gap: 7px; padding: 0 15px 12px;
     }
     .archer-chip {
       font-size: 11.5px; padding: 5px 12px; border-radius: 20px;
       border: 1px solid rgba(200,150,62,0.28);
-      background: rgba(255,255,255,0.4);
-      backdrop-filter: blur(8px);
-      color: #5a3e28; cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
+      background: rgba(255,255,255,0.4); backdrop-filter: blur(8px);
+      color: #5a3e28; cursor: pointer; font-family: 'DM Sans', sans-serif;
       transition: all 0.2s; white-space: nowrap;
     }
-    .archer-chip:hover {
-      background: rgba(200,150,62,0.15);
-      border-color: rgba(200,150,62,0.5); color: #3b2a1a;
-    }
+    .archer-chip:hover { background: rgba(200,150,62,0.15); border-color: rgba(200,150,62,0.5); color: #3b2a1a; }
 
     #archer-input-row {
-      position: relative; z-index: 1;
-      display: flex; gap: 9px;
-      padding: 13px 15px 16px;
-      border-top: 1px solid rgba(200,150,62,0.12);
-      background: rgba(59,42,26,0.05);
-      align-items: flex-end;
+      position: relative; z-index: 1; display: flex; gap: 9px;
+      padding: 13px 15px 16px; border-top: 1px solid rgba(200,150,62,0.12);
+      background: rgba(59,42,26,0.05); align-items: flex-end;
     }
     #archer-input {
-      flex: 1; resize: none;
-      border: 1px solid rgba(200,150,62,0.22);
-      border-radius: 14px; padding: 10px 13px;
-      font-size: 13.5px; font-family: 'DM Sans', sans-serif;
-      background: rgba(255,255,255,0.65);
-      backdrop-filter: blur(10px);
-      color: #2c1e0f; outline: none;
+      flex: 1; resize: none; border: 1px solid rgba(200,150,62,0.22);
+      border-radius: 14px; padding: 10px 13px; font-size: 13.5px;
+      font-family: 'DM Sans', sans-serif; background: rgba(255,255,255,0.65);
+      backdrop-filter: blur(10px); color: #2c1e0f; outline: none;
       min-height: 40px; max-height: 100px; line-height: 1.5;
       transition: border-color 0.2s, background 0.2s;
     }
-    #archer-input:focus {
-      border-color: rgba(200,150,62,0.55);
-      background: rgba(255,255,255,0.85);
-    }
+    #archer-input:focus { border-color: rgba(200,150,62,0.55); background: rgba(255,255,255,0.85); }
     #archer-input::placeholder { color: #a08060; }
-
     #archer-send {
-      width: 40px; height: 40px; border-radius: 50%;
-      background: #3b2a1a;
-      border: 1.5px solid rgba(200,150,62,0.4);
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      width: 40px; height: 40px; border-radius: 50%; background: #3b2a1a;
+      border: 1.5px solid rgba(200,150,62,0.4); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
       flex-shrink: 0; transition: all 0.2s;
     }
     #archer-send:hover { background: #c8963e; border-color: #c8963e; transform: scale(1.06); }
     #archer-send svg { width: 15px; height: 15px; }
-
     #archer-footer {
-      position: relative; z-index: 1;
-      text-align: center; font-size: 10px;
-      color: rgba(59,42,26,0.35);
-      padding: 0 0 10px;
-      font-family: 'DM Sans', sans-serif;
-      letter-spacing: 0.06em;
+      position: relative; z-index: 1; text-align: center; font-size: 10px;
+      color: rgba(59,42,26,0.35); padding: 0 0 10px;
+      font-family: 'DM Sans', sans-serif; letter-spacing: 0.06em;
       background: rgba(59,42,26,0.03);
     }
 
     #archer-fab {
       position: fixed; bottom: 28px; right: 28px;
-      width: 56px; height: 56px; border-radius: 50%;
-      background: #3b2a1a;
-      border: 2px solid rgba(200,150,62,0.5);
-      cursor: pointer; z-index: 99998;
+      width: 56px; height: 56px; border-radius: 50%; background: #3b2a1a;
+      border: 2px solid rgba(200,150,62,0.5); cursor: pointer; z-index: 99998;
       display: flex; align-items: center; justify-content: center;
       box-shadow: 0 8px 28px rgba(59,42,26,0.4);
       transition: transform 0.25s cubic-bezier(.34,1.56,.64,1), box-shadow 0.25s;
-      pointer-events: all;
-      animation: archer-pulse-fab 3s ease-in-out infinite;
+      pointer-events: all; animation: archer-pulse-fab 3s ease-in-out infinite;
     }
-    #archer-fab:hover {
-      transform: scale(1.1);
-      box-shadow: 0 12px 40px rgba(59,42,26,0.5);
-    }
+    #archer-fab:hover { transform: scale(1.1); box-shadow: 0 12px 40px rgba(59,42,26,0.5); }
     @keyframes archer-pulse-fab {
       0%,100% { box-shadow: 0 8px 28px rgba(59,42,26,0.4), 0 0 0 0 rgba(200,150,62,0.25); }
       50% { box-shadow: 0 8px 28px rgba(59,42,26,0.4), 0 0 0 12px rgba(200,150,62,0); }
     }
     #archer-fab svg { width: 25px; height: 25px; }
-
     #archer-tooltip {
       position: fixed; bottom: 94px; right: 28px;
-      background: rgba(59,42,26,0.92);
-      backdrop-filter: blur(12px);
-      color: #f5f0e8; font-size: 12px;
-      font-family: 'DM Sans', sans-serif;
+      background: rgba(59,42,26,0.92); backdrop-filter: blur(12px);
+      color: #f5f0e8; font-size: 12px; font-family: 'DM Sans', sans-serif;
       padding: 7px 14px; border-radius: 20px;
-      border: 1px solid rgba(200,150,62,0.3);
-      white-space: nowrap; opacity: 0;
-      transform: translateY(6px);
-      transition: all 0.3s; pointer-events: none; z-index: 99997;
+      border: 1px solid rgba(200,150,62,0.3); white-space: nowrap;
+      opacity: 0; transform: translateY(6px); transition: all 0.3s;
+      pointer-events: none; z-index: 99997;
     }
     #archer-tooltip.show { opacity: 1; transform: translateY(0); }
-
     @media (max-width: 480px) {
       #archer-sidebar { width: 100%; border-left: none; }
       #archer-fab { bottom: 18px; right: 18px; }
@@ -257,21 +265,24 @@
   `;
   document.head.appendChild(style);
 
-  const wrap = document.createElement("div");
+  var wrap = document.createElement("div");
   wrap.id = "archer-wrap";
   wrap.innerHTML = `
     <div id="archer-overlay"></div>
     <div id="archer-sidebar">
       <div id="archer-header">
         <div id="archer-sigil">
-          <img src="archer-logo.png" alt="ARCHER" style="width:32px;height:32px;object-fit:contain;border-radius:50%;"/>
+          <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M11 2L13.5 8.5H20.5L15 12.5L17.5 19.5L11 15.5L4.5 19.5L7 12.5L1.5 8.5H8.5L11 2Z" fill="#c8963e" stroke="rgba(200,150,62,0.3)" stroke-width="0.5"/>
+            <circle cx="11" cy="11" r="2.5" fill="rgba(245,240,232,0.65)"/>
+          </svg>
           <div id="archer-dot"></div>
         </div>
         <div id="archer-titles">
           <strong>ARCHER</strong>
           <span>MindStark Library AI</span>
         </div>
-        <button id="archer-close-btn">✕</button>
+        <button id="archer-close-btn">&#x2715;</button>
       </div>
       <div id="archer-messages"></div>
       <div id="archer-chips">
@@ -288,31 +299,92 @@
           </svg>
         </button>
       </div>
-      <div id="archer-footer">Powered by ARCHER · MindStark Library</div>
+      <div id="archer-footer">Powered by ARCHER &middot; MindStark Library</div>
     </div>
     <div id="archer-tooltip">Ask ARCHER anything about books</div>
   `;
   document.body.appendChild(wrap);
 
-  const fab = document.createElement("button");
+  var fab = document.createElement("button");
   fab.id = "archer-fab";
   fab.setAttribute("aria-label", "Open ARCHER");
-  fab.innerHTML = `<img src="archer-logo.png" alt="ARCHER" style="width:36px;height:36px;object-fit:contain;border-radius:50%;"/>`;
+  fab.innerHTML = '<svg viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.5 2L15.5 9.5H23L17.5 13L19.5 20.5L12.5 16.5L5.5 20.5L7.5 13L2 9.5H9.5L12.5 2Z" fill="#c8963e" stroke="rgba(200,150,62,0.3)" stroke-width="0.5"/><circle cx="12.5" cy="12.5" r="3" fill="rgba(245,240,232,0.6)"/></svg>';
   document.body.appendChild(fab);
 
-  const sidebar  = document.getElementById("archer-sidebar");
-  const overlay  = document.getElementById("archer-overlay");
-  const closeBtn = document.getElementById("archer-close-btn");
-  const messages = document.getElementById("archer-messages");
-  const input    = document.getElementById("archer-input");
-  const sendBtn  = document.getElementById("archer-send");
-  const chips    = document.getElementById("archer-chips");
-  const tooltip  = document.getElementById("archer-tooltip");
+  var sidebar  = document.getElementById("archer-sidebar");
+  var overlay  = document.getElementById("archer-overlay");
+  var closeBtn = document.getElementById("archer-close-btn");
+  var messages = document.getElementById("archer-messages");
+  var input    = document.getElementById("archer-input");
+  var sendBtn  = document.getElementById("archer-send");
+  var chips    = document.getElementById("archer-chips");
+  var tooltip  = document.getElementById("archer-tooltip");
 
-  let isOpen = false, isTyping = false, greeted = false, history = [];
+  var isOpen = false, isTyping = false, greeted = false, history = [], archerMemory = null;
 
-  setTimeout(() => tooltip.classList.add("show"), 2000);
-  setTimeout(() => tooltip.classList.remove("show"), 5500);
+  function getMSUser() {
+    try {
+      var raw = sessionStorage.getItem("ms_current_user");
+      return raw ? JSON.parse(raw) : null;
+    } catch(e) { return null; }
+  }
+
+  function getCurrentBook() {
+    try {
+      var raw = sessionStorage.getItem("ms_book");
+      return raw ? JSON.parse(raw) : null;
+    } catch(e) { return null; }
+  }
+
+  function getGreeting() {
+    var user = getMSUser();
+    var book = getCurrentBook();
+    var hour = new Date().getHours();
+    var timeOfDay = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
+    if (user && user.name && !user.guest) {
+      var firstName = user.name.split(" ")[0];
+      var memberTag = user.membership ? " — <em>" + user.membership.planName + " Member</em>" : "";
+      var isReturning = archerMemory && archerMemory.lastVisit;
+
+      // Currently reading a book
+      if (book && book.title) {
+        if (isReturning) {
+          return timeOfDay + ", <strong>" + firstName + "</strong>" + memberTag + ". I see you have returned — and you are reading <strong>" + book.title + "</strong>" + (book.author ? " by " + book.author : "") + ". Shall I illuminate this work for you, or is there something else on your mind?";
+        }
+        return timeOfDay + ", <strong>" + firstName + "</strong>" + memberTag + ". I see you are reading <strong>" + book.title + "</strong>" + (book.author ? " by " + book.author : "") + ". I am ARCHER — shall I tell you more about this book, its themes, or its author?";
+      }
+
+      // Returning user with memory
+      if (isReturning) {
+        var memoryParts = [];
+        if (archerMemory.genres && archerMemory.genres.length > 0) {
+          memoryParts.push("your interest in <strong>" + archerMemory.genres.slice(-2).join(" and ") + "</strong>");
+        }
+        if (archerMemory.books && archerMemory.books.length > 0) {
+          memoryParts.push("<strong>" + archerMemory.books[archerMemory.books.length - 1] + "</strong>");
+        }
+        if (memoryParts.length > 0) {
+          return "Welcome back, <strong>" + firstName + "</strong>" + memberTag + ". Last time we touched on " + memoryParts.join(" and ") + ". Shall we continue from there, or shall we venture somewhere new today?";
+        }
+        return "Welcome back, <strong>" + firstName + "</strong>" + memberTag + ". It is a pleasure to have you return to MindStark Library. What shall we explore today?";
+      }
+
+      // First time user
+      return timeOfDay + ", <strong>" + firstName + "</strong>" + memberTag + ". I am ARCHER, your guide through MindStark Library. What shall we explore today?";
+    }
+
+    // Guest user reading a book
+    if (book && book.title) {
+      return "Welcome to <strong>MindStark Library</strong>. I am ARCHER. I see you are reading <strong>" + book.title + "</strong>" + (book.author ? " by " + book.author : "") + ". Shall I tell you more about this work?";
+    }
+
+    // Guest user
+    return "Welcome to <strong>MindStark Library</strong>. I am ARCHER — your guide through our vast collection of knowledge. Ask me about any book, author, genre, or idea. What shall we explore today?";
+  }
+
+  setTimeout(function() { tooltip.classList.add("show"); }, 2000);
+  setTimeout(function() { tooltip.classList.remove("show"); }, 5500);
 
   function openSidebar() {
     isOpen = true;
@@ -322,11 +394,17 @@
     document.body.style.overflow = "hidden";
     if (!greeted) {
       greeted = true;
-      setTimeout(() => addMsg("archer",
-        "Welcome to <strong>MindStark Library</strong>. I am ARCHER — your guide through our vast collection of knowledge. Ask me about any book, author, genre, or idea. What shall we explore today?"
-      ), 350);
+      var user = getMSUser();
+      if (user && user.id && !user.guest) {
+        loadArcherMemory(user.id).then(function(mem) {
+          archerMemory = mem;
+          setTimeout(function() { addMsg("archer", getGreeting(), false); }, 350);
+        });
+      } else {
+        setTimeout(function() { addMsg("archer", getGreeting(), false); }, 350);
+      }
     }
-    setTimeout(() => input.focus(), 400);
+    setTimeout(function() { input.focus(); }, 400);
   }
 
   function closeSidebar() {
@@ -346,19 +424,26 @@
     sendMessage();
   };
 
-  function addMsg(role, text, loading = false) {
-    const div = document.createElement("div");
+  function formatText(t) {
+    return t
+      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*(.*?)\*/g, "<em>$1</em>")
+      .replace(/\n/g, "<br>");
+  }
+
+  function addMsg(role, text, loading) {
+    var div = document.createElement("div");
     div.className = "archer-msg " + role;
-    const av = document.createElement("div");
+    var av = document.createElement("div");
     av.className = "archer-av";
     av.textContent = role === "user" ? "You" : "A";
-    const bub = document.createElement("div");
+    var bub = document.createElement("div");
     bub.className = "archer-bubble-msg";
     if (loading) {
       bub.innerHTML = '<div class="archer-typing"><span></span><span></span><span></span></div>';
       div.id = "archer-typing-el";
     } else {
-      bub.innerHTML = text.replace(/\n/g, "<br>").replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+      bub.innerHTML = formatText(text);
     }
     div.appendChild(av);
     div.appendChild(bub);
@@ -367,48 +452,105 @@
     return div;
   }
 
+  function addStatus(text) {
+    var s = document.createElement("div");
+    s.className = "archer-status";
+    s.textContent = text;
+    s.id = "archer-status-el";
+    messages.appendChild(s);
+    messages.scrollTop = messages.scrollHeight;
+    return s;
+  }
+
+  function removeEl(id) {
+    var el = document.getElementById(id);
+    if (el) el.remove();
+  }
+
+  async function callArcher(retryCount) {
+    var res = await fetch(SUPABASE_FUNCTION_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: history,
+        currentDateTime: new Date().toLocaleString("en-NG", {
+          weekday: "long", year: "numeric", month: "long", day: "numeric",
+          hour: "2-digit", minute: "2-digit", second: "2-digit",
+          timeZoneName: "short"
+        }),
+        currentUser: (function() {
+          var u = getMSUser();
+          if (!u || u.guest) return null;
+          return { name: u.name, membership: u.membership ? u.membership.planName : "Free" };
+        })(),
+        archerMemory: archerMemory,
+        currentBook: (function() {
+          var b = getCurrentBook();
+          if (!b) return null;
+          return { title: b.title, author: b.author, id: b.id };
+        })()
+      })
+    });
+
+    if (!res.ok && res.status === 503 && retryCount < 2) {
+      // Auto retry once with a short delay
+      removeEl("archer-status-el");
+      addStatus("Switching knowledge systems...");
+      await new Promise(function(r) { setTimeout(r, 2000); });
+      return callArcher(retryCount + 1);
+    }
+
+    return res;
+  }
+
   async function sendMessage() {
-    const text = input.value.trim();
+    var text = input.value.trim();
     if (!text || isTyping) return;
     isTyping = true;
     input.value = "";
     input.style.height = "auto";
     chips.style.display = "none";
-    addMsg("user", text);
+
+    addMsg("user", text, false);
     history.push({ role: "user", content: text });
-    const typingEl = addMsg("archer", "", true);
+    addMsg("archer", "", true);
+
     try {
-      const res = await fetch(SUPABASE_FUNCTION_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: history,
-          currentDateTime: new Date().toLocaleString("en-NG", {
-            weekday: "long", year: "numeric", month: "long", day: "numeric",
-            hour: "2-digit", minute: "2-digit", second: "2-digit",
-            timeZoneName: "short"
-          })
-        }),
-      });
-      const data = await res.json();
-      typingEl.remove();
-      const reply = data.reply || "I encountered an issue. Please try again.";
+      var res = await callArcher(0);
+      removeEl("archer-typing-el");
+      removeEl("archer-status-el");
+
+      var data = await res.json();
+      var reply = data.reply || "I encountered an issue. Please try again in a moment.";
       history.push({ role: "assistant", content: reply });
-      addMsg("archer", reply);
-    } catch {
-      typingEl.remove();
-      addMsg("archer", "Connection interrupted. Please check your network and try again.");
+      addMsg("archer", reply, false);
+
+      // Save updated memory if returned
+      if (data.updatedMemory) {
+        archerMemory = data.updatedMemory;
+        var u = getMSUser();
+        if (u && u.id && !u.guest) {
+          saveArcherMemory(u.id, data.updatedMemory);
+        }
+      }
+
+    } catch(e) {
+      removeEl("archer-typing-el");
+      removeEl("archer-status-el");
+      addMsg("error", "ARCHER is momentarily unavailable. Please try again in a few seconds.", false);
     }
+
     isTyping = false;
     input.focus();
   }
 
-  input.addEventListener("keydown", (e) => {
+  input.addEventListener("keydown", function(e) {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   });
-  input.addEventListener("input", () => {
+  input.addEventListener("input", function() {
     input.style.height = "auto";
     input.style.height = Math.min(input.scrollHeight, 100) + "px";
   });
   sendBtn.addEventListener("click", sendMessage);
+
 })();
