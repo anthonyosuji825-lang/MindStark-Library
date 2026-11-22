@@ -1469,10 +1469,15 @@ async function loadBook() {
     checkLikeStatus();
     checkFollowStatus();
 
-    // Increment reads
-    await window._sb.from('inkwell_books')
-      .update({ total_reads: (book.total_reads || 0) + 1 })
-      .eq('id', bookId);
+    // Count one read per browser session. The database does the increment
+    // (readers are not allowed to update inkwell_books directly).
+    try {
+      const readKey = 'ms_read_' + bookId;
+      if (!sessionStorage.getItem(readKey)) {
+        sessionStorage.setItem(readKey, '1');
+        window._sb.rpc('inkwell_record_read', { p_book_id: bookId }).then(() => {}, () => {});
+      }
+    } catch (e) {}
 
   } catch(e) {
     console.error('Load book error:', e);
@@ -1609,6 +1614,22 @@ async function checkLikeStatus() {
   } catch(e) {}
 }
 
+// Like and comment totals are kept by database triggers. Read the real
+// numbers back instead of guessing them in the browser.
+async function refreshBookCounts() {
+  try {
+    const { data } = await window._sb.from('inkwell_books')
+      .select('total_likes, total_comments')
+      .eq('id', currentBook.id).single();
+    if (data) {
+      currentBook.total_likes = data.total_likes || 0;
+      currentBook.total_comments = data.total_comments || 0;
+      document.getElementById('stat-likes').textContent = formatNum(currentBook.total_likes);
+      document.getElementById('stat-comments').textContent = formatNum(currentBook.total_comments);
+    }
+  } catch (e) {}
+}
+
 document.getElementById('btn-like').addEventListener('click', async () => {
   if (!currentUser) { showToast('Sign in to like this story'); return; }
   if (!window._sb) return;
@@ -1618,10 +1639,7 @@ document.getElementById('btn-like').addEventListener('click', async () => {
         .delete().eq('user_id', currentUser.id)
         .eq('content_type','book').eq('content_id', currentBook.id);
       if (delErr) throw delErr;
-      const newLikes = Math.max(0, (currentBook.total_likes||0) - 1);
-      await window._sb.from('inkwell_books').update({total_likes: newLikes}).eq('id', currentBook.id);
-      currentBook.total_likes = newLikes;
-      document.getElementById('stat-likes').textContent = formatNum(newLikes);
+      await refreshBookCounts();
       document.getElementById('btn-like').classList.remove('liked');
       document.getElementById('btn-like').textContent = '♥ Like';
       isLiked = false;
@@ -1630,10 +1648,7 @@ document.getElementById('btn-like').addEventListener('click', async () => {
         user_id: currentUser.id, content_type: 'book', content_id: currentBook.id
       });
       if (likeErr) throw likeErr;
-      const newLikes = (currentBook.total_likes||0) + 1;
-      await window._sb.from('inkwell_books').update({total_likes: newLikes}).eq('id', currentBook.id);
-      currentBook.total_likes = newLikes;
-      document.getElementById('stat-likes').textContent = formatNum(newLikes);
+      await refreshBookCounts();
       document.getElementById('btn-like').classList.add('liked');
       document.getElementById('btn-like').textContent = '♥ Liked';
       isLiked = true;
@@ -1741,16 +1756,8 @@ document.getElementById('comment-submit').addEventListener('click', async () => 
     });
     if (insErr) throw insErr;
 
-    // Counter is best-effort. Track it locally so two comments in a row
-    // don't both write the same stale "+1".
-    const newCount = (currentBook.total_comments || 0) + 1;
-    const { error: cntErr } = await window._sb.from('inkwell_books')
-      .update({ total_comments: newCount })
-      .eq('id', currentBook.id);
-    if (!cntErr) {
-      currentBook.total_comments = newCount;
-      document.getElementById('stat-comments').textContent = formatNum(newCount);
-    }
+    // The comment total is kept by a database trigger; read it back.
+    await refreshBookCounts();
     input.value = '';
     showToast('Comment posted!');
     loadComments();

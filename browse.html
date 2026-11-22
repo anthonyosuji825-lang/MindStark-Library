@@ -2268,6 +2268,12 @@ html[data-theme="dark"] body .cs-card{background:#17100a!important;border:1px so
         <button class="genre-btn" data-topic="biography"><span class="g-icon">📜</span> Biography</button>
         <button class="genre-btn" data-topic="children"><span class="g-icon">🧒</span> Children</button>
         <button class="genre-btn" data-topic="drama"><span class="g-icon">🎬</span> Drama</button>
+        <button class="genre-btn" data-topic="science fiction"><span class="g-icon">🚀</span> Sci-Fi</button>
+        <button class="genre-btn" data-topic="fantasy"><span class="g-icon">🐉</span> Fantasy</button>
+        <button class="genre-btn" data-topic="thriller"><span class="g-icon">⚡</span> Thriller</button>
+        <button class="genre-btn" data-topic="horror"><span class="g-icon">👻</span> Horror</button>
+        <button class="genre-btn" data-topic="comedy"><span class="g-icon">😂</span> Comedy</button>
+        <button class="genre-btn" data-topic="young adult"><span class="g-icon">🌱</span> Young Adult</button>
       </div>
 
       <div class="sidebar-section">
@@ -2397,8 +2403,37 @@ html[data-theme="dark"] body .cs-card{background:#17100a!important;border:1px so
     /* ════════════════════════════════════════════
        LOAD ORIGINALS FROM SUPABASE
     ════════════════════════════════════════════ */
+    /* Browse topic -> Inkwell genre words. Inkwell's genre list is fixed in
+       inkwell-write.html; topics not listed here match the genre text directly. */
+    const INKWELL_TOPIC_MAP = {
+      'fiction':         ['fiction', 'romance', 'thriller', 'sci-fi', 'fantasy', 'mystery', 'horror',
+                          'adventure', 'historical', 'drama', 'comedy', 'young adult'],
+      'history':         ['history', 'historical'],
+      'science fiction': ['science fiction', 'sci-fi']
+    };
+    /* Browse topic -> the word Project Gutenberg understands, where they differ */
+    const GB_TOPIC_MAP = { 'young adult': 'juvenile fiction' };
+
+    /* supabase.js loads the Supabase SDK from a CDN, so window._sb can appear
+       after this page's script has already started. Wait for it (up to 5s)
+       instead of quietly showing no Originals. */
+    function whenSupabaseReady(timeoutMs = 5000) {
+      if (window._sb) return Promise.resolve(true);
+      return new Promise(resolve => {
+        let timer = null;
+        const finish = ok => {
+          clearTimeout(timer);
+          document.removeEventListener('supabase:ready', onReady);
+          resolve(ok);
+        };
+        const onReady = () => finish(true);
+        timer = setTimeout(() => finish(!!window._sb), timeoutMs);
+        document.addEventListener('supabase:ready', onReady);
+      });
+    }
+
     async function filterMyBooks() {
-      if (!window._sb) return [];
+      if (!(await whenSupabaseReady())) return [];
       try {
         let query = window._sb
           .from('inkwell_books')
@@ -2407,7 +2442,12 @@ html[data-theme="dark"] body .cs-card{background:#17100a!important;border:1px so
           .order('published_at', { ascending: false });
 
         if (searchTerm) query = query.ilike('title', `%${searchTerm}%`);
-        if (topic) query = query.ilike('genre', `%${topic}%`);
+        if (topic) {
+          const words = INKWELL_TOPIC_MAP[topic.toLowerCase()];
+          query = words
+            ? query.or(words.map(w => `genre.ilike.%${w}%`).join(','))
+            : query.ilike('genre', `%${topic}%`);
+        }
 
         const { data, error } = await query;
         if (error || !data) return [];
@@ -2548,7 +2588,7 @@ html[data-theme="dark"] body .cs-card{background:#17100a!important;border:1px so
       if (!fetchUrl) {
         const params = new URLSearchParams({ languages: 'en', sort });
         if (searchTerm) params.set('search', searchTerm);
-        if (topic)      params.set('topic', topic);
+        if (topic)      params.set('topic', GB_TOPIC_MAP[topic.toLowerCase()] || topic);
         fetchUrl = `${API}?${params}`;
       }
 
@@ -2631,7 +2671,10 @@ html[data-theme="dark"] body .cs-card{background:#17100a!important;border:1px so
         const downloads = book.download_count || 0;
 
         const coverUrl = book.formats?.['image/jpeg'] || '';
-        const readUrl  = pickReadableFormat(book.formats, id);
+        /* Inkwell books are read on their own story page, not in the Gutenberg reader */
+        const readUrl  = book._inkwell
+          ? `story.html?id=${encodeURIComponent(id)}`
+          : pickReadableFormat(book.formats, id);
 
         const isSaved = !!bookmarks[id];
         const p       = i % 8;
@@ -2794,6 +2837,8 @@ html[data-theme="dark"] body .cs-card{background:#17100a!important;border:1px so
           author:   book.author,
           cover:    book.cover   || '',
           genre:    book.genre   || 'Classic',
+          /* only send read_url when known, so a saved link is never overwritten with blank */
+          ...(book.readUrl ? { read_url: book.readUrl } : {}),
           added_at: book.addedAt ? new Date(book.addedAt).toISOString() : new Date().toISOString(),
         }, { onConflict: 'user_id,book_id' });
       }
@@ -2964,6 +3009,7 @@ html[data-theme="dark"] body .cs-card{background:#17100a!important;border:1px so
           author:   b.author,
           cover:    b.cover   || '',
           genre:    b.genre   || 'Classic',
+          readUrl:  b.read_url || '',
           status:   b.status  || 'unread',
           progress: b.progress || 0,
           addedAt:  new Date(b.added_at).getTime(),

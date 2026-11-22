@@ -582,12 +582,17 @@ async function deleteAllBooksFromSupabase() {
     }
 
     function openReader(book){
-      const readUrl = book.readUrl || `https://www.gutenberg.org/ebooks/${book.id}`;
-      sessionStorage.setItem('ms_book',JSON.stringify({id:book.id,title:book.title,author:book.author,cover:book.cover,readUrl:readUrl}));
       // Mark as reading if still unread
       let all=getBooks();
       const idx=all.findIndex(b=>b.id===book.id);
       if(idx>-1&&(all[idx].status==='unread'||!all[idx].status)){all[idx].status='reading';saveBooks(all);}
+      // MindStark Inkwell books (UUID ids) are read on their own story page
+      if(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(book.id))){
+        window.location.href='story.html?id='+encodeURIComponent(book.id);
+        return;
+      }
+      const readUrl = book.readUrl || `https://www.gutenberg.org/ebooks/${book.id}`;
+      sessionStorage.setItem('ms_book',JSON.stringify({id:book.id,title:book.title,author:book.author,cover:book.cover,readUrl:readUrl}));
       window.location.href='reader.html';
     }
 
