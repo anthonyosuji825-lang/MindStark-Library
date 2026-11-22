@@ -997,7 +997,7 @@ async function loadFollowState(creatorId) {
     return;
   }
   const { data } = await window._sb.from('inkwell_follows')
-    .select('id').eq('follower_id', currentUser.id).eq('creator_id', creatorId).single();
+    .select('id').eq('follower_id', currentUser.id).eq('creator_id', creatorId).maybeSingle();
   isFollowing = !!data;
   setFollowBtn();
   btn.addEventListener('click', toggleFollow);

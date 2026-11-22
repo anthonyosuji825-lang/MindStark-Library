@@ -4,7 +4,7 @@
 
   Your SECRET KEY lives in Netlify Environment Variables ONLY.
   Go to: Netlify Dashboard → Site Settings → Environment Variables
-  Add:   PAYSTACK_SECRET_KEY = sk_test_8d3b54e00d2eeb7fee73a2d64bb8a9a3b31020a5
+  Add:   PAYSTACK_SECRET_KEY = <your secret key from the Paystack dashboard>
   (swap sk_test_ for sk_live_ when going live)
 */
 const https = require('https');

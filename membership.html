@@ -366,6 +366,24 @@ html[data-theme="dark"] .modal-btn{background:var(--gold);color:#2b1c0e}
   .faq-item{padding:0 1rem}
 }
 </style>
+<style id="mobile-nav">
+/* Phone bottom navigation (same as Browse): icons over a soft fade, no box, no border */
+.m-bottom-nav{display:none}
+@media(max-width:900px){
+  body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+  .m-bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:180;display:flex;pointer-events:none;padding:1.5rem .4rem calc(.45rem + env(safe-area-inset-bottom));background:linear-gradient(to bottom,rgba(245,240,232,0),rgba(245,240,232,.94) 40%,#f5f0e8)}
+  .m-bottom-nav a{position:relative;pointer-events:auto;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;min-height:50px;padding:.3rem 0;color:#7d6a55;font-size:.68rem;font-weight:500;text-decoration:none;-webkit-tap-highlight-color:transparent}
+  .m-bottom-nav a svg{width:25px;height:25px;transition:transform .2s}
+  .m-bottom-nav a:active svg{transform:scale(.86)}
+  html[data-theme="dark"] .m-bottom-nav{background:linear-gradient(to bottom,rgba(15,10,5,0),rgba(15,10,5,.94) 40%,#0f0a05)}
+  html[data-theme="dark"] .m-bottom-nav a{color:#9d9078}
+  .toast{bottom:calc(100px + env(safe-area-inset-bottom))}
+}
+</style>
+<style id="toast-fix">
+/* The empty pop-up message must not peek above the phone bottom bar */
+@media(max-width:900px){.toast:not(.show){opacity:0!important;visibility:hidden!important;pointer-events:none}}
+</style>
 </head>
 <body>
 
@@ -647,6 +665,13 @@ html[data-theme="dark"] .modal-btn{background:var(--gold);color:#2b1c0e}
 
     <a href="browse.html" class="modal-btn" id="successCta">Start Reading Now →</a>
   </div>
+</div>
+
+<div class="m-bottom-nav" role="navigation" aria-label="Main">
+  <a href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Home</a>
+  <a href="browse.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6c-2-1.5-5-2-9-2v14c4 0 7 .5 9 2 2-1.5 5-2 9-2V4c-4 0-7 .5-9 2z"/><line x1="12" y1="6" x2="12" y2="20"/></svg>Browse</a>
+  <a href="book.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>My Books</a>
+  <a href="profile.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</a>
 </div>
 
 <div class="toast" id="toast"></div>

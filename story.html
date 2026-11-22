@@ -1651,7 +1651,7 @@ async function checkFollowStatus() {
   try {
     const { data } = await window._sb.from('inkwell_follows')
       .select('id').eq('follower_id', currentUser.id)
-      .eq('creator_id', currentCreator.id).single();
+      .eq('creator_id', currentCreator.id).maybeSingle();
     if (data) setFollowing(true);
   } catch(e) {}
 }
