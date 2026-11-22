@@ -781,25 +781,31 @@ html[data-theme="dark"] .modal-btn{background:var(--gold);color:#2b1c0e}
   async function verifyPayment(reference, plan) {
     showToast('⏳ Verifying your payment…');
     try {
+      /* The server checks the payment with Paystack AND switches the plan on in the database.
+         It needs to know who is asking, so send the sign-in token. */
+      await waitSBMembership();
+      const { data: sess } = await window._sb.auth.getSession();
+      const token = sess && sess.session && sess.session.access_token;
+      if (!token) { showToast('Please sign in again, then reopen this page to finish activating your plan.'); return; }
+
       const res  = await fetch('/api/paystack', {
         method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
         body:    JSON.stringify({ action: 'verify', reference })
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (data.verified) {
-        unlockMembership(plan, reference, data);
-        showSuccessModal(plan);
+        /* The server decides the plan, not the page. */
+        unlockMembership(data.plan, reference, data);
+        showSuccessModal(data.plan);
       } else {
-        showToast('❌ Payment could not be verified. Please contact support.');
+        showToast('❌ ' + (data.error || 'Payment could not be verified.') + ' Reference: ' + reference);
       }
     } catch(err) {
-      /* Paystack only fires callback on genuine success,
-         so we trust it even if our backend is unreachable */
-      console.warn('Backend verify failed, trusting Paystack callback:', err.message);
-      unlockMembership(plan, reference, {});
-      showSuccessModal(plan);
+      /* Never unlock on a failed check. The reference lets support confirm the payment. */
+      console.warn('Payment verification failed:', err.message);
+      showToast('We could not confirm your payment yet. Please reload this page, or contact support with reference ' + reference);
     }
   }
 
@@ -808,7 +814,7 @@ html[data-theme="dark"] .modal-btn{background:var(--gold);color:#2b1c0e}
     try {
       const user = JSON.parse(sessionStorage.getItem('ms_current_user') || '{}');
       const membership = {
-        plan, planName: PLANS[plan].name, billing,
+        plan, planName: PLANS[plan].name, billing: data.billing || billing,
         reference, paidAt: data.paid_at || new Date().toISOString(), active: true
       };
       user.membership = membership;
@@ -832,25 +838,6 @@ html[data-theme="dark"] .modal-btn{background:var(--gold);color:#2b1c0e}
     document.getElementById('connectPromoLink').style.display = isScholar ? 'flex' : 'none';
     document.getElementById('successModal').classList.add('show');
 
-    /* If Scholar — also update their Supabase profile so CONNECT gate works */
-    if (isScholar) {
-      updateScholarProfile();
-    }
-  }
-
-  /* Update membership in Supabase so CONNECT recognises them */
-  async function updateScholarProfile() {
-    try {
-      await waitSBMembership();
-      const { data: { user } } = await window._sb.auth.getUser();
-      if (!user) return;
-      await window._sb.from('profiles').update({
-        membership_plan:   'scholar',
-        membership_active: true,
-      }).eq('id', user.id);
-    } catch(e) {
-      console.warn('Could not update scholar profile:', e);
-    }
   }
 
   function waitSBMembership() {
