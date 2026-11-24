@@ -2002,6 +2002,10 @@ html[data-theme="dark"] body .cs-card{background:#17100a!important;border:1px so
 @media(max-width:860px) and (prefers-reduced-motion:reduce){body .genre-btn,body .bm-btn,body .read-btn{transition:none}}
 </style>
 
+<style id="toast-fix">
+/* The empty pop-up message must not peek above the phone bottom bar */
+@media(max-width:900px){.toast:not(.show){opacity:0!important;visibility:hidden!important;pointer-events:none}}
+</style>
 </head>
 <body>
 

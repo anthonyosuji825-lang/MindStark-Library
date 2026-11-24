@@ -786,6 +786,10 @@ html[data-theme="dark"] .notif-filter-tab.active{background:linear-gradient(180d
   .notif-page-list{border-radius:14px}
 }
 </style>
+<style id="toast-fix">
+/* The empty pop-up message must not peek above the phone bottom bar */
+@media(max-width:900px){.toast:not(.show){opacity:0!important;visibility:hidden!important;pointer-events:none}}
+</style>
 <body>
 
 <!-- ── NAV ───────────────────────────────────── -->

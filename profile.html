@@ -341,6 +341,10 @@
   }
   .connect-upgrade-link:hover { text-decoration: underline; }
   </style>
+<style id="toast-fix">
+/* The empty pop-up message must not peek above the phone bottom bar */
+@media(max-width:900px){.toast:not(.show){opacity:0!important;visibility:hidden!important;pointer-events:none}}
+</style>
 </head>
 
 <body>
