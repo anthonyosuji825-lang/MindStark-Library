@@ -1473,15 +1473,8 @@ async function loadBook() {
     checkLikeStatus();
     checkFollowStatus();
 
-    // Count one read per browser session. The database does the increment
-    // (readers are not allowed to update inkwell_books directly).
-    try {
-      const readKey = 'ms_read_' + bookId;
-      if (!sessionStorage.getItem(readKey)) {
-        sessionStorage.setItem(readKey, '1');
-        window._sb.rpc('inkwell_record_read', { p_book_id: bookId }).then(() => {}, () => {});
-      }
-    } catch (e) {}
+    // Reads are counted when a chapter is opened (see recordBookRead), not
+    // when this page loads.
 
   } catch(e) {
     console.error('Load book error:', e);
@@ -1768,8 +1761,55 @@ document.getElementById('comment-submit').addEventListener('click', async () => 
 });
 
 // ── READER ─────────────────────────────────────────────────────
+// A read is counted when someone opens a chapter, once per browser session
+// per book. The database does the increment and skips the book's author and
+// admins (readers are not allowed to update inkwell_books directly).
+function recordBookRead() {
+  try {
+    if (!currentBook || !window._sb) return;
+    const readKey = 'ms_read_' + currentBook.id;
+    if (sessionStorage.getItem(readKey)) return;
+    sessionStorage.setItem(readKey, '1');
+    window._sb.rpc('inkwell_record_read', { p_book_id: currentBook.id }).then(() => {}, () => {});
+  } catch (e) {}
+}
+
+/* Chapter text is written by authors, so it is rebuilt from an allow-list of
+   plain formatting tags before it is shown. Scripts, event handlers, images,
+   frames and every attribute are dropped; links keep only http, https and
+   mailto addresses. Same approach as the blog page (feeds.html). */
+const CH_ALLOWED = new Set(['P','BR','B','STRONG','I','EM','U','S','STRIKE','SUB','SUP','H1','H2','H3','H4','BLOCKQUOTE','UL','OL','LI','A','DIV','SPAN']);
+const CH_DROP_WHOLE = new Set(['SCRIPT','STYLE','IFRAME','OBJECT','EMBED','LINK','META','SVG','MATH','FORM','TEXTAREA','INPUT','BUTTON','SELECT','NOSCRIPT','TEMPLATE','IMG','VIDEO','AUDIO','BASE']);
+function chapterCleanNode(src, dst) {
+  for (const n of Array.from(src.childNodes)) {
+    if (n.nodeType === 3) { dst.appendChild(document.createTextNode(n.nodeValue)); continue; }
+    if (n.nodeType !== 1) continue;
+    const tag = n.tagName;
+    if (CH_DROP_WHOLE.has(tag)) continue;
+    if (!CH_ALLOWED.has(tag)) { chapterCleanNode(n, dst); continue; }   // unknown tag: keep its text only
+    const el = document.createElement(tag.toLowerCase());
+    if (tag === 'A') {
+      const href = (n.getAttribute('href') || '').trim();
+      if (/^(https?:|mailto:)/i.test(href)) {
+        el.setAttribute('href', href);
+        el.setAttribute('target', '_blank');
+        el.setAttribute('rel', 'noopener noreferrer nofollow ugc');
+      }
+    }
+    chapterCleanNode(n, el);
+    dst.appendChild(el);
+  }
+}
+function sanitizeChapterHtml(html) {
+  const doc = new DOMParser().parseFromString('<body>' + String(html || '') + '</body>', 'text/html');
+  const out = document.createElement('div');
+  chapterCleanNode(doc.body, out);
+  return out.innerHTML;
+}
+
 function openReader(chapterIdx = 0) {
   if (!chapters.length) { showToast('No chapters available yet'); return; }
+  recordBookRead();
   activeChapterIdx = chapterIdx;
   renderReaderChapter();
   document.getElementById('readerOverlay').classList.add('open');
@@ -1791,8 +1831,9 @@ function renderReaderChapter() {
   document.getElementById('chapter-nav-label').textContent = `Chapter ${activeChapterIdx+1} of ${chapters.length}`;
   document.getElementById('ttsTitle').textContent = ch.title || `Chapter ${ch.chapter_number}`;
   const contentEl = document.getElementById('reader-content');
-  // Sanitize content — strip inline style attributes that leak raw CSS
-  const sanitized = (ch.content || '').replace(/\s*style="[^"]*"/gi, '').replace(/\s*class="Mso[^"]*"/gi, '');
+  // Rebuild the chapter from an allow-list of plain formatting tags (no scripts,
+  // handlers, inline styles or classes can get through)
+  const sanitized = sanitizeChapterHtml(ch.content);
   contentEl.innerHTML = `
     <h2 style="font-size:1.5rem;font-weight:900;margin-bottom:1.5rem;line-height:1.2;">
       ${esc(ch.title || `Chapter ${ch.chapter_number}`)}
