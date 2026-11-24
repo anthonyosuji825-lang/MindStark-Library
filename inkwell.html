@@ -1496,7 +1496,7 @@ async function loadFeed() {
     ].sort((a,b)=>new Date(b.published_at)-new Date(a.published_at)).slice(0,6);
     if (!combined.length) { list.innerHTML = '<div class="empty-state"><span>✨</span>The Inkwell awaits its first creators.</div>'; return; }
     list.innerHTML = combined.map(item => `
-      <div class="feed-item">
+      <div class="feed-item"${item.type==='blog'?` style="cursor:pointer" role="link" tabindex="0" onclick="window.location.href='feeds.html?id=${encodeURIComponent(item.id)}'" onkeydown="if(event.key==='Enter')window.location.href='feeds.html?id=${encodeURIComponent(item.id)}'"`:''}>
         <div class="feed-top">
           <div class="feed-avatar">${esc((item.inkwell_creators?.display_name||'U')[0].toUpperCase())}</div>
           <span class="feed-author">${esc(item.inkwell_creators?.display_name||'A Creator')}</span>

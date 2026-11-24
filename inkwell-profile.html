@@ -1072,7 +1072,7 @@ async function loadBlogs(creatorId) {
     return;
   }
   container.innerHTML = data.map(b => `
-    <div class="profile-blog-item">
+    <div class="profile-blog-item" style="cursor:pointer" role="link" tabindex="0" onclick="window.location.href='feeds.html?id=${encodeURIComponent(b.id)}'" onkeydown="if(event.key==='Enter')window.location.href='feeds.html?id=${encodeURIComponent(b.id)}'">
       <div>
         <div class="profile-blog-title">${esc(b.title)}</div>
         <div class="profile-blog-meta">${esc(b.topic || '')} · ${timeAgo(b.published_at)}</div>

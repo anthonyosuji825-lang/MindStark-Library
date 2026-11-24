@@ -555,6 +555,64 @@ body.focus-mode .focus-exit { display: inline-flex; align-items: center; gap: .4
 /* primary buttons in dark mode match the rest of the site */
 html[data-theme="dark"] .btn-brown-sm,html[data-theme="dark"] .modal-submit,html[data-theme="dark"] .nbm-create,html[data-theme="dark"] .btn-brown-sm:hover,html[data-theme="dark"] .modal-submit:hover,html[data-theme="dark"] .nbm-create:hover{background:linear-gradient(180deg,#e0b058,#c8963e);color:#1e1208;box-shadow:0 10px 22px -12px rgba(200,150,62,.7)}
 html[data-theme="dark"] .btn-brown-sm:hover,html[data-theme="dark"] .modal-submit:hover,html[data-theme="dark"] .nbm-create:hover{filter:brightness(1.08)}
+
+/* ── BLOG WORKSPACE (only for creators who are both novelists and bloggers) ── */
+.ws-tabs{display:none;flex-shrink:0;gap:.35rem;padding:.45rem 1rem;background:var(--surface);border-bottom:1px solid var(--border);position:relative;z-index:2}
+.ws-tabs.show{display:flex}
+.ws-tab{border:1px solid transparent;background:transparent;color:var(--muted);font:600 .82rem 'DM Sans',sans-serif;padding:.45rem 1.1rem;border-radius:50px;cursor:pointer;display:inline-flex;align-items:center;gap:.45rem;transition:background .2s,color .2s}
+.ws-tab[aria-selected="true"]{background:var(--brown);color:var(--cream)}
+html[data-theme="dark"] .ws-tab[aria-selected="true"]{background:var(--gold);color:#1a1008}
+.ws-tab:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+body.blogs-mode .write-layout,body.blogs-mode .nav-center,body.blogs-mode #nav-save-btn,body.blogs-mode #nav-submit-btn,body.blogs-mode #actions-btn{display:none!important}
+#blog-ws{display:none;flex:1;min-height:0;position:relative;z-index:1;overflow:hidden}
+body.blogs-mode #blog-ws{display:flex}
+.bw-list{width:300px;flex-shrink:0;border-right:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;min-height:0}
+.bw-list-head{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.1rem .7rem}
+.bw-items{flex:1;min-height:0;overflow-y:auto;padding:0 .7rem 1rem;display:flex;flex-direction:column;gap:.45rem}
+.bw-item{text-align:left;width:100%;background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:.7rem .85rem;cursor:pointer;color:var(--text);font-family:inherit;transition:border-color .2s}
+.bw-item:hover,.bw-item.active{border-color:var(--gold)}
+.bw-item-t{font-weight:600;font-size:.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bw-item-m{display:flex;gap:.5rem;align-items:center;font-size:.72rem;color:var(--muted);margin-top:.2rem}
+.bw-pill{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:.12rem .5rem;border-radius:50px;background:color-mix(in srgb,var(--muted) 16%,transparent);color:var(--muted)}
+.bw-pill.live{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green)}
+.bw-empty{padding:1.2rem .6rem;text-align:center;color:var(--muted);font-size:.85rem}
+.bw-main{flex:1;min-width:0;display:flex;flex-direction:column}
+.bw-bar{flex-shrink:0;display:flex;align-items:center;gap:.5rem;padding:.55rem 1rem;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--card-bg) 85%,transparent);overflow-x:auto;white-space:nowrap}
+.bw-bar .sp{flex:1}
+.bw-status{font-size:.75rem;color:var(--muted)}
+.bw-status.saved{color:var(--green)}
+.bw-danger{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 40%,transparent);background:transparent}
+.bw-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:1.75rem 1.25rem 5rem;display:flex;justify-content:center;align-items:flex-start}
+.bw-paper{width:100%;max-width:760px;min-width:0;background:var(--paper);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);padding:2.4rem 3rem 3rem}
+.bw-meta{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:1rem;align-items:start;margin-bottom:1.4rem}
+.bw-title{width:100%;background:transparent;border:none;outline:none;font-family:'Playfair Display',serif;font-size:2rem;font-weight:800;line-height:1.2;color:var(--brown);padding:.1rem 0}
+.bw-title::placeholder{color:var(--muted);font-weight:400;font-style:italic;opacity:.6}
+.bw-cover{position:relative;aspect-ratio:3/2;border:1.5px dashed var(--border-bright);border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.72rem;text-align:center;cursor:pointer;background:var(--surface)}
+.bw-cover input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.bw-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
+#blog-editor{min-height:44vh;outline:none;font-family:'Lora','Playfair Display',Georgia,serif;font-size:1.1rem;line-height:1.9;color:var(--text);caret-color:var(--gold);overflow-wrap:anywhere}
+#blog-editor:empty::before{content:attr(data-placeholder);color:var(--muted);pointer-events:none;font-style:italic;opacity:.7}
+#blog-editor p,#blog-editor div{margin-bottom:1em}
+#blog-editor h1{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;margin:1.5em 0 .6em;line-height:1.2}
+#blog-editor h2{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;margin:1.3em 0 .5em}
+#blog-editor blockquote{border-left:3px solid var(--gold);padding:.15rem 0 .15rem 1.1rem;margin:1.3em 0;color:var(--muted);font-style:italic}
+#blog-editor a{color:var(--gold-deep)}
+.bw-foot{flex-shrink:0;display:flex;gap:.8rem;align-items:center;padding:.5rem 1rem;border-top:1px solid var(--border);font-size:.75rem;color:var(--muted)}
+.bw-posts-btn{display:none}
+.bw-hint{display:none}
+@media (max-width:767px){
+  .bw-list{position:absolute;z-index:5;inset:0;width:100%;border-right:0;transform:translateX(-100%);transition:transform .3s}
+  .bw-list.open{transform:none}
+  .bw-posts-btn{display:inline-flex}
+  .bw-scroll{padding:1rem .75rem 4rem}
+  .bw-paper{padding:1.4rem 1.1rem 2rem;border-radius:16px}
+  .bw-meta{grid-template-columns:minmax(0,1fr)}
+  .bw-cover{aspect-ratio:auto;height:110px}
+  .bw-bar{gap:.35rem;padding:.5rem .6rem}
+  .bw-bar .btn-sm{padding:.45rem .8rem}
+  .bw-title{font-size:1.55rem}
+  .bw-list:not(.open){visibility:hidden}
+}
 </style>
 </head>
 <body>
@@ -581,6 +639,12 @@ html[data-theme="dark"] .btn-brown-sm:hover,html[data-theme="dark"] .modal-submi
     </div>
   </div>
 </nav>
+
+<!-- ── WORKSPACE TABS (visible only to creators who are both novelists and bloggers) ── -->
+<div class="ws-tabs" id="ws-tabs" role="tablist" aria-label="Workspace" hidden>
+  <button class="ws-tab" role="tab" id="tab-story" aria-selected="true" type="button">Story</button>
+  <button class="ws-tab" role="tab" id="tab-blogs" aria-selected="false" type="button">Blogs</button>
+</div>
 
 <!-- ── MOBILE ACTION SHEET ────────────────────────────────────── -->
 <div class="mobile-sheet-overlay" id="sheetOverlay">
@@ -765,6 +829,66 @@ html[data-theme="dark"] .btn-brown-sm:hover,html[data-theme="dark"] .modal-submi
   </div><!-- /editor-area -->
 
 </div><!-- /write-layout -->
+
+<!-- ── BLOG WORKSPACE ─────────────────────────────────────────── -->
+<div id="blog-ws" role="tabpanel" aria-labelledby="tab-blogs">
+  <aside class="bw-list" id="bw-list">
+    <div class="bw-list-head">
+      <span class="panel-title">Your posts</span>
+      <button class="btn-sm btn-brown-sm" id="bw-new" type="button">+ New post</button>
+    </div>
+    <div class="bw-items" id="bw-items"></div>
+  </aside>
+  <section class="bw-main">
+    <div class="bw-bar">
+      <button class="btn-sm btn-outline-sm bw-posts-btn" id="bw-posts-btn" type="button">☰ Posts</button>
+      <span class="bw-status" id="bw-status">—</span>
+      <span class="sp"></span>
+      <a class="btn-sm btn-outline-sm" id="bw-view" href="#" target="_blank" rel="noopener" style="display:none;text-decoration:none">View</a>
+      <button class="btn-sm bw-danger" id="bw-delete" type="button">Delete</button>
+      <button class="btn-sm btn-outline-sm" id="bw-save" type="button">Save draft</button>
+      <button class="btn-sm btn-brown-sm" id="bw-publish" type="button">Publish</button>
+    </div>
+    <div class="toolbar" role="toolbar" aria-label="Blog formatting">
+      <div class="toolbar-group">
+        <button class="tool-btn" title="Undo" aria-label="Undo" data-bcmd="undo">↶</button>
+        <button class="tool-btn" title="Redo" aria-label="Redo" data-bcmd="redo">↷</button>
+      </div>
+      <div class="toolbar-divider"></div>
+      <div class="toolbar-group">
+        <button class="tool-btn" title="Bold" aria-label="Bold" data-bcmd="bold"><span class="tb-serif" style="font-weight:900">B</span></button>
+        <button class="tool-btn" title="Italic" aria-label="Italic" data-bcmd="italic"><span class="tb-serif" style="font-style:italic">I</span></button>
+        <button class="tool-btn" title="Underline" aria-label="Underline" data-bcmd="underline"><span class="tb-serif" style="text-decoration:underline">U</span></button>
+      </div>
+      <div class="toolbar-divider"></div>
+      <div class="toolbar-group">
+        <button class="tool-btn tool-btn-wide" data-bblock="h1">H1</button>
+        <button class="tool-btn tool-btn-wide" data-bblock="h2">H2</button>
+        <button class="tool-btn tool-btn-wide" title="Quote" data-bblock="blockquote">“ ”</button>
+        <button class="tool-btn tool-btn-wide" title="Paragraph" data-bblock="p">¶</button>
+        <button class="tool-btn tool-btn-wide" title="Bullet list" data-bcmd="insertUnorderedList">• List</button>
+        <button class="tool-btn tool-btn-wide" title="Link" id="bw-link">Link</button>
+      </div>
+    </div>
+    <div class="bw-scroll">
+      <div class="bw-paper">
+        <div class="bw-meta">
+          <div>
+            <input class="bw-title" id="bw-title" placeholder="Post title…" maxlength="140" autocomplete="off" aria-label="Post title"/>
+            <input class="form-input" id="bw-topic" placeholder="Topic (e.g. Writing craft, Reviews)" maxlength="60" autocomplete="off" aria-label="Topic" style="margin-top:.6rem"/>
+          </div>
+          <div class="bw-cover" id="bw-cover" title="Cover image">
+            <input type="file" id="bw-cover-input" accept="image/*" aria-label="Upload post cover"/>
+            <img id="bw-cover-img" alt="Post cover"/>
+            <span id="bw-cover-txt">Add cover</span>
+          </div>
+        </div>
+        <div id="blog-editor" contenteditable="true" data-placeholder="Write your post…" spellcheck="true"></div>
+      </div>
+    </div>
+    <div class="bw-foot"><span><b id="bw-words">0</b> words</span><span id="bw-read">—</span><span style="margin-left:auto">Autosaves when you pause</span></div>
+  </section>
+</div>
 
 <!-- ── SUBMIT MODAL ───────────────────────────────────────────── -->
 <div class="modal-overlay" id="submit-modal-overlay">
@@ -1506,6 +1630,159 @@ document.addEventListener('supabase:ready', async () => {
     clearTimeout(timers.get(el));
     timers.set(el, setTimeout(() => el.classList.remove('ms-scrolling'), 900));
   }, { capture: true, passive: true });
+})();
+</script>
+
+<script>
+/* ── BLOGS WORKSPACE ─ only creators whose type is "both" get the tab ── */
+(function () {
+  const $ = id => document.getElementById(id);
+  let posts = [], cur = null, dirty = false, timer = null, busy = false, coverFile = null, loaded = false;
+  const sb = () => window._sb;
+
+  function setStatus(t, ok) { const e = $('bw-status'); e.textContent = t; e.className = 'bw-status' + (ok ? ' saved' : ''); }
+  function words() { const t = ($('blog-editor').innerText || '').trim(); return t ? t.split(/\s+/).length : 0; }
+  function counts() { const w = words(); $('bw-words').textContent = w.toLocaleString(); $('bw-read').textContent = w ? '~' + Math.max(1, Math.round(w / 230)) + ' min read' : '—'; }
+  function mark() { dirty = true; setStatus('Unsaved changes'); clearTimeout(timer); timer = setTimeout(() => save(false), 30000); counts(); }
+
+  function ctype() { return currentCreator ? currentCreator.creator_type : null; }
+  function canUse() { return ctype() === 'both' || ctype() === 'blogger'; }   /* may write blogs */
+  function bloggerOnly() { return ctype() === 'blogger'; }                    /* no Story workspace */
+
+  function showTabs() {
+    const both = ctype() === 'both';
+    const bar = $('ws-tabs'); bar.hidden = !both; bar.classList.toggle('show', both);
+    if (bloggerOnly()) setTab('blogs'); else if (!both) setTab('story');
+  }
+
+  function setTab(which) {
+    if (which === 'blogs' && !canUse()) which = 'story';
+    if (which === 'story' && bloggerOnly()) which = 'blogs';
+    const b = which === 'blogs';
+    document.body.classList.toggle('blogs-mode', b);
+    $('tab-story').setAttribute('aria-selected', String(!b));
+    $('tab-blogs').setAttribute('aria-selected', String(b));
+    try { sessionStorage.setItem('ink-ws', which); } catch (e) {}
+    if (b && !loaded) loadPosts();
+  }
+
+  function renderList() {
+    const box = $('bw-items');
+    if (!posts.length) { box.innerHTML = '<div class="bw-empty">No posts yet. Start your first one.</div>'; return; }
+    box.innerHTML = posts.map(p => '<button class="bw-item' + (cur && cur.id === p.id ? ' active' : '') + '" data-id="' + esc(p.id) + '" type="button">' +
+      '<div class="bw-item-t">' + esc(p.title || 'Untitled post') + '</div><div class="bw-item-m"><span class="bw-pill' + (p.status === 'published' ? ' live' : '') + '">' + (p.status === 'published' ? 'Live' : 'Draft') + '</span><span>' + esc(p.topic || '') + '</span></div></button>').join('');
+  }
+
+  async function loadPosts() {
+    if (!sb() || !canUse()) return;
+    const { data, error } = await sb().from('inkwell_blogs').select('id,title,topic,status,cover_url,content,created_at,published_at')
+      .eq('creator_id', currentCreator.id).order('created_at', { ascending: false });
+    if (error) { setStatus('Could not load posts'); return; }
+    loaded = true; posts = data || [];
+    if (posts.length) openPost(posts[0]); else newPost();
+    renderList();
+  }
+
+  function fill(p) {
+    cur = p; coverFile = null; $('bw-cover-input').value = '';
+    $('bw-title').value = p.title || ''; $('bw-topic').value = p.topic || '';
+    $('blog-editor').innerHTML = p.content || '';
+    const img = $('bw-cover-img');
+    if (p.cover_url) { img.src = p.cover_url; img.style.display = 'block'; $('bw-cover-txt').style.display = 'none'; }
+    else { img.removeAttribute('src'); img.style.display = 'none'; $('bw-cover-txt').style.display = ''; }
+    const live = p.status === 'published';
+    $('bw-publish').textContent = live ? 'Update post' : 'Publish';
+    $('bw-delete').style.display = p.id ? '' : 'none';
+    viewLink(p);
+    dirty = false; setStatus(live ? 'Live' : (p.id ? 'Draft' : 'New post'), live); counts(); renderList();
+  }
+
+  function viewLink(p) { const a = $('bw-view'); const live = p && p.id && p.status === 'published'; a.style.display = live ? '' : 'none'; if (live) a.href = 'feeds.html?id=' + encodeURIComponent(p.id); }
+
+  async function openPost(p) {
+    if (dirty && !(await save(false))) return;
+    fill(p); $('bw-list').classList.remove('open');
+  }
+  function newPost() { fill({ id: null, title: '', topic: '', content: '', cover_url: null, status: 'draft' }); $('bw-list').classList.remove('open'); $('bw-title').focus(); }
+
+  async function uploadCover() {
+    if (!coverFile) return cur.cover_url || null;
+    const ext = (coverFile.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const path = 'blog-covers/' + currentUser.id + '_' + Date.now() + '.' + ext;
+    const { error } = await sb().storage.from('inkwell-files').upload(path, coverFile, { upsert: true });
+    if (error) throw error;
+    return sb().storage.from('inkwell-files').getPublicUrl(path).data.publicUrl;
+  }
+
+  /* status: 'draft' | 'published' | undefined (keep current) */
+  async function save(toast, status) {
+    if (busy || !canUse() || !sb()) return false;
+    const title = $('bw-title').value.trim();
+    if (status === 'published' && (!title || words() < 1)) { showToast('Add a title and some content before publishing'); return false; }
+    busy = true; setStatus('Saving…');
+    try {
+      const row = { title: title || 'Untitled post', topic: $('bw-topic').value.trim() || null, content: $('blog-editor').innerHTML, status: status || cur.status || 'draft' };
+      row.cover_url = await uploadCover();
+      let res;
+      if (cur.id) res = await sb().from('inkwell_blogs').update(row).eq('id', cur.id).select().single();
+      else res = await sb().from('inkwell_blogs').insert({ ...row, creator_id: currentCreator.id }).select().single();
+      if (res.error) throw res.error;
+      const i = posts.findIndex(p => p.id === res.data.id);
+      if (i >= 0) posts[i] = res.data; else posts.unshift(res.data);
+      cur = res.data; coverFile = null; dirty = false; clearTimeout(timer);
+      const live = cur.status === 'published';
+      $('bw-publish').textContent = live ? 'Update post' : 'Publish';
+      $('bw-delete').style.display = ''; viewLink(cur);
+      setStatus(live ? 'Live ✓' : 'Saved ✓', true); renderList();
+      if (toast) showToast(status === 'published' ? 'Post published' : status === 'draft' ? 'Moved back to drafts' : 'Draft saved');
+      return true;
+    } catch (e) { setStatus('Save failed'); showToast('Could not save. Please try again.'); return false; }
+    finally { busy = false; }
+  }
+
+  async function remove() {
+    if (!cur || !cur.id) return;
+    if (!confirm('Delete this post permanently?')) return;
+    const { error } = await sb().from('inkwell_blogs').delete().eq('id', cur.id);
+    if (error) { showToast('Could not delete'); return; }
+    posts = posts.filter(p => p.id !== cur.id); dirty = false; showToast('Post deleted');
+    if (posts.length) fill(posts[0]); else newPost();
+  }
+
+  $('tab-story').addEventListener('click', () => setTab('story'));
+  $('tab-blogs').addEventListener('click', () => setTab('blogs'));
+  $('bw-new').addEventListener('click', async () => { if (dirty && !(await save(false))) return; newPost(); });
+  $('bw-items').addEventListener('click', e => { const b = e.target.closest('.bw-item'); if (!b) return; const p = posts.find(x => x.id === b.dataset.id); if (p && p !== cur) openPost(p); else $('bw-list').classList.remove('open'); });
+  $('bw-posts-btn').addEventListener('click', () => $('bw-list').classList.toggle('open'));
+  $('bw-save').addEventListener('click', () => save(true));
+  $('bw-publish').addEventListener('click', () => save(true, 'published'));
+  $('bw-delete').addEventListener('click', remove);
+  ['bw-title', 'bw-topic'].forEach(id => $(id).addEventListener('input', mark));
+  $('blog-editor').addEventListener('input', mark);
+  $('blog-editor').addEventListener('keydown', e => { if (e.key === 'Tab') { e.preventDefault(); document.execCommand('insertHTML', false, '&nbsp;&nbsp;&nbsp;&nbsp;'); } });
+  $('blog-editor').addEventListener('paste', e => { e.preventDefault(); const t = (e.clipboardData || window.clipboardData).getData('text/plain'); document.execCommand('insertText', false, t); });
+  $('bw-cover-input').addEventListener('change', function () {
+    const f = this.files[0]; if (!f) return; coverFile = f;
+    const r = new FileReader(); r.onload = ev => { $('bw-cover-img').src = ev.target.result; $('bw-cover-img').style.display = 'block'; $('bw-cover-txt').style.display = 'none'; }; r.readAsDataURL(f); mark();
+  });
+  document.querySelectorAll('[data-bcmd]').forEach(b => b.addEventListener('click', () => { document.execCommand(b.dataset.bcmd, false, null); $('blog-editor').focus(); mark(); }));
+  document.querySelectorAll('[data-bblock]').forEach(b => b.addEventListener('click', () => { document.execCommand('formatBlock', false, b.dataset.bblock); $('blog-editor').focus(); mark(); }));
+  $('bw-link').addEventListener('click', () => {
+    const u = prompt('Link address (https://…)'); if (!u) return;
+    if (!/^https?:\/\//i.test(u)) { showToast('Links must start with http:// or https://'); return; }
+    document.execCommand('createLink', false, u); $('blog-editor').focus(); mark();
+  });
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's' && document.body.classList.contains('blogs-mode')) { e.preventDefault(); e.stopImmediatePropagation(); save(true); }
+  }, true);
+  window.addEventListener('beforeunload', e => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+
+  /* The Story code decides who the creator is; wait for it, then reveal the tab only for "both". */
+  let tries = 0;
+  (function wait() {
+    if (currentCreator) { showTabs(); if (!bloggerOnly()) try { if (sessionStorage.getItem('ink-ws') === 'blogs') setTab('blogs'); } catch (e) {} return; }
+    if (++tries < 100) setTimeout(wait, 150);
+  })();
 })();
 </script>
 <script src="nav.js"></script>

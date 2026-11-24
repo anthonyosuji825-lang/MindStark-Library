@@ -1711,13 +1711,7 @@ async function loadComments() {
   const list = document.getElementById('comment-list');
   try {
     if (!window._sb) return;
-    const { data: comments } = await window._sb
-      .from('inkwell_comments')
-      .select('*, profiles(full_name, mindstark_id)')
-      .eq('content_type', 'book')
-      .eq('content_id', currentBook.id)
-      .order('created_at', { ascending: false })
-      .limit(20);
+    const { data: comments } = await window._sb.rpc('inkwell_content_comments', { p_type: 'book', p_id: currentBook.id, p_limit: 20 });
 
     if (!comments?.length) {
       list.innerHTML = '<div class="empty-comments">No comments yet. Be the first to share your thoughts!</div>';
@@ -1726,8 +1720,8 @@ async function loadComments() {
     list.innerHTML = comments.map(c => `
       <div class="comment-card">
         <div class="comment-top">
-          <div class="comment-avatar">${esc((c.profiles?.full_name||'U')[0].toUpperCase())}</div>
-          <span class="comment-author">${esc(c.profiles?.mindstark_id || c.profiles?.full_name || 'Reader')}</span>
+          <div class="comment-avatar">${esc((c.author_name||'U')[0].toUpperCase())}</div>
+          <span class="comment-author">${esc(c.author_name || 'Reader')}</span>
           <span class="comment-time">${timeAgo(c.created_at)}</span>
         </div>
         <div class="comment-text">${esc(c.comment_text)}</div>
@@ -2340,11 +2334,7 @@ async function loadChapterComments(chapterId) {
   container.innerHTML = '';
   if (!window._sb || !chapterId) return;
   try {
-    const { data: comments } = await window._sb
-      .from('inkwell_comments')
-      .select('*, profiles(full_name, mindstark_id)')
-      .eq('content_type', 'chapter').eq('content_id', chapterId)
-      .order('created_at', { ascending: false }).limit(10);
+    const { data: comments } = await window._sb.rpc('inkwell_content_comments', { p_type: 'chapter', p_id: chapterId, p_limit: 10 });
     const loginPrompt = currentUser ? '' : `<p style="font-size:.82rem;color:rgba(200,150,62,.6);margin-bottom:.75rem;"><a href="signin.html" style="color:var(--gold);text-decoration:none;font-weight:600;">Sign in</a> to comment.</p>`;
     const commentForm = currentUser ? `
       <div style="margin-bottom:1rem;">
@@ -2354,8 +2344,8 @@ async function loadChapterComments(chapterId) {
     const commentsHtml = comments?.length ? comments.map(c => `
       <div style="padding:.85rem;background:rgba(200,150,62,.04);border:1px solid rgba(200,150,62,.12);border-radius:10px;margin-bottom:.6rem;">
         <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;">
-          <div style="width:26px;height:26px;border-radius:50%;background:rgba(200,150,62,.15);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:var(--gold);">${(c.profiles?.full_name||'U')[0].toUpperCase()}</div>
-          <span style="font-size:.78rem;font-weight:600;color:inherit;">${esc(c.profiles?.mindstark_id||c.profiles?.full_name||'Reader')}</span>
+          <div style="width:26px;height:26px;border-radius:50%;background:rgba(200,150,62,.15);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:var(--gold);">${esc((c.author_name||'U')[0].toUpperCase())}</div>
+          <span style="font-size:.78rem;font-weight:600;color:inherit;">${esc(c.author_name||'Reader')}</span>
           <span style="font-size:.68rem;opacity:.45;margin-left:auto;">${timeAgo(c.created_at)}</span>
         </div>
         <div style="font-size:.85rem;line-height:1.6;">${esc(c.comment_text)}</div>

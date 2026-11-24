@@ -78,10 +78,10 @@
       backdrop-filter: blur(28px) saturate(1.8);
       -webkit-backdrop-filter: blur(28px) saturate(1.8);
       border-left: 1px solid rgba(200,150,62,0.2);
-      box-shadow: -20px 0 60px rgba(59,42,26,0.25);
+      box-shadow: none;
       display: flex; flex-direction: column;
-      transform: translateX(100%);
-      transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+      transform: translateX(100%); visibility: hidden;
+      transition: transform 0.4s cubic-bezier(0.4,0,0.2,1), box-shadow 0.4s, visibility 0s linear 0.4s;
       pointer-events: all; overflow: hidden;
     }
     #archer-sidebar::before {
@@ -89,7 +89,7 @@
       background: linear-gradient(160deg, rgba(245,240,232,0.55) 0%, rgba(237,229,213,0.35) 100%);
       pointer-events: none; z-index: 0;
     }
-    #archer-sidebar.open { transform: translateX(0); }
+    #archer-sidebar.open { transform: translateX(0); visibility: visible; box-shadow: -20px 0 60px rgba(59,42,26,0.25); transition-delay: 0s; }
 
     #archer-header {
       position: relative; z-index: 1;

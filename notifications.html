@@ -830,6 +830,7 @@ html[data-theme="dark"] .notif-filter-tab.active{background:linear-gradient(180d
     <button class="notif-filter-tab active" data-filter="all" onclick="setFilter('all')">All</button>
     <button class="notif-filter-tab" data-filter="new_book" onclick="setFilter('new_book')">New Books</button>
     <button class="notif-filter-tab" data-filter="new_follower" onclick="setFilter('new_follower')">Followers</button>
+    <button class="notif-filter-tab" data-filter="reactions" onclick="setFilter('reactions')">Likes &amp; Comments</button>
     <button class="notif-filter-tab" data-filter="chapter_update" onclick="setFilter('chapter_update')">Chapter Updates</button>
     <button class="notif-filter-tab" data-filter="announcement" onclick="setFilter('announcement')">MindStark</button>
   </div>
@@ -902,7 +903,7 @@ function setFilter(f) {
   render();
 }
 
-const TYPE_LABEL = { new_book: 'New Book', new_follower: 'New Follower', chapter_update: 'Chapter Update', announcement: 'MindStark', application_status: 'Application Update', book_status: 'Book Update' };
+const TYPE_LABEL = { new_book: 'New Book', new_follower: 'New Follower', chapter_update: 'Chapter Update', announcement: 'MindStark', application_status: 'Application Update', book_status: 'Book Update', new_like: 'New Like', new_comment: 'New Comment' };
 // The "MindStark" tab groups platform announcements together with
 // application/book decision updates — all editorial/platform-side news.
 const MINDSTARK_GROUP = ['announcement', 'application_status', 'book_status'];
@@ -910,6 +911,7 @@ const MINDSTARK_GROUP = ['announcement', 'application_status', 'book_status'];
 function render() {
   const list = document.getElementById('notif-page-list');
   const filtered = activeFilter === 'all' ? allNotifs
+    : activeFilter === 'reactions' ? allNotifs.filter(n => n.type === 'new_like' || n.type === 'new_comment')
     : activeFilter === 'announcement' ? allNotifs.filter(n => MINDSTARK_GROUP.includes(n.type))
     : allNotifs.filter(n => n.type === activeFilter);
 
