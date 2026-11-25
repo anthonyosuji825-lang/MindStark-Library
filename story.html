@@ -1456,13 +1456,14 @@ async function loadBook() {
     currentCreator = book.inkwell_creators;
 
     // Load chapters
-    const { data: chaps } = await window._sb
-      .from('inkwell_chapters')
-      .select('*')
-      .eq('book_id', bookId)
-      .order('chapter_number', { ascending: true });
-
-    chapters = chaps || [];
+    // The list always shows every chapter. The text of a locked chapter never
+    // leaves the database (see the chapter lock rule), so it is simply absent here.
+    const [{ data: meta }, { data: open }] = await Promise.all([
+      window._sb.rpc('inkwell_chapter_list', { p_book_id: bookId }),
+      window._sb.from('inkwell_chapters').select('id,content').eq('book_id', bookId)
+    ]);
+    const text = {}; (open || []).forEach(c => { text[c.id] = c.content; });
+    chapters = (meta || []).map(m => ({ id: m.id, chapter_number: m.chapter_number, title: m.title, locked: !!m.locked, content: m.locked ? null : (text[m.id] || '') }));
 
     // Render everything
     renderBookInfo();
@@ -1473,15 +1474,8 @@ async function loadBook() {
     checkLikeStatus();
     checkFollowStatus();
 
-    // Count one read per browser session. The database does the increment
-    // (readers are not allowed to update inkwell_books directly).
-    try {
-      const readKey = 'ms_read_' + bookId;
-      if (!sessionStorage.getItem(readKey)) {
-        sessionStorage.setItem(readKey, '1');
-        window._sb.rpc('inkwell_record_read', { p_book_id: bookId }).then(() => {}, () => {});
-      }
-    } catch (e) {}
+    // Reads are counted when a chapter is opened (see recordBookRead), not
+    // when this page loads.
 
   } catch(e) {
     console.error('Load book error:', e);
@@ -1541,9 +1535,9 @@ function renderChapters() {
       <div class="chapter-num">Ch.${String(ch.chapter_number).padStart(2,'0')}</div>
       <div class="chapter-info">
         <div class="chapter-name">${esc(ch.title || `Chapter ${ch.chapter_number}`)}</div>
-        <div class="chapter-words">${countWords(ch.content || '')} words</div>
+        <div class="chapter-words">${ch.locked ? 'Members only' : countWords(ch.content || '') + ' words'}</div>
       </div>
-      <div class="chapter-read-btn">Read →</div>
+      <div class="chapter-read-btn">${ch.locked ? '🔒 Unlock' : 'Read →'}</div>
     </div>
   `).join('');
 }
@@ -1768,8 +1762,79 @@ document.getElementById('comment-submit').addEventListener('click', async () => 
 });
 
 // ── READER ─────────────────────────────────────────────────────
+// A read is counted when someone opens a chapter, once per browser session
+// per book. The database does the increment and skips the book's author and
+// admins (readers are not allowed to update inkwell_books directly).
+function recordBookRead() {
+  try {
+    if (!currentBook || !window._sb) return;
+    const readKey = 'ms_read_' + currentBook.id;
+    if (sessionStorage.getItem(readKey)) return;
+    sessionStorage.setItem(readKey, '1');
+    window._sb.rpc('inkwell_record_read', { p_book_id: currentBook.id }).then(() => {}, () => {});
+  } catch (e) {}
+}
+
+/* Chapter text is written by authors, so it is rebuilt from an allow-list of
+   plain formatting tags before it is shown. Scripts, event handlers, images,
+   frames and every attribute are dropped; links keep only http, https and
+   mailto addresses. Same approach as the blog page (feeds.html). */
+const CH_ALLOWED = new Set(['P','BR','B','STRONG','I','EM','U','S','STRIKE','SUB','SUP','H1','H2','H3','H4','BLOCKQUOTE','UL','OL','LI','A','DIV','SPAN']);
+const CH_DROP_WHOLE = new Set(['SCRIPT','STYLE','IFRAME','OBJECT','EMBED','LINK','META','SVG','MATH','FORM','TEXTAREA','INPUT','BUTTON','SELECT','NOSCRIPT','TEMPLATE','IMG','VIDEO','AUDIO','BASE']);
+function chapterCleanNode(src, dst) {
+  for (const n of Array.from(src.childNodes)) {
+    if (n.nodeType === 3) { dst.appendChild(document.createTextNode(n.nodeValue)); continue; }
+    if (n.nodeType !== 1) continue;
+    const tag = n.tagName;
+    if (CH_DROP_WHOLE.has(tag)) continue;
+    if (!CH_ALLOWED.has(tag)) { chapterCleanNode(n, dst); continue; }   // unknown tag: keep its text only
+    const el = document.createElement(tag.toLowerCase());
+    if (tag === 'A') {
+      const href = (n.getAttribute('href') || '').trim();
+      if (/^(https?:|mailto:)/i.test(href)) {
+        el.setAttribute('href', href);
+        el.setAttribute('target', '_blank');
+        el.setAttribute('rel', 'noopener noreferrer nofollow ugc');
+      }
+    }
+    chapterCleanNode(n, el);
+    dst.appendChild(el);
+  }
+}
+function sanitizeChapterHtml(html) {
+  const doc = new DOMParser().parseFromString('<body>' + String(html || '') + '</body>', 'text/html');
+  const out = document.createElement('div');
+  chapterCleanNode(doc.body, out);
+  return out.innerHTML;
+}
+
+// ── PAYWALL (chapters after the free ones need Pro or Scholar) ─
+function showPaywall() {
+  if (navigator.onLine === false) { showToast("You're offline. Reconnect to keep reading."); return; }
+  let m = document.getElementById('paywall');
+  if (!m) {
+    m = document.createElement('div');
+    m.id = 'paywall';
+    m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true');
+    m.style.cssText = 'position:fixed;inset:0;z-index:2000;background:rgba(20,12,5,.6);display:flex;align-items:center;justify-content:center;padding:1rem';
+    m.innerHTML = '<div style="background:var(--card-bg,#fff);color:var(--text,#2c1e0f);border:1px solid var(--border-bright,rgba(200,150,62,.4));border-radius:20px;max-width:420px;width:100%;padding:1.8rem;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.4)">' +
+      '<div style="font-size:2rem">🔒</div>' +
+      '<h3 style="font-family:\'Playfair Display\',serif;font-size:1.4rem;margin:.4rem 0">Keep reading with a membership</h3>' +
+      '<p style="font-size:.92rem;color:var(--muted,#7a6652);margin-bottom:1.2rem">The first chapters are free. Pro and Scholar members unlock every chapter of every MindStark Original.</p>' +
+      '<a id="paywall-go" href="membership.html" style="display:block;background:var(--gold,#c8963e);color:#1e1208;font-weight:700;text-decoration:none;padding:.8rem 1rem;border-radius:50px;margin-bottom:.6rem">See membership plans</a>' +
+      '<button id="paywall-close" type="button" style="background:none;border:0;color:var(--muted,#7a6652);cursor:pointer;font:inherit;padding:.4rem">Not now</button></div>';
+    document.body.appendChild(m);
+    m.addEventListener('click', e => { if (e.target === m || e.target.id === 'paywall-close') m.style.display = 'none'; });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') m.style.display = 'none'; });
+  }
+  document.getElementById('paywall-go').href = 'membership.html' + (currentBook ? '?src_book=' + encodeURIComponent(currentBook.id) : '');
+  m.style.display = 'flex';
+}
+
 function openReader(chapterIdx = 0) {
   if (!chapters.length) { showToast('No chapters available yet'); return; }
+  if (chapters[chapterIdx] && chapters[chapterIdx].locked) { showPaywall(); return; }
+  recordBookRead();
   activeChapterIdx = chapterIdx;
   renderReaderChapter();
   document.getElementById('readerOverlay').classList.add('open');
@@ -1791,8 +1856,9 @@ function renderReaderChapter() {
   document.getElementById('chapter-nav-label').textContent = `Chapter ${activeChapterIdx+1} of ${chapters.length}`;
   document.getElementById('ttsTitle').textContent = ch.title || `Chapter ${ch.chapter_number}`;
   const contentEl = document.getElementById('reader-content');
-  // Sanitize content — strip inline style attributes that leak raw CSS
-  const sanitized = (ch.content || '').replace(/\s*style="[^"]*"/gi, '').replace(/\s*class="Mso[^"]*"/gi, '');
+  // Rebuild the chapter from an allow-list of plain formatting tags (no scripts,
+  // handlers, inline styles or classes can get through)
+  const sanitized = sanitizeChapterHtml(ch.content);
   contentEl.innerHTML = `
     <h2 style="font-size:1.5rem;font-weight:900;margin-bottom:1.5rem;line-height:1.2;">
       ${esc(ch.title || `Chapter ${ch.chapter_number}`)}
@@ -1814,6 +1880,7 @@ function renderReaderChapter() {
 function navigateChapter(dir) {
   const newIdx = activeChapterIdx + dir;
   if (newIdx < 0 || newIdx >= chapters.length) return;
+  if (chapters[newIdx].locked) { showPaywall(); return; }
   activeChapterIdx = newIdx;
   renderReaderChapter();
 }
@@ -1921,7 +1988,7 @@ function downloadBook() {
   </head><body>
   <h1>${esc(currentBook.title)}</h1>
   <p>by ${esc(currentCreator?.display_name || 'Unknown')}</p><hr>`;
-  chapters.forEach(ch => {
+  chapters.filter(ch => !ch.locked).forEach(ch => {
     html += `<h2>${esc(ch.title || `Chapter ${ch.chapter_number}`)}</h2>${ch.content || ''}<hr>`;
   });
   html += '</body></html>';

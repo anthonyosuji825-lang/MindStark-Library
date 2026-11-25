@@ -9,6 +9,8 @@
 //   SUPABASE_SERVICE_ROLE_KEY  the SECRET key: Supabase -> Settings -> API Keys -> "Secret keys" -> default (sb_secret_...).
 //                              The old service_role key also works. SERVER ONLY, never in the repo.
 
+const { recordConversion } = require('../lib/attribution');
+
 const PLANS = {
   pro:     { monthly: 250000, annual: 2400000 },   // kobo
   scholar: { monthly: 500000, annual: 4800000 },
@@ -79,6 +81,10 @@ module.exports = async (req, res) => {
     const dupRows = dup.ok ? await dup.json() : [];
     if (dupRows.length) return json(res, 409, { verified: false, error: 'This payment was already used.' });
 
+    // Was this reader already a paying member before? (a first payment is what a book can be credited for)
+    const pr = await fetch(`${SB_URL}/rest/v1/profiles?select=membership_reference&id=eq.${user.id}&limit=1`, { headers: hdr });
+    const priorReference = pr.ok ? ((await pr.json())[0] || {}).membership_reference : 'unknown';
+
     // 4) Switch the membership on.
     const paidAt = txn.paid_at ? new Date(txn.paid_at) : new Date();
     const expiry = new Date(paidAt.getTime() + DAYS[cycle] * 86400000).toISOString();
@@ -93,6 +99,8 @@ module.exports = async (req, res) => {
       }),
     });
     if (!up.ok) return json(res, 500, { verified: false, error: 'Payment confirmed but we could not activate your plan. Contact support with reference ' + reference });
+
+    await recordConversion({ SB_URL, hdr, userId: user.id, priorReference, reference, metadata: txn.metadata, plan, cycle, amount: txn.amount, paidAt: txn.paid_at });
 
     return json(res, 200, { verified: true, plan, billing: cycle, reference, paid_at: txn.paid_at || null, expiry });
   } catch (err) {

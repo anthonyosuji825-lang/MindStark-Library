@@ -726,6 +726,23 @@ html[data-theme="dark"] .modal-btn{background:var(--gold);color:#2b1c0e}
     } catch(e) { return null; }
   }
 
+  /* ── WHICH BOOK SENT THE READER HERE? ───── */
+  /* story.html's paywall links here with ?src_book=<id>. Remember it for 7 days (last book wins)
+     and send it with the payment so the server can credit that book if this is a first subscription. */
+  (function () {
+    try {
+      const id = new URLSearchParams(location.search).get('src_book');
+      if (id && /^[0-9a-f-]{36}$/i.test(id)) localStorage.setItem('ms_src_book', JSON.stringify({ id, t: Date.now() }));
+    } catch (e) {}
+  })();
+  function srcBook() {
+    try {
+      const o = JSON.parse(localStorage.getItem('ms_src_book') || 'null');
+      if (o && Date.now() - o.t < 7 * 864e5 && /^[0-9a-f-]{36}$/i.test(o.id)) return o.id;
+    } catch (e) {}
+    return undefined;
+  }
+
   /* ── START CHECKOUT ────────────────────── */
   function startCheckout(plan) {
     const p     = PLANS[plan];
@@ -757,6 +774,7 @@ html[data-theme="dark"] .modal-btn{background:var(--gold);color:#2b1c0e}
         plan_type:     plan,
         plan_name:     p.name,
         billing_cycle: billing,
+        src_book:      srcBook(),
         custom_fields: [
           { display_name:'Plan',    variable_name:'plan',    value: p.name  },
           { display_name:'Billing', variable_name:'billing', value: billing },
