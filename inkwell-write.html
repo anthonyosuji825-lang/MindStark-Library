@@ -633,8 +633,11 @@ body.blogs-mode #blog-ws{display:flex}
 
 /* inline images: the frame you can drag, reshape and align */
 #blog-editor figure.ms-img{position:relative;width:calc(var(--w,100) * 1%);max-width:100%;margin:1.7em auto;cursor:pointer;border-radius:12px;outline:2px solid transparent;outline-offset:5px;transition:outline-color .15s;-webkit-tap-highlight-color:transparent}
-#blog-editor figure.ms-img[data-a="left"]{margin-left:0;margin-right:auto}
-#blog-editor figure.ms-img[data-a="right"]{margin-left:auto;margin-right:0}
+#blog-editor figure.ms-img[data-a="left"]{float:left;width:calc(var(--w,100) * 1% - 1.4em);margin:.45em 1.4em 1.1em 0}
+#blog-editor figure.ms-img[data-a="right"]{float:right;width:calc(var(--w,100) * 1% - 1.4em);margin:.45em 0 1.1em 1.4em}
+#blog-editor::after{content:"";display:block;clear:both}
+#blog-editor .ms-clr{clear:both;height:0;margin:0;padding:0}
+#blog-editor h1,#blog-editor h2,#blog-editor blockquote{clear:both}
 #blog-editor figure.ms-img:hover{outline-color:color-mix(in srgb,var(--gold) 45%,transparent)}
 #blog-editor figure.ms-img.sel{outline-color:var(--gold)}
 #blog-editor figure.ms-img:focus-visible{outline-color:var(--gold)}
@@ -647,9 +650,11 @@ body.blogs-mode #blog-ws{display:flex}
 #blog-editor figure.ms-img[data-s="circle"] img{border-radius:50%}
 #blog-editor figure.ms-img.uploading img{opacity:.4}
 #blog-editor figure.ms-img.uploading::after{content:"Uploading…";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:600 .8rem 'DM Sans',sans-serif;color:var(--brown);background:var(--card-bg);border:1px solid var(--border-bright);padding:.35rem .9rem;border-radius:50px}
-.ms-h{position:absolute;bottom:-11px;width:22px;height:22px;border-radius:50%;background:var(--gold);border:3px solid var(--paper);box-shadow:0 2px 8px rgba(0,0,0,.28);cursor:ew-resize;touch-action:none;display:none;z-index:2}
-.ms-h.l{left:-11px}.ms-h.r{right:-11px}
-figure.ms-img.sel:not(.uploading) .ms-h{display:block}
+.ms-h{position:absolute;top:clamp(46px,24%,170px);width:14px;height:52px;margin-top:-26px;border-radius:9px;background:var(--gold);border:3px solid var(--paper);box-shadow:0 2px 10px rgba(0,0,0,.35);cursor:ew-resize;touch-action:none;display:none;z-index:2}
+.ms-h::before{content:"";position:absolute;inset:-10px -12px}
+.ms-h::after{content:"";position:absolute;left:50%;top:14px;bottom:14px;width:2px;margin-left:-1px;border-radius:2px;background:rgba(30,18,8,.55)}
+.ms-h.l{left:-9px}.ms-h.r{right:-9px}
+figure.ms-img.sel:not(.uploading) .ms-h,figure.ms-img:hover:not(.uploading) .ms-h{display:block}
 .ms-badge{position:absolute;left:50%;top:.6rem;transform:translateX(-50%);background:rgba(26,16,8,.8);color:#fff7e6;font:700 .75rem 'DM Sans',sans-serif;padding:.2rem .6rem;border-radius:50px;display:none;pointer-events:none}
 figure.ms-img.sizing .ms-badge{display:block}
 figure.ms-img.sizing img{transition:none}
@@ -671,6 +676,7 @@ figure.ms-img.sizing img{transition:none}
 .sw{width:14px;height:14px;border:2px solid currentColor;display:inline-block}
 .sw.sq{border-radius:2px}.sw.rd{border-radius:5px}.sw.ci{border-radius:50%}
 #ii-alt{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.5rem .65rem;color:var(--text);font:.82rem 'DM Sans',sans-serif}
+.ii-tip{font-size:.72rem;color:var(--muted);margin:-.2rem 0 0 calc(62px + .6rem);line-height:1.4}
 .ii-acts{display:flex;gap:.4rem;justify-content:space-between;padding-top:.15rem}
 .ii-acts button{border:1px solid var(--border);background:var(--surface);color:var(--text);font:600 .76rem 'DM Sans',sans-serif;padding:.42rem .75rem;border-radius:50px;cursor:pointer}
 .ii-acts button:hover{border-color:var(--gold)}
@@ -693,7 +699,8 @@ body.insp-open .bw-scroll{padding-bottom:23rem}
   .bw-list:not(.open){visibility:hidden}
   .bw-foot{gap:.8rem;overflow:hidden}
   .bw-foot span:last-child{display:none}
-  .ms-h{width:30px;height:30px;bottom:-15px}.ms-h.l{left:-12px}.ms-h.r{right:-12px}
+  .ms-h{width:20px;height:64px;margin-top:-32px}.ms-h.l{left:-11px}.ms-h.r{right:-11px}
+  #blog-editor figure.ms-img:is([data-a="left"],[data-a="right"]):not(:is([data-w="51"],[data-w="52"],[data-w="53"],[data-w="54"],[data-w="55"],[data-w="56"],[data-w="57"],[data-w="58"],[data-w="59"],[data-w="60"],[data-w="61"],[data-w="62"],[data-w="63"],[data-w="64"],[data-w="65"],[data-w="66"],[data-w="67"],[data-w="68"],[data-w="69"],[data-w="70"],[data-w="71"],[data-w="72"],[data-w="73"],[data-w="74"],[data-w="75"],[data-w="76"],[data-w="77"],[data-w="78"],[data-w="79"],[data-w="80"],[data-w="81"],[data-w="82"],[data-w="83"],[data-w="84"],[data-w="85"],[data-w="86"],[data-w="87"],[data-w="88"],[data-w="89"],[data-w="90"],[data-w="91"],[data-w="92"],[data-w="93"],[data-w="94"],[data-w="95"],[data-w="96"],[data-w="97"],[data-w="98"],[data-w="99"],[data-w="100"])){float:none;width:calc(var(--w,100) * 1%);margin:1.5em auto}
   #img-insp{left:8px!important;right:8px;bottom:8px;top:auto!important;width:auto;max-width:none;max-height:58vh;overflow-y:auto;border-radius:18px}
   .seg button{padding:.55rem .2rem}
   .ii-acts button{padding:.55rem .9rem}
@@ -993,6 +1000,7 @@ body.insp-open .bw-scroll{padding-bottom:23rem}
   <div id="img-insp" role="dialog" aria-label="Image settings">
     <div class="ii-row"><label for="ii-w">Size</label>
       <div class="ii-size"><input type="range" id="ii-w" min="10" max="100" step="1"/><output id="ii-wv" for="ii-w">100%</output></div></div>
+    <div class="ii-tip">Drag the grips on the picture's sides to resize. Set one picture to Left and the next to Right to sit them side by side.</div>
     <div class="ii-row"><span class="ii-l">Shape</span>
       <div class="seg" id="ii-r" role="group" aria-label="Image shape">
         <button type="button" data-v="auto">Original</button><button type="button" data-v="1-1">1:1</button><button type="button" data-v="4-3">4:3</button><button type="button" data-v="16-9">16:9</button><button type="button" data-v="3-4">3:4</button>
@@ -1774,7 +1782,7 @@ document.addEventListener('supabase:ready', async () => {
   function words() { const t = (ed.innerText || '').trim(); return t ? t.split(/\s+/).length : 0; }
   function imgCount() { return ed.querySelectorAll('figure.ms-img').length; }
   function counts() { const w = words(); $('bw-words').textContent = w.toLocaleString(); $('bw-read').textContent = w ? '~' + Math.max(1, Math.round(w / 230)) + ' min read' : '—'; $('bw-imgs').textContent = imgCount(); }
-  function mark() { dirty = true; setStatus('Unsaved changes'); clearTimeout(timer); timer = setTimeout(() => save(false), 30000); counts(); }
+  function mark() { if (typeof fixPairs === 'function') fixPairs(ed); dirty = true; setStatus('Unsaved changes'); clearTimeout(timer); timer = setTimeout(() => save(false), 30000); counts(); }
 
   function ctype() { return currentCreator ? currentCreator.creator_type : null; }
   function canUse() { return ctype() === 'both' || ctype() === 'blogger'; }
@@ -1906,7 +1914,18 @@ document.addEventListener('supabase:ready', async () => {
     f.querySelectorAll('[data-ui]').forEach(n => n.remove());
     f.insertAdjacentHTML('beforeend', '<span class="ms-h l" data-ui></span><span class="ms-h r" data-ui></span><span class="ms-badge" data-ui></span>');
   }
-  function prepFigures() { ed.querySelectorAll('figure.ms-img').forEach(decorate); }
+  function fixPairs(root) {
+    root.querySelectorAll(':scope > .ms-clr').forEach(n => n.remove());
+    root.querySelectorAll(':scope > figure.ms-img').forEach(f => {
+      const a = f.dataset.a; if (a !== 'left' && a !== 'right') return;
+      let n = f.nextSibling;
+      while (n && ((n.nodeType === 3 && !n.nodeValue.trim()) || (n.nodeType === 1 && n.classList.contains('ms-clr')))) n = n.nextSibling;
+      if (n && n.nodeType === 1 && n.matches('figure.ms-img') && (n.dataset.a === 'left' || n.dataset.a === 'right') && n.dataset.a !== a && (+f.dataset.w + +n.dataset.w) >= 70) {
+        const c = document.createElement('div'); c.className = 'ms-clr'; c.setAttribute('data-ui', ''); n.after(c);
+      }
+    });
+  }
+  function prepFigures() { ed.querySelectorAll('figure.ms-img').forEach(decorate); fixPairs(ed); }
   function makeFigure(src, uploadingNow) {
     const f = document.createElement('figure'); f.className = 'ms-img' + (uploadingNow ? ' uploading' : '');
     Object.assign(f.dataset, DEF);
@@ -1920,7 +1939,7 @@ document.addEventListener('supabase:ready', async () => {
     if (!savedRange || !ed.contains(savedRange.endContainer)) return null;
     let n = savedRange.endContainer; while (n && n.parentNode !== ed) n = n.parentNode; return n || null;
   }
-  function ensureTail() { const l = ed.lastElementChild; if (!l || l.tagName === 'FIGURE') ed.insertAdjacentHTML('beforeend', '<p><br></p>'); }
+  function ensureTail() { const kids = Array.from(ed.children).filter(n => !n.hasAttribute('data-ui')); const l = kids[kids.length - 1]; if (!l || l.tagName === 'FIGURE') ed.insertAdjacentHTML('beforeend', '<p><br></p>'); }
 
   async function addImages(list) {
     if (!canUse()) return;
