@@ -69,32 +69,37 @@ html[data-theme="dark"] .btn.primary{background:var(--gold);color:#1e1208}
 .article::after{content:"";display:block;clear:both}
 .article .ms-clr{clear:both;height:0;margin:0;padding:0}
 .article p,.article div{margin-bottom:1.15em}
-.article.dropcap::first-letter{font-family:'Playfair Display',serif;font-weight:900;font-size:4.6em;line-height:.82;float:left;padding:.07em .1em 0 0;color:var(--gold)}
+.article.dropcap::first-letter{font-family:'Playfair Display',serif;font-weight:900;font-size:4.6em;line-height:.82;float:left;padding:.07em .1em 0 0;color:var(--ac)}
 .article h1,.article h2,.article h3,.article h4{font-family:'Playfair Display',serif;color:var(--brown);clear:both;letter-spacing:-.01em}
 .article h1{font-size:2.15rem;font-weight:900;margin:2em 0 .6em;line-height:1.15}
 .article h2{font-size:1.65rem;font-weight:800;margin:2em 0 .6em;line-height:1.25;padding-top:.9rem;position:relative}
-.article h2::before{content:"";position:absolute;top:0;left:0;width:44px;height:3px;border-radius:3px;background:var(--gold)}
+.article h2::before{content:"";position:absolute;top:0;left:0;width:44px;height:3px;border-radius:3px;background:var(--ac)}
 .article h3{font-size:1.25rem;font-style:italic;font-weight:700;margin:1.6em 0 .5em}
-.article blockquote{clear:both;position:relative;margin:2.2em 0;padding:2.6rem 0 1.4rem;border:0;border-bottom:1px solid var(--border-bright);font-family:'Playfair Display',serif;font-style:italic;font-size:1.55rem;line-height:1.45;color:var(--brown);text-align:center}
-.article blockquote::before{content:"\201C";position:absolute;top:-.1rem;left:50%;transform:translateX(-50%);font-size:5rem;line-height:1;color:var(--gold);font-style:normal}
+.article blockquote{clear:both;position:relative;margin:2.2em 0;padding:2.6rem 0 1.4rem;border:0;border-bottom:1px solid color-mix(in srgb,var(--ac) 35%,transparent);font-family:'Playfair Display',serif;font-style:italic;font-size:1.55rem;line-height:1.45;color:var(--brown);text-align:center}
+.article blockquote::before{content:"\201C";position:absolute;top:-.1rem;left:50%;transform:translateX(-50%);font-size:5rem;line-height:1;color:var(--ac);font-style:normal}
 .article ul,.article ol{margin:0 0 1.2em 0;padding-left:1.6em}
 .article li{margin-bottom:.35em;padding-left:.2em}
-.article li::marker{color:var(--gold);font-weight:700}
-.article a{color:var(--gold-deep);text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--gold) 55%,transparent);text-decoration-thickness:2px;text-underline-offset:4px;transition:text-decoration-color .2s}
-.article a:hover{text-decoration-color:var(--gold)}
+.article li::marker{color:var(--ac);font-weight:700}
+.article a{color:var(--ac-deep);text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--ac) 55%,transparent);text-decoration-thickness:2px;text-underline-offset:4px;transition:text-decoration-color .2s}
+.article a:hover{text-decoration-color:var(--ac)}
 .article img{max-width:100%;height:auto;border-radius:12px}
 .article figure{margin:1.8em 0}
-.article figure.ms-img{width:calc(var(--w,100) * 1%);max-width:100%;margin:2em auto;box-shadow:0 18px 40px -22px rgba(59,42,26,.55);border-radius:12px}
-.article figure.ms-img[data-s="circle"]{border-radius:50%}
+.article figure.ms-img{width:calc(var(--w,100) * 1%);max-width:100%;margin:2em auto}
 .article figure.ms-img[data-a="left"]{float:left;width:calc(var(--w,100) * 1% - 1.4em);margin:.45em 1.4em 1.1em 0}
 .article figure.ms-img[data-a="right"]{float:right;width:calc(var(--w,100) * 1% - 1.4em);margin:.45em 0 1.1em 1.4em}
-.article figure.ms-img img{display:block;width:100%;border-radius:12px}
+.article figure.ms-img img{display:block;width:100%;border-radius:12px;box-shadow:0 18px 40px -22px rgba(59,42,26,.55)}
 .article figure.ms-img[data-r="1-1"] img{aspect-ratio:1/1;object-fit:cover}
 .article figure.ms-img[data-r="4-3"] img{aspect-ratio:4/3;object-fit:cover}
 .article figure.ms-img[data-r="16-9"] img{aspect-ratio:16/9;object-fit:cover}
 .article figure.ms-img[data-r="3-4"] img{aspect-ratio:3/4;object-fit:cover}
 .article figure.ms-img[data-s="sq"] img{border-radius:3px}
 .article figure.ms-img[data-s="circle"] img{border-radius:50%}
+.article aside{clear:both;margin:2em 0;padding:1.1rem 1.35rem;background:color-mix(in srgb,var(--ac) 9%,var(--card-bg));border:1px solid color-mix(in srgb,var(--ac) 26%,transparent);border-left:4px solid var(--ac);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:.97rem;line-height:1.75;color:var(--text)}
+.article aside>:last-child{margin-bottom:0}
+.article aside b,.article aside strong{color:var(--ac-deep)}
+.article hr{clear:both;border:0;height:1.6em;margin:2.4em 0;position:relative;overflow:visible}
+.article hr::before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:color-mix(in srgb,var(--ac) 38%,transparent)}
+.article hr::after{content:"\2726";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:0 1em;background:var(--bgc,var(--cream));color:var(--ac);font-size:1rem;line-height:1}
 .article figcaption{font-size:.85rem;color:var(--muted);text-align:center;margin-top:.5em}
 @media(max-width:600px){
   .article{font-size:1.1rem;line-height:1.85}
@@ -102,27 +107,70 @@ html[data-theme="dark"] .btn.primary{background:var(--gold);color:#1e1208}
   .article figure.ms-img:is([data-a="left"],[data-a="right"]):not(:is([data-w="51"],[data-w="52"],[data-w="53"],[data-w="54"],[data-w="55"],[data-w="56"],[data-w="57"],[data-w="58"],[data-w="59"],[data-w="60"],[data-w="61"],[data-w="62"],[data-w="63"],[data-w="64"],[data-w="65"],[data-w="66"],[data-w="67"],[data-w="68"],[data-w="69"],[data-w="70"],[data-w="71"],[data-w="72"],[data-w="73"],[data-w="74"],[data-w="75"],[data-w="76"],[data-w="77"],[data-w="78"],[data-w="79"],[data-w="80"],[data-w="81"],[data-w="82"],[data-w="83"],[data-w="84"],[data-w="85"],[data-w="86"],[data-w="87"],[data-w="88"],[data-w="89"],[data-w="90"],[data-w="91"],[data-w="92"],[data-w="93"],[data-w="94"],[data-w="95"],[data-w="96"],[data-w="97"],[data-w="98"],[data-w="99"],[data-w="100"])){float:none;width:calc(var(--w,100) * 1%);margin:1.6em auto}
 }
 
-/* article page: masthead, progress, end-of-post */
-body:not(.list-mode) .wrap{max-width:1040px}
-#post>*{max-width:720px;margin-left:auto;margin-right:auto}
-#post>.cover{max-width:1040px;aspect-ratio:21/9;border-radius:22px;margin-bottom:2.4rem;box-shadow:0 30px 60px -30px rgba(59,42,26,.6)}
-#post>.masthead{max-width:820px;text-align:center;padding:1.2rem 0 2rem}
-.masthead .topic{margin-bottom:1.2rem}
-.masthead h1.title{font-weight:900;font-size:clamp(2.2rem,6.4vw,4rem);line-height:1.06;letter-spacing:-.025em;margin-bottom:1.6rem}
-.masthead .byline{justify-content:center;border:0;padding:0;margin:0;gap:.9rem}
-.masthead .by-text{flex:0 1 auto;text-align:left}
-.masthead .av{width:48px;height:48px;box-shadow:0 0 0 3px var(--paper),0 0 0 4px var(--border-bright)}
-.masthead .by-name{font-size:1rem}
-.rule{display:flex;align-items:center;gap:1rem;margin:0 auto 2.6rem;color:var(--gold)}
-.rule::before,.rule::after{content:"";flex:1;height:1px;background:var(--border-bright)}
-.rule i{font-style:normal;font-size:1.1rem;letter-spacing:.5em;padding-left:.5em}
-.endmark{text-align:center;color:var(--gold);font-size:1.2rem;letter-spacing:.6em;margin:2.6rem auto 0!important;clear:both}
-#progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--gold),var(--rust));z-index:400;transition:width .1s linear}
-.actions{justify-content:center;border:0;padding:0;margin:1.6rem auto 2.4rem!important}
-.actions .sp{display:none}
-.author-card{position:relative;border-top:3px solid var(--gold);border-radius:6px 6px 18px 18px;padding:1.4rem 1.4rem}
-.author-card .written{font-size:.74rem;color:var(--muted);margin-bottom:.15rem}
-@media(max-width:600px){#post>.cover{aspect-ratio:16/9;border-radius:16px}.masthead .byline{flex-direction:column;gap:.6rem}.masthead .by-text{text-align:center}}
+/* accent colours: chosen by the writer, each tuned for light and dark */
+:root{--ac:var(--gold);--ac-deep:var(--gold-deep)}
+[data-accent="forest"]{--ac:#5a8f43;--ac-deep:#3f6b2e}
+[data-accent="ember"]{--ac:#d9622b;--ac-deep:#a8431a}
+[data-accent="ocean"]{--ac:#3a78b0;--ac-deep:#245a8c}
+[data-accent="plum"]{--ac:#8e4f97;--ac-deep:#6c3675}
+html[data-theme="dark"] [data-accent="gold"]{--ac:#d9a84c;--ac-deep:#e0b058}
+html[data-theme="dark"] [data-accent="forest"]{--ac:#8bc06c;--ac-deep:#a3d385}
+html[data-theme="dark"] [data-accent="ember"]{--ac:#f0895a;--ac-deep:#f6a07a}
+html[data-theme="dark"] [data-accent="ocean"]{--ac:#74b2e6;--ac-deep:#93c5ee}
+html[data-theme="dark"] [data-accent="plum"]{--ac:#c78dd0;--ac-deep:#d9a6e0}
+
+/* post page */
+body:not(.list-mode) .wrap{max-width:1120px}
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--ac),var(--ac-deep));z-index:400;transition:width .1s linear}
+.post-main{min-width:0;--bgc:var(--cream)}
+.masthead .topic{color:var(--ac-deep);border-color:color-mix(in srgb,var(--ac) 45%,transparent);margin-bottom:1.1rem}
+.masthead h1.title{font-weight:900;letter-spacing:-.02em;line-height:1.08;margin-bottom:1rem}
+.dek{font:italic 400 1.22rem/1.65 'Lora',Georgia,serif;color:var(--muted);margin:0 0 1.5rem;max-width:60ch;overflow-wrap:anywhere}
+.dateline{display:none}
+.byline{display:flex;align-items:center;gap:.9rem;flex-wrap:wrap;border:0;border-top:1px solid var(--border);padding:1.1rem 0 0;margin:0 0 2rem}
+.byline .av{width:46px;height:46px;box-shadow:0 0 0 3px var(--cream),0 0 0 4px color-mix(in srgb,var(--ac) 55%,transparent)}
+.by-text{flex:0 1 auto}
+.by-label{display:block;font-size:.7rem;color:var(--muted);line-height:1.2}
+.share{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center}
+.share-l{font-size:.78rem;color:var(--muted);margin-right:.15rem}
+.sh{border:1px solid var(--border-bright);background:transparent;color:var(--brown);font:600 .76rem 'DM Sans',sans-serif;padding:.42rem .85rem;border-radius:50px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.35rem;transition:border-color .2s,color .2s,background .2s}
+.sh:hover{border-color:var(--ac);color:var(--ac-deep);background:color-mix(in srgb,var(--ac) 8%,transparent)}
+.sh:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.endmark{text-align:center;color:var(--ac);font-size:1.2rem;letter-spacing:.6em;margin:2.6rem auto 0;clear:both}
+.author-card{border-top:3px solid var(--ac);border-radius:6px 6px 18px 18px}
+.written{font-size:.72rem;color:var(--muted);margin-bottom:.1rem}
+.side{display:none}
+.side-card{background:var(--card-bg);border:1px solid var(--border);border-top:4px solid var(--ac);border-radius:10px;padding:1.2rem 1.2rem 1rem;box-shadow:var(--shadow)}
+.side-card h3{font:700 .86rem 'DM Sans',sans-serif;color:var(--ac-deep);margin-bottom:.9rem}
+.side-item{display:grid;grid-template-columns:56px minmax(0,1fr);gap:.8rem;padding:.75rem 0;border-top:1px solid var(--border);text-decoration:none;align-items:center}
+.side-card h3+.side-item{border-top:0;padding-top:0}
+.side-thumb{width:56px;height:56px;border-radius:8px;object-fit:cover;background:var(--warm);display:flex;align-items:center;justify-content:center;font:700 1.2rem 'Playfair Display',serif;color:var(--ac)}
+.side-item b{display:block;font:600 .9rem/1.35 'Playfair Display',serif;color:var(--brown);overflow-wrap:anywhere}
+.side-item span{font-size:.72rem;color:var(--muted)}
+.side-item:hover b{color:var(--ac-deep)}
+
+/* Editorial: left-aligned headline, summary, byline with share, wide cover */
+[data-layout="editorial"] .masthead,[data-layout="editorial"] .article,[data-layout="editorial"] .endmark,[data-layout="editorial"] .actions,[data-layout="editorial"] .author-card,[data-layout="editorial"] #comments,[data-layout="editorial"] .more{max-width:720px;margin-left:auto;margin-right:auto}
+[data-layout="editorial"] .masthead h1.title{font-size:clamp(2.1rem,5.6vw,3.6rem)}
+[data-layout="editorial"] .byline .share{flex-basis:100%;margin-top:.1rem}
+[data-layout="editorial"] .cover{max-width:1040px;aspect-ratio:21/9;border-radius:20px;margin:0 auto 2.6rem;box-shadow:0 30px 60px -32px rgba(59,42,26,.6)}
+/* Classic: white page card, centred headline, dotted date line, recent posts on the side */
+[data-layout="classic"] .post-shell{display:grid;gap:1.6rem;grid-template-columns:minmax(0,1fr)}
+[data-layout="classic"] .post-main{--bgc:var(--card-bg);background:var(--card-bg);border:1px solid var(--border);border-top:4px solid var(--ac);border-radius:12px;box-shadow:var(--shadow);padding:3rem clamp(1.1rem,5vw,3.4rem) 2.2rem}
+[data-layout="classic"] .masthead{text-align:center}
+[data-layout="classic"] .masthead h1.title{font-size:clamp(1.9rem,4.8vw,2.9rem);color:var(--ac-deep);margin-bottom:.4rem}
+[data-layout="classic"] .dek{margin-left:auto;margin-right:auto;margin-top:.8rem}
+[data-layout="classic"] .dateline{display:flex;align-items:center;gap:1rem;margin:1.2rem 0 1.5rem;color:var(--muted)}
+[data-layout="classic"] .dateline::before,[data-layout="classic"] .dateline::after{content:"";flex:1;border-top:2px dotted color-mix(in srgb,var(--ac) 45%,transparent)}
+[data-layout="classic"] .dateline i{font:italic 1.05rem 'Lora',Georgia,serif}
+[data-layout="classic"] .byline{justify-content:center;border-top:0;padding-top:0}
+[data-layout="classic"] .byline .av{box-shadow:0 0 0 3px var(--card-bg),0 0 0 4px color-mix(in srgb,var(--ac) 55%,transparent)}
+[data-layout="classic"] .by-text{text-align:left}
+[data-layout="classic"] .by-meta .dt,[data-layout="classic"] #share-top{display:none}
+[data-layout="classic"] .cover{aspect-ratio:16/9;border-radius:8px;margin:0 0 2rem;box-shadow:none}
+[data-layout="classic"] .side{display:block}
+@media(min-width:1000px){[data-layout="classic"] .post-shell{grid-template-columns:minmax(0,1fr) 300px;align-items:start}[data-layout="classic"] .side-card{position:sticky;top:5.5rem}}
+@media(max-width:600px){.byline .share{width:100%}[data-layout="editorial"] .cover{aspect-ratio:16/10;border-radius:14px}[data-layout="classic"] .byline{flex-direction:column;gap:.6rem}[data-layout="classic"] .by-text{text-align:center}.dek{font-size:1.1rem}}
 
 .actions{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin:2.2rem 0;padding:1rem 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .actions .sp{flex:1}
@@ -173,10 +221,11 @@ body.list-mode .wrap{max-width:1040px}
 html[data-theme="dark"] .chip[aria-pressed="true"]{background:var(--gold);color:#1e1208}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));gap:1.1rem}
 .card{display:flex;flex-direction:column;min-width:0;text-decoration:none;background:var(--card-bg);border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);transition:transform .2s,border-color .2s}
-.card:hover{transform:translateY(-3px);border-color:var(--gold)}
+.card:hover{transform:translateY(-3px);border-color:var(--ac)}
+.card{border-top:3px solid var(--ac)}
 .card-cover{aspect-ratio:16/9;background:linear-gradient(135deg,var(--warm),var(--surface));object-fit:cover;width:100%;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:2.4rem;color:var(--gold)}
 .card-body{padding:1rem 1.1rem 1.1rem;display:flex;flex-direction:column;gap:.45rem;flex:1;min-width:0}
-.card-topic{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--gold-deep)}
+.card-topic{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--ac-deep)}
 .card-title{font-family:'Playfair Display',serif;font-size:1.2rem;line-height:1.25;color:var(--brown);overflow-wrap:anywhere}
 .card-ex{font-size:.86rem;color:var(--muted);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
 .card-meta{margin-top:auto;padding-top:.5rem;display:flex;gap:.6rem;align-items:center;font-size:.76rem;color:var(--muted);flex-wrap:wrap}
@@ -230,48 +279,57 @@ html[data-theme="dark"] .chip[aria-pressed="true"]{background:var(--gold);color:
   <a class="back" id="back" href="feeds.html" hidden>← All posts</a>
   <div class="state" id="state" hidden>Loading post…</div>
   <div id="progress" aria-hidden="true"></div>
-  <article id="post" hidden>
-    <img class="cover" id="cover" alt="" hidden/>
-    <header class="masthead">
-      <span class="topic" id="topic" hidden></span>
-      <h1 class="title" id="title"></h1>
-      <div class="byline">
-        <a class="av" id="by-av" href="#"></a>
-        <div class="by-text"><a class="by-name" id="by-name" href="#"></a><div class="by-meta" id="by-meta"></div></div>
-        <button class="btn primary" id="btn-follow" type="button">+ Follow</button>
+  <article id="post" hidden data-layout="editorial" data-accent="gold">
+   <div class="post-shell">
+    <div class="post-main">
+      <header class="masthead">
+        <span class="topic" id="topic" hidden></span>
+        <h1 class="title" id="title"></h1>
+        <p class="dek" id="dek" hidden></p>
+        <div class="dateline" aria-hidden="true"><i id="dl-date"></i></div>
+        <div class="byline">
+          <a class="av" id="by-av" href="#"></a>
+          <div class="by-text"><span class="by-label">Written by</span><a class="by-name" id="by-name" href="#"></a><div class="by-meta" id="by-meta"></div></div>
+          <button class="btn primary" id="btn-follow" type="button">+ Follow</button>
+          <div class="share" id="share-top"></div>
+        </div>
+      </header>
+      <img class="cover" id="cover" alt="" hidden/>
+      <div class="article" id="body"></div>
+      <div class="endmark" aria-hidden="true">&#10022; &#10022; &#10022;</div>
+
+      <div class="actions">
+        <button class="btn" id="btn-like" type="button">♥ Like</button>
+        <span class="stat" id="stat-likes">0 likes</span>
+        <span class="sp"></span>
+        <a class="btn" href="#comments" id="btn-jump">💬 <span id="stat-comments">0</span></a>
+        <div class="share" id="share-end"></div>
       </div>
-    </header>
-    <div class="rule" aria-hidden="true"><i>&#10086;</i></div>
-    <div class="article" id="body"></div>
-    <div class="endmark" aria-hidden="true">&#10022; &#10022; &#10022;</div>
 
-    <div class="actions">
-      <button class="btn" id="btn-like" type="button">♥ Like</button>
-      <span class="stat" id="stat-likes">0 likes</span>
-      <span class="sp"></span>
-      <a class="btn" href="#comments" id="btn-jump">💬 <span id="stat-comments">0</span></a>
-      <button class="btn" id="btn-share" type="button">Share</button>
-    </div>
-
-    <div class="author-card">
-      <a class="av" id="ac-av" href="#"></a>
-      <div style="flex:1;min-width:0"><div class="written">Written by</div><a class="by-name" id="ac-name" href="#"></a><div class="ac-bio" id="ac-bio"></div></div>
-      <button class="btn primary" id="btn-follow2" type="button">+ Follow</button>
-    </div>
-
-    <section id="comments">
-      <h2 class="sec">Comments</h2>
-      <div class="c-form">
-        <textarea id="c-input" maxlength="2000" placeholder="Share your thoughts…" aria-label="Write a comment"></textarea>
-        <div class="row"><span class="c-count" id="c-count">0 / 2000</span><button class="btn primary" id="c-submit" type="button">Post comment</button></div>
+      <div class="author-card">
+        <a class="av" id="ac-av" href="#"></a>
+        <div style="flex:1;min-width:0"><div class="written">Written by</div><a class="by-name" id="ac-name" href="#"></a><div class="ac-bio" id="ac-bio"></div></div>
+        <button class="btn primary" id="btn-follow2" type="button">+ Follow</button>
       </div>
-      <div id="c-list"></div>
-    </section>
 
-    <section class="more" id="more" hidden style="margin-top:2.4rem">
-      <h2 class="sec">More from this writer</h2>
-      <div id="more-list"></div>
-    </section>
+      <section id="comments">
+        <h2 class="sec">Comments</h2>
+        <div class="c-form">
+          <textarea id="c-input" maxlength="2000" placeholder="Share your thoughts…" aria-label="Write a comment"></textarea>
+          <div class="row"><span class="c-count" id="c-count">0 / 2000</span><button class="btn primary" id="c-submit" type="button">Post comment</button></div>
+        </div>
+        <div id="c-list"></div>
+      </section>
+
+      <section class="more" id="more" hidden style="margin-top:2.4rem">
+        <h2 class="sec">More from this writer</h2>
+        <div id="more-list"></div>
+      </section>
+    </div>
+    <aside class="side" id="side" hidden>
+      <div class="side-card"><h3>Recent posts</h3><div id="side-list"></div></div>
+    </aside>
+   </div>
   </article>
 </main>
 <div class="toast" id="toast"></div>
@@ -286,7 +344,7 @@ let toastT; function toast(m) { const t = $('toast'); t.textContent = m; t.class
 $('hamburger').addEventListener('click', () => { $('hamburger').classList.toggle('open'); $('mobileMenu').classList.toggle('open'); });
 
 /* ── SANITISER: keeps a short allow-list of tags, drops everything else ── */
-const ALLOWED = new Set(['P','BR','B','STRONG','I','EM','U','H1','H2','H3','BLOCKQUOTE','UL','OL','LI','A','DIV','SPAN','S','SUB','SUP','H4','FIGURE','FIGCAPTION']);
+const ALLOWED = new Set(['P','BR','B','STRONG','I','EM','U','H1','H2','H3','BLOCKQUOTE','UL','OL','LI','A','DIV','SPAN','S','SUB','SUP','H4','FIGURE','FIGCAPTION','ASIDE','HR']);
 const IMG_BASE = 'https://wgcpuohwyarhjlndmnlj.supabase.co/storage/v1/object/public/inkwell-blog-images/';
 const FIG_R = ['auto','1-1','4-3','16-9','3-4'], FIG_S = ['sq','round','circle'], FIG_A = ['left','center','right'];
 const DROP_WHOLE = new Set(['SCRIPT','STYLE','IFRAME','OBJECT','EMBED','LINK','META','SVG','MATH','FORM','TEXTAREA','INPUT','BUTTON','SELECT','NOSCRIPT','TEMPLATE','VIDEO','AUDIO','BASE']);
@@ -348,7 +406,7 @@ async function load() {
   const { data: { user } } = await window._sb.auth.getUser().catch(() => ({ data: {} }));
   me = user || null;
   const { data, error } = await window._sb.from('inkwell_blogs')
-    .select('id,title,topic,content,cover_url,total_reads,total_likes,total_comments,published_at,creator_id,inkwell_creators(id,user_id,display_name,bio,avatar_url,follower_count)')
+    .select('id,title,topic,summary,layout,accent,content,cover_url,total_reads,total_likes,total_comments,published_at,creator_id,inkwell_creators(id,user_id,display_name,bio,avatar_url,follower_count)')
     .eq('id', id).eq('status', 'published').maybeSingle();
   if (error || !data) return fail('This post is not available. It may have been unpublished.');
   post = data; creator = data.inkwell_creators || {};
@@ -368,7 +426,14 @@ function render() {
   ['by-av', 'ac-av'].forEach(i => { $(i).innerHTML = avatarHTML(creator); $(i).href = link; });
   ['by-name', 'ac-name'].forEach(i => { $(i).textContent = creator.display_name || 'A creator'; $(i).href = link; });
   const words = (post.content || '').replace(/<[^>]*>/g, ' ').trim().split(/\s+/).filter(Boolean).length;
-  $('by-meta').textContent = (post.published_at ? new Date(post.published_at).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' }) : '') + ' · ' + Math.max(1, Math.round(words / 230)) + ' min read · ' + fmt(post.total_reads) + ' reads';
+  const dateStr = post.published_at ? new Date(post.published_at).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+  $('by-meta').innerHTML = '<span class="dt">' + esc(dateStr) + ' · </span>' + Math.max(1, Math.round(words / 230)) + ' min read · ' + fmt(post.total_reads) + ' reads';
+  $('dl-date').textContent = dateStr;
+  const ACC = ['gold', 'forest', 'ember', 'ocean', 'plum'];
+  $('post').dataset.layout = post.layout === 'classic' ? 'classic' : 'editorial';
+  $('post').dataset.accent = ACC.includes(post.accent) ? post.accent : 'gold';
+  if (post.summary && post.summary.trim()) { $('dek').textContent = post.summary.trim(); $('dek').hidden = false; }
+  renderShare(); if (post.layout === 'classic') loadSide();
   $('ac-bio').textContent = creator.bio || '';
   const wrapEl = sanitize(post.content); $('body').appendChild(wrapEl); fixPairs(wrapEl);
   { const f = wrapEl.firstChild; const t = f && (f.nodeType === 3 ? f.nodeValue : (/^(P|DIV)$/.test(f.nodeName) ? f.textContent : '')); if (t && t.trim().length > 60) $('body').classList.add('dropcap'); }
@@ -420,11 +485,38 @@ async function toggleFollow() {
 $('btn-follow').addEventListener('click', toggleFollow);
 $('btn-follow2').addEventListener('click', toggleFollow);
 
-$('btn-share').addEventListener('click', async () => {
-  const url = location.origin + location.pathname + '?id=' + id;
-  try { if (navigator.share) { await navigator.share({ title: post.title, url }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
-  try { await navigator.clipboard.writeText(url); toast('Link copied'); } catch (e) { toast(url); }
+function shareUrl() { return location.origin + location.pathname + '?id=' + id; }
+function renderShare() {
+  const h = '<span class="share-l">Share</span>' +
+    '<button class="sh" type="button" data-net="copy">Copy link</button>' +
+    '<button class="sh" type="button" data-net="wa">WhatsApp</button>' +
+    '<button class="sh" type="button" data-net="x">X</button>' +
+    '<button class="sh" type="button" data-net="fb">Facebook</button>' +
+    '<button class="sh" type="button" data-net="mail">Email</button>';
+  ['share-top', 'share-end'].forEach(i => { $(i).innerHTML = h; });
+}
+document.addEventListener('click', async e => {
+  const b = e.target.closest('.sh'); if (!b || !post) return;
+  const url = shareUrl(), t = post.title || 'A post on MindStark Inkwell', net = b.dataset.net;
+  const open = u => window.open(u, '_blank', 'noopener,noreferrer');
+  if (net === 'copy') {
+    try { if (navigator.share && matchMedia('(max-width:700px)').matches) { await navigator.share({ title: t, url }); return; } } catch (er) { if (er && er.name === 'AbortError') return; }
+    try { await navigator.clipboard.writeText(url); toast('Link copied'); } catch (er) { prompt('Copy this link', url); }
+  }
+  else if (net === 'wa') open('https://wa.me/?text=' + encodeURIComponent(t + ' ' + url));
+  else if (net === 'x') open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(t) + '&url=' + encodeURIComponent(url));
+  else if (net === 'fb') open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url));
+  else if (net === 'mail') location.href = 'mailto:?subject=' + encodeURIComponent(t) + '&body=' + encodeURIComponent(url);
 });
+async function loadSide() {
+  const { data } = await window._sb.from('inkwell_blogs').select('id,title,cover_url,published_at').eq('status', 'published').neq('id', id).order('published_at', { ascending: false }).limit(5);
+  if (!data || !data.length) return;
+  $('side').hidden = false;
+  $('side-list').innerHTML = data.map(b => '<a class="side-item" href="feeds.html?id=' + encodeURIComponent(b.id) + '">' +
+    (b.cover_url && /^https?:\/\//i.test(b.cover_url) ? '<img class="side-thumb" loading="lazy" src="' + esc(b.cover_url) + '" alt="">' : '<span class="side-thumb" aria-hidden="true">' + initial(b.title) + '</span>') +
+    '<div><b>' + esc(b.title || 'Untitled post') + '</b><span>' + esc(timeAgo(b.published_at)) + '</span></div></a>').join('');
+}
+
 
 /* ── COMMENTS ── */
 async function loadComments() {
@@ -469,9 +561,9 @@ async function loadMore() {
 const PAGE = 12; let page = 0, topic = '', topicsSeen = new Set();
 const plain = h => String(h || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
 function cardHTML(b) {
-  const c = b.inkwell_creators || {}; const ex = plain(b.content).slice(0, 170);
+  const c = b.inkwell_creators || {}; const ex = (b.summary && b.summary.trim()) || plain(b.content).slice(0, 170);
   const cover = b.cover_url && /^https?:\/\//i.test(b.cover_url) ? '<img class="card-cover" loading="lazy" src="' + esc(b.cover_url) + '" alt="">' : '<div class="card-cover" aria-hidden="true">' + initial(b.title) + '</div>';
-  return '<a class="card" href="feeds.html?id=' + encodeURIComponent(b.id) + '">' + cover + '<div class="card-body">' +
+  return '<a class="card" data-accent="' + esc(['gold','forest','ember','ocean','plum'].includes(b.accent) ? b.accent : 'gold') + '" href="feeds.html?id=' + encodeURIComponent(b.id) + '">' + cover + '<div class="card-body">' +
     (b.topic ? '<span class="card-topic">' + esc(b.topic) + '</span>' : '') + '<div class="card-title">' + esc(b.title || 'Untitled post') + '</div>' +
     (ex ? '<div class="card-ex">' + esc(ex) + '</div>' : '') +
     '<div class="card-meta"><span class="av">' + avatarHTML(c) + '</span><b>' + esc(c.display_name || 'A creator') + '</b><span>' + esc(timeAgo(b.published_at)) + '</span><span>♥ ' + fmt(b.total_likes) + '</span><span>💬 ' + fmt(b.total_comments) + '</span></div></div></a>';
@@ -486,7 +578,7 @@ async function loadTopics() {
 async function loadList(reset) {
   if (reset) { page = 0; $('grid').innerHTML = ''; }
   const sort = $('sort').value, q = $('q').value.trim().replace(/[%,()*]/g, ' ').slice(0, 80);
-  let qb = window._sb.from('inkwell_blogs').select('id,title,topic,content,cover_url,total_likes,total_comments,published_at,inkwell_creators(id,display_name,avatar_url)').eq('status', 'published');
+  let qb = window._sb.from('inkwell_blogs').select('id,title,topic,summary,accent,content,cover_url,total_likes,total_comments,published_at,inkwell_creators(id,display_name,avatar_url)').eq('status', 'published');
   if (topic) qb = qb.eq('topic', topic);
   if (q) qb = qb.ilike('title', '%' + q + '%');
   qb = sort === 'likes' ? qb.order('total_likes', { ascending: false }) : sort === 'reads' ? qb.order('total_reads', { ascending: false }) : qb.order('published_at', { ascending: false });
