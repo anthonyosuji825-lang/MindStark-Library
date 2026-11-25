@@ -169,6 +169,7 @@ body:not(.list-mode) .wrap{max-width:1120px}
 [data-layout="classic"] .by-meta .dt,[data-layout="classic"] #share-top{display:none}
 [data-layout="classic"] .cover{aspect-ratio:16/9;border-radius:8px;margin:0 0 2rem;box-shadow:none}
 [data-layout="classic"] .side{display:block}
+[data-layout="classic"] .post-shell.no-side{grid-template-columns:minmax(0,820px)!important;justify-content:center}
 @media(min-width:1000px){[data-layout="classic"] .post-shell{grid-template-columns:minmax(0,1fr) 300px;align-items:start}[data-layout="classic"] .side-card{position:sticky;top:5.5rem}}
 @media(max-width:600px){.byline .share{width:100%}[data-layout="editorial"] .cover{aspect-ratio:16/10;border-radius:14px}[data-layout="classic"] .byline{flex-direction:column;gap:.6rem}[data-layout="classic"] .by-text{text-align:center}.dek{font-size:1.1rem}}
 
@@ -327,7 +328,7 @@ html[data-theme="dark"] .chip[aria-pressed="true"]{background:var(--gold);color:
       </section>
     </div>
     <aside class="side" id="side" hidden>
-      <div class="side-card"><h3>Recent posts</h3><div id="side-list"></div></div>
+      <div class="side-card"><h3 id="side-title">Recent posts</h3><div id="side-list"></div></div>
     </aside>
    </div>
   </article>
@@ -433,7 +434,7 @@ function render() {
   $('post').dataset.layout = post.layout === 'classic' ? 'classic' : 'editorial';
   $('post').dataset.accent = ACC.includes(post.accent) ? post.accent : 'gold';
   if (post.summary && post.summary.trim()) { $('dek').textContent = post.summary.trim(); $('dek').hidden = false; }
-  renderShare(); if (post.layout === 'classic') loadSide();
+  renderShare(); if (post.layout === 'classic') { document.querySelector('.post-shell').classList.add('no-side'); loadSide(); }
   $('ac-bio').textContent = creator.bio || '';
   const wrapEl = sanitize(post.content); $('body').appendChild(wrapEl); fixPairs(wrapEl);
   { const f = wrapEl.firstChild; const t = f && (f.nodeType === 3 ? f.nodeValue : (/^(P|DIV)$/.test(f.nodeName) ? f.textContent : '')); if (t && t.trim().length > 60) $('body').classList.add('dropcap'); }
@@ -509,10 +510,21 @@ document.addEventListener('click', async e => {
   else if (net === 'mail') location.href = 'mailto:?subject=' + encodeURIComponent(t) + '&body=' + encodeURIComponent(url);
 });
 async function loadSide() {
-  const { data } = await window._sb.from('inkwell_blogs').select('id,title,cover_url,published_at').eq('status', 'published').neq('id', id).order('published_at', { ascending: false }).limit(5);
-  if (!data || !data.length) return;
+  const q = () => window._sb.from('inkwell_blogs').select('id,title,cover_url,published_at').eq('status', 'published').neq('id', id);
+  let items = [], related = false;
+  if (post.topic) {
+    const { data } = await q().eq('topic', post.topic).order('published_at', { ascending: false }).limit(5);
+    if (data && data.length) { items = data; related = true; }
+  }
+  if (items.length < 5) {
+    const { data } = await q().order('published_at', { ascending: false }).limit(8);
+    (data || []).forEach(b => { if (items.length < 5 && !items.some(x => x.id === b.id)) items.push(b); });
+  }
+  if (!items.length) return;
+  document.querySelector('.post-shell').classList.remove('no-side');
   $('side').hidden = false;
-  $('side-list').innerHTML = data.map(b => '<a class="side-item" href="feeds.html?id=' + encodeURIComponent(b.id) + '">' +
+  $('side-title').textContent = related ? 'Related posts' : 'Recent posts';
+  $('side-list').innerHTML = items.map(b => '<a class="side-item" href="feeds.html?id=' + encodeURIComponent(b.id) + '">' +
     (b.cover_url && /^https?:\/\//i.test(b.cover_url) ? '<img class="side-thumb" loading="lazy" src="' + esc(b.cover_url) + '" alt="">' : '<span class="side-thumb" aria-hidden="true">' + initial(b.title) + '</span>') +
     '<div><b>' + esc(b.title || 'Untitled post') + '</b><span>' + esc(timeAgo(b.published_at)) + '</span></div></a>').join('');
 }
