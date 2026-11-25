@@ -74,6 +74,18 @@ html[data-theme="dark"] .btn.primary{background:var(--gold);color:#1e1208}
 .article ul,.article ol{margin:0 0 1.1em 1.5em}
 .article a{color:var(--gold-deep);text-underline-offset:3px}
 .article img{max-width:100%;height:auto;border-radius:12px}
+.article figure{margin:1.6em 0}
+.article figure.ms-img{width:calc(var(--w,100) * 1%);max-width:100%;margin:1.6em auto}
+.article figure.ms-img[data-a="left"]{margin-left:0;margin-right:auto}
+.article figure.ms-img[data-a="right"]{margin-left:auto;margin-right:0}
+.article figure.ms-img img{display:block;width:100%;border-radius:12px}
+.article figure.ms-img[data-r="1-1"] img{aspect-ratio:1/1;object-fit:cover}
+.article figure.ms-img[data-r="4-3"] img{aspect-ratio:4/3;object-fit:cover}
+.article figure.ms-img[data-r="16-9"] img{aspect-ratio:16/9;object-fit:cover}
+.article figure.ms-img[data-r="3-4"] img{aspect-ratio:3/4;object-fit:cover}
+.article figure.ms-img[data-s="sq"] img{border-radius:3px}
+.article figure.ms-img[data-s="circle"] img{border-radius:50%}
+.article figcaption{font-size:.85rem;color:var(--muted);text-align:center;margin-top:.5em}
 
 .actions{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin:2.2rem 0;padding:1rem 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .actions .sp{flex:1}
@@ -232,16 +244,31 @@ let toastT; function toast(m) { const t = $('toast'); t.textContent = m; t.class
 $('hamburger').addEventListener('click', () => { $('hamburger').classList.toggle('open'); $('mobileMenu').classList.toggle('open'); });
 
 /* ── SANITISER: keeps a short allow-list of tags, drops everything else ── */
-const ALLOWED = new Set(['P','BR','B','STRONG','I','EM','U','H1','H2','H3','BLOCKQUOTE','UL','OL','LI','A','DIV','SPAN']);
-const DROP_WHOLE = new Set(['SCRIPT','STYLE','IFRAME','OBJECT','EMBED','LINK','META','SVG','MATH','FORM','TEXTAREA','INPUT','BUTTON','SELECT','NOSCRIPT','TEMPLATE','IMG','VIDEO','AUDIO','BASE']);
+const ALLOWED = new Set(['P','BR','B','STRONG','I','EM','U','H1','H2','H3','BLOCKQUOTE','UL','OL','LI','A','DIV','SPAN','S','SUB','SUP','H4','FIGURE','FIGCAPTION']);
+const IMG_BASE = 'https://wgcpuohwyarhjlndmnlj.supabase.co/storage/v1/object/public/inkwell-blog-images/';
+const FIG_R = ['auto','1-1','4-3','16-9','3-4'], FIG_S = ['sq','round','circle'], FIG_A = ['left','center','right'];
+const DROP_WHOLE = new Set(['SCRIPT','STYLE','IFRAME','OBJECT','EMBED','LINK','META','SVG','MATH','FORM','TEXTAREA','INPUT','BUTTON','SELECT','NOSCRIPT','TEMPLATE','VIDEO','AUDIO','BASE']);
 function cleanNode(src, dst) {
   for (const n of Array.from(src.childNodes)) {
     if (n.nodeType === 3) { dst.appendChild(document.createTextNode(n.nodeValue)); continue; }
     if (n.nodeType !== 1) continue;
     const tag = n.tagName;
+    if (tag === 'IMG') {                                              // only our own blog-image bucket
+      const src = (n.getAttribute('src') || '').trim();
+      if (src.indexOf(IMG_BASE) !== 0 || src.indexOf('..') > -1 || !/^[A-Za-z0-9_.\/-]+$/.test(src.slice(IMG_BASE.length))) continue;
+      const im = document.createElement('img');
+      im.src = src; im.alt = (n.getAttribute('alt') || '').slice(0, 200); im.loading = 'lazy';
+      dst.appendChild(im); continue;
+    }
     if (DROP_WHOLE.has(tag)) continue;
     if (!ALLOWED.has(tag)) { cleanNode(n, dst); continue; }          // unknown tag: keep its text only
     const el = document.createElement(tag.toLowerCase());
+    if (tag === 'FIGURE') {
+      const w = parseInt(n.getAttribute('data-w'), 10), r = n.getAttribute('data-r'), sh = n.getAttribute('data-s'), a = n.getAttribute('data-a');
+      if (w >= 10 && w <= 100 && FIG_R.includes(r) && FIG_S.includes(sh) && FIG_A.includes(a)) {
+        el.className = 'ms-img'; el.style.setProperty('--w', w); el.setAttribute('data-w', w); el.setAttribute('data-r', r); el.setAttribute('data-s', sh); el.setAttribute('data-a', a);
+      }
+    }
     if (tag === 'A') {
       const href = (n.getAttribute('href') || '').trim();
       if (/^(https?:|mailto:)/i.test(href)) { el.setAttribute('href', href); el.setAttribute('target', '_blank'); el.setAttribute('rel', 'noopener noreferrer nofollow ugc'); }
