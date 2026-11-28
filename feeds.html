@@ -396,6 +396,106 @@ h2.sec::before{content:"";position:absolute;top:0;left:0;width:44px;height:3px;b
   .site-nav,.dock,.actions,#comments,.share,.side,#progress,.byline .btn,.author-card .btn,.toc,.back{display:none!important}
   body{background:#fff}.article{font-size:12pt;color:#000}
 }
+
+/* ══════════════ READER LAYOUT (feeds home) ══════════════ */
+body.list-mode .wrap{max-width:1180px;padding-top:1.8rem}
+.rd{display:grid;grid-template-columns:248px minmax(0,1fr);gap:2.6rem;align-items:start}
+.rd-side{position:sticky;top:5.2rem;display:flex;flex-direction:column;gap:1.3rem;max-height:calc(100vh - 6.4rem);overflow-y:auto;padding:0 .2rem 1rem 0;scrollbar-width:thin}
+.rd-brand h1{font:900 2.3rem/1 'Playfair Display',serif;letter-spacing:-.02em;color:var(--brown)}
+.rd-brand p{font:italic .92rem/1.5 'Lora',Georgia,serif;color:var(--muted);margin-top:.5rem}
+.rd-nav{display:flex;flex-direction:column;gap:1.25rem}
+.rd-grp{display:flex;flex-direction:column;gap:.15rem}
+.rd-gl{font:700 .66rem 'DM Sans',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);padding:0 .8rem;margin-bottom:.25rem}
+.rd-it{display:flex;align-items:center;gap:.7rem;width:100%;text-align:left;border:0;background:none;color:var(--text);font:600 .92rem 'DM Sans',sans-serif;padding:.58rem .8rem;border-radius:10px;cursor:pointer;transition:background .15s,color .15s}
+.rd-it svg{width:18px;height:18px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;opacity:.8}
+.rd-it span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rd-it:hover{background:color-mix(in srgb,var(--gold) 11%,transparent)}
+.rd-it.on{background:color-mix(in srgb,var(--gold) 20%,transparent);color:var(--gold-deep)}
+.rd-it.on svg{opacity:1}
+.rd-n{margin-left:auto;font:700 .7rem 'DM Sans',sans-serif;font-style:normal;min-width:22px;text-align:center;padding:.12rem .45rem;border-radius:50px;background:color-mix(in srgb,var(--brown) 10%,transparent);color:var(--muted)}
+.rd-it.sub .av{width:22px;height:22px;font-size:.66rem}
+.rd-it.tp{font-weight:500;font-size:.88rem}
+.rd-it.tp::before{content:"#";color:var(--gold-deep);font-weight:700;width:18px;text-align:center;flex-shrink:0}
+.rd-write{display:block;text-align:center;text-decoration:none;font:600 .85rem 'DM Sans',sans-serif;color:var(--brown);border:1px solid var(--border-bright);border-radius:50px;padding:.6rem 1rem}
+.rd-write:hover{background:color-mix(in srgb,var(--gold) 12%,transparent)}
+.rd-head h2{font:800 clamp(1.7rem,3.4vw,2.2rem)/1.15 'Playfair Display',serif;color:var(--brown);letter-spacing:-.015em}
+.rd-head p{color:var(--muted);margin-top:.3rem;font-size:.95rem}
+.rd-bar{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin:1.2rem 0 1.3rem;border-bottom:1px solid var(--rule)}
+.rd-tabs{display:flex;gap:.1rem}
+.rd-tab{border:0;background:none;font:600 .88rem 'DM Sans',sans-serif;color:var(--muted);padding:.7rem .95rem;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer}
+.rd-tab:hover{color:var(--brown)}
+.rd-tab.on{color:var(--brown);border-bottom-color:var(--gold)}
+.rd-bar input{margin-left:auto;flex:0 1 250px;min-width:150px;background:var(--card-bg);border:1px solid var(--border);border-radius:50px;padding:.55rem 1rem;font:400 .88rem 'DM Sans',sans-serif;color:var(--text);outline:none;margin-bottom:.45rem}
+.rd-bar input:focus{border-color:var(--gold)}
+
+/* feed card */
+.feed{display:flex;flex-direction:column;gap:1rem}
+.fc{--r:var(--rule);position:relative;display:grid;grid-template-columns:minmax(0,1fr) 216px;gap:1.5rem;padding:1.3rem 1.4rem 1.2rem;background:var(--card-bg);border:1px solid var(--r);border-left:4px solid color-mix(in srgb,var(--ac) 55%,transparent);border-radius:6px 16px 16px 6px;transition:border-color .2s,box-shadow .2s}
+.fc:hover,.fc:focus-within{border-color:color-mix(in srgb,var(--ac) 40%,var(--rule));border-left-color:var(--ac);box-shadow:0 18px 40px -28px rgba(59,42,26,.55)}
+.fc-body{min-width:0;display:flex;flex-direction:column;gap:.55rem}
+.fc-top{display:flex;align-items:center;justify-content:space-between;gap:.6rem;min-height:30px}
+.fc-tag{font:700 .68rem 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--ac-deep);background:color-mix(in srgb,var(--ac) 12%,transparent);padding:.22rem .65rem;border-radius:50px;max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fc-sub{position:relative;z-index:2;margin-left:auto;border:0;background:none;color:var(--ac-deep);font:700 .82rem 'DM Sans',sans-serif;padding:.4rem .7rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+.fc-sub:hover{background:color-mix(in srgb,var(--ac) 14%,transparent)}
+.fc-sub.on{color:var(--green)}
+.fc-t{font:800 1.45rem/1.22 'Playfair Display',serif;letter-spacing:-.012em;color:var(--brown);overflow-wrap:anywhere}
+.fc-t a{text-decoration:none;color:inherit}
+.fc-t a::after{content:"";position:absolute;inset:0;z-index:1;border-radius:inherit}
+.fc-t a:hover{color:var(--ac-deep)}
+.fc-t a:focus-visible{outline:none}
+.fc:focus-within{outline:2px solid color-mix(in srgb,var(--ac) 70%,transparent);outline-offset:2px}
+.fc-by{display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--muted);flex-wrap:wrap}
+.fc-by .av{width:22px;height:22px;font-size:.66rem}
+.fc-by b{color:var(--text);font-weight:600}
+.fc-by .dot{opacity:.5}
+.fc-ex{font:400 .96rem/1.65 'Lora',Georgia,serif;color:color-mix(in srgb,var(--text) 82%,transparent);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.fc-acts{display:flex;gap:.45rem;margin-top:.45rem;flex-wrap:wrap}
+.fc-b{position:relative;z-index:2;display:inline-flex;align-items:center;gap:.45rem;min-width:40px;height:38px;justify-content:center;padding:0 .8rem;border:1px solid var(--border-bright);border-radius:10px;background:transparent;color:var(--brown);font:600 .8rem 'DM Sans',sans-serif;cursor:pointer;text-decoration:none;transition:background .15s,border-color .15s,color .15s}
+.fc-b svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.fc-b:hover{background:color-mix(in srgb,var(--ac) 11%,transparent);border-color:var(--ac);color:var(--ac-deep)}
+.fc-b.on{background:color-mix(in srgb,var(--ac) 16%,transparent);border-color:var(--ac);color:var(--ac-deep)}
+.fc-b.on svg{fill:currentColor}
+.fc-img{align-self:center;position:relative;display:block;aspect-ratio:4/3;border-radius:12px;overflow:hidden;background:linear-gradient(135deg,color-mix(in srgb,var(--ac) 22%,var(--warm)),var(--warm));text-decoration:none}
+.fc-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+.fc:hover .fc-img img{transform:scale(1.04)}
+.fc-img .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:900 3rem 'Playfair Display',serif;color:color-mix(in srgb,var(--ac) 70%,transparent)}
+.fc-img .vbadge{top:.55rem;right:.55rem;left:auto}
+@media(max-width:1000px){.rd{grid-template-columns:minmax(0,1fr);gap:.5rem}
+  .rd-side{position:sticky;top:3.55rem;z-index:30;max-height:none;overflow:visible;margin:0 -1rem;padding:.55rem 1rem;background:color-mix(in srgb,var(--cream) 94%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--rule);gap:0}
+  .rd-brand p,.rd-write,.rd-gl,#rd-subs-grp{display:none!important}
+  .rd-brand h1{font-size:1.5rem}
+  .rd-brand{display:none}
+  .rd-nav{flex-direction:row;gap:.4rem;overflow-x:auto;scrollbar-width:none;padding-bottom:.1rem}
+  .rd-nav::-webkit-scrollbar{display:none}
+  .rd-grp,#rd-topics{display:contents}
+  .rd-it,.rd-it.tp{width:auto;flex-shrink:0;border:1px solid var(--border-bright);border-radius:50px;padding:.45rem .9rem;font-size:.84rem;gap:.45rem}
+  .rd-it.tp::before{width:auto}
+  .rd-head{margin-top:1.2rem}
+}
+@media(max-width:640px){
+  body.list-mode .wrap{padding-top:.4rem}
+  .fc{grid-template-columns:minmax(0,1fr);gap:.9rem;padding:1rem 1rem 1rem}
+  .fc-img{order:-1;aspect-ratio:16/9}
+  .fc-t{font-size:1.28rem}
+  .rd-bar{gap:.4rem}.rd-bar input{margin-left:0;flex:1 1 100%;margin-bottom:.6rem}
+  .rd-tab{padding:.6rem .7rem}
+}
+
+/* share buttons: the real brand marks */
+.sh.sh-ic{width:40px;height:40px;padding:0;justify-content:center;border-radius:50%;border:1px solid var(--rule);background:var(--card-bg);color:var(--bc,var(--brown))}
+.sh.sh-ic svg{width:19px;height:19px;fill:currentColor;display:block;transition:fill .15s}
+.sh.sh-ic.stroke svg{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.sh.sh-ic:hover{background:var(--bc,var(--ac));border-color:transparent;color:#fff}
+.sh-fb{--bc:#0866FF}.sh-wa{--bc:#25D366}.sh-x{--bc:#111}
+html[data-theme="dark"] .sh-x{--bc:#f5f0e8}
+html[data-theme="dark"] .sh-x:hover{color:#111}
+.share .sh.sh-ic{border-radius:50%}
+.share{gap:.5rem}
+/* YouTube fallback link */
+.article .yt-cap{margin:-1.4em 0 1.8em;text-align:right;font:500 .8rem 'DM Sans',sans-serif}
+.article .yt-cap a{color:var(--muted);text-decoration:none;border-bottom:1px dotted currentColor}
+.article .yt-cap a:hover{color:var(--ac-deep)}
+@media print{.rd-side,.rd-bar{display:none!important}}
 </style>
 </head>
 <body>
@@ -425,19 +525,37 @@ h2.sec::before{content:"";position:absolute;top:0;left:0;width:44px;height:3px;b
 
 <main class="wrap" id="page">
   <section id="list-view" hidden>
-    <div class="hero">
-      <div class="kicker">From the Inkwell</div>
-      <h1>Feeds</h1>
-      <p>Fresh writing from MindStark's bloggers. Read, like, comment and follow the voices you enjoy.</p>
+    <div class="rd">
+      <aside class="rd-side" aria-label="Feed navigation">
+        <div class="rd-brand"><h1>Feeds</h1><p>Fresh writing from MindStark's bloggers.</p></div>
+        <nav class="rd-nav" id="rd-nav">
+          <div class="rd-grp"><div class="rd-gl">Explore</div>
+            <button class="rd-it on" type="button" data-v="discover"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg><span>Discover</span></button>
+            <button class="rd-it" type="button" data-v="following"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.4-7.5-10A4.3 4.3 0 0 1 12 7.8a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10-7.5 10z"/></svg><span>Following</span></button>
+          </div>
+          <div class="rd-grp"><div class="rd-gl">Library</div>
+            <button class="rd-it" type="button" data-v="saved"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 4h11a1 1 0 0 1 1 1v15l-6.5-4.2L5.5 20V5a1 1 0 0 1 1-1z"/></svg><span>Saved</span><i class="rd-n" id="n-saved" hidden></i></button>
+          </div>
+          <div class="rd-grp" id="rd-subs-grp" hidden><div class="rd-gl">Subscriptions</div><div id="rd-subs"></div></div>
+          <div class="rd-grp" id="rd-topics-grp" hidden><div class="rd-gl">Topics</div><div id="rd-topics"></div></div>
+        </nav>
+        <a class="rd-write" href="inkwell-write.html">Write a post</a>
+      </aside>
+      <div class="rd-main">
+        <header class="rd-head"><h2 id="rd-title">Discover</h2><p id="rd-sub">Explore posts that inspire, teach and entertain.</p></header>
+        <div class="rd-bar">
+          <div class="rd-tabs" id="rd-tabs" role="tablist" aria-label="Sort posts">
+            <button type="button" role="tab" class="rd-tab on" data-s="new" aria-selected="true">Latest</button>
+            <button type="button" role="tab" class="rd-tab" data-s="likes" aria-selected="false">Most liked</button>
+            <button type="button" role="tab" class="rd-tab" data-s="reads" aria-selected="false">Most read</button>
+          </div>
+          <input type="search" id="q" placeholder="Search posts…" aria-label="Search posts" maxlength="80"/>
+        </div>
+        <div class="feed" id="grid"></div>
+        <div class="state" id="list-state" hidden></div>
+        <div class="loadmore"><button class="btn" id="more-btn" type="button" hidden>Load more</button></div>
+      </div>
     </div>
-    <div class="tools">
-      <input type="search" id="q" placeholder="Search posts…" aria-label="Search posts" maxlength="80"/>
-      <select id="sort" aria-label="Sort posts"><option value="new">Latest</option><option value="likes">Most liked</option><option value="reads">Most read</option></select>
-    </div>
-    <div class="chips" id="chips" role="group" aria-label="Topics"></div>
-    <div class="grid" id="grid"></div>
-    <div class="state" id="list-state" hidden></div>
-    <div class="loadmore"><button class="btn" id="more-btn" type="button" hidden>Load more</button></div>
   </section>
   <a class="back" id="back" href="feeds.html" hidden>← All posts</a>
   <div class="state" id="state" hidden>Loading post…</div>
@@ -678,14 +796,11 @@ async function toggleFollow() {
 $('btn-follow').addEventListener('click', toggleFollow);
 $('btn-follow2').addEventListener('click', toggleFollow);
 
+const ICON = {fb:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"/></svg>',wa:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>',x:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>',copy:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg>',mail:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="m4 8 8 5.5L20 8"/></svg>'};
 function shareUrl() { return location.origin + location.pathname + '?id=' + id; }
 function renderShare() {
-  const h = '<span class="share-l">Share</span>' +
-    '<button class="sh" type="button" data-net="copy">Copy link</button>' +
-    '<button class="sh" type="button" data-net="wa">WhatsApp</button>' +
-    '<button class="sh" type="button" data-net="x">X</button>' +
-    '<button class="sh" type="button" data-net="fb">Facebook</button>' +
-    '<button class="sh" type="button" data-net="mail">Email</button>';
+  const b = (n, label, cls) => '<button class="sh sh-ic sh-' + n + (cls || '') + '" type="button" data-net="' + n + '" aria-label="' + label + '" title="' + label + '">' + ICON[n] + '</button>';
+  const h = '<span class="share-l">Share</span>' + b('wa', 'Share on WhatsApp') + b('fb', 'Share on Facebook') + b('x', 'Share on X') + b('mail', 'Share by email', ' stroke') + b('copy', 'Copy link', ' stroke');
   ['share-top', 'share-end'].forEach(i => { $(i).innerHTML = h; });
 }
 document.addEventListener('click', async e => {
@@ -752,6 +867,7 @@ function enhance(root) {
       d.textContent = ''; d.appendChild(f);
     });
     d.appendChild(b);
+    d.insertAdjacentHTML('afterend', '<div class="yt-cap"><a href="https://www.youtube.com/watch?v=' + yid + '" target="_blank" rel="noopener noreferrer">Can\u2019t see the video? Watch it on YouTube \u2197</a></div>');
   });
   root.querySelectorAll('img').forEach(im => { im.tabIndex = 0; im.setAttribute('role', 'button'); im.setAttribute('aria-label', (im.alt || 'Picture') + ' (open larger)'); });
 }
@@ -823,50 +939,149 @@ async function loadMore() {
 }
 
 /* ── FEED LIST ── */
-const PAGE = 12; let page = 0, topic = '', topicsSeen = new Set();
+const PAGE = 12; let page = 0, topic = '', view = 'discover', sort = 'new', cfilter = null, mine = null;
+const followed = new Set();
+const SAVED_KEY = 'ms_saved_posts';          // saved posts live on this device for now; a database-backed list can replace this later
+const getSaved = () => { try { const a = JSON.parse(localStorage.getItem(SAVED_KEY) || '[]'); return Array.isArray(a) ? a.filter(x => /^[0-9a-f-]{36}$/i.test(x)).slice(0, 200) : []; } catch (e) { return []; } };
+const putSaved = a => { try { localStorage.setItem(SAVED_KEY, JSON.stringify(a.slice(0, 200))); } catch (e) {} };
 const plain = h => String(h || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
 function readMins(h) { const w = plain(h).split(' ').filter(Boolean).length; return Math.max(1, Math.round(w / 230)); }
-function cardHTML(b, feature) {
-  const c = b.inkwell_creators || {}; const ex = (b.summary && b.summary.trim()) || plain(b.content).slice(0, feature ? 260 : 170);
+const GLY = {
+  share: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4"/><path d="m7.5 8.5 4.5-4.5 4.5 4.5"/><path d="M5 13v5.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V13"/></svg>',
+  save: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 4h11a1 1 0 0 1 1 1v15l-6.5-4.2L5.5 20V5a1 1 0 0 1 1-1z"/></svg>',
+  chat: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a7.5 7.5 0 0 1-10.9 6.7L4 20l1.4-4.4A7.5 7.5 0 1 1 20 12z"/></svg>',
+  heart: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.4-7.5-10A4.3 4.3 0 0 1 12 7.8a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10-7.5 10z"/></svg>'
+};
+const ACC = ['gold', 'forest', 'ember', 'ocean', 'plum'];
+function subLabel(on) { return on ? '✓ Subscribed' : '+ Subscribe'; }
+function cardHTML(b) {
+  const c = b.inkwell_creators || {}, cid = b.creator_id || c.id || '';
+  const ex = (b.summary && b.summary.trim()) || plain(b.content).slice(0, 200);
   const hasVid = /<video[\s>]|class="ms-yt"/i.test(b.content || '');
-  const cover = b.cover_url && /^https?:\/\//i.test(b.cover_url) ? '<img class="card-cover" loading="lazy" src="' + esc(b.cover_url) + '" alt="">' : '<div class="card-cover" aria-hidden="true">' + initial(b.title) + '</div>';
-  return '<a class="card' + (feature ? ' feature' : '') + '" data-accent="' + esc(['gold','forest','ember','ocean','plum'].includes(b.accent) ? b.accent : 'gold') + '" href="feeds.html?id=' + encodeURIComponent(b.id) + '">' +
-    '<div class="card-media">' + cover + (feature ? '<span class="fbadge">Latest</span>' : '') + (hasVid ? '<span class="vbadge" title="This post has a video"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Video</span>' : '') + '</div>' +
-    '<div class="card-body">' +
-    (b.topic ? '<span class="card-topic">' + esc(b.topic) + '</span>' : '') + '<div class="card-title">' + esc(b.title || 'Untitled post') + '</div>' +
-    (ex ? '<div class="card-ex">' + esc(ex) + '</div>' : '') +
-    '<div class="card-meta"><span class="av">' + avatarHTML(c) + '</span><b>' + esc(c.display_name || 'A creator') + '</b><span class="dot">·</span><span>' + esc(timeAgo(b.published_at)) + '</span><span class="dot">·</span><span>' + readMins(b.content) + ' min read</span><span class="sp"></span><span>♥ ' + fmt(b.total_likes) + '</span><span>💬 ' + fmt(b.total_comments) + '</span></div></div></a>';
+  const href = 'feeds.html?id=' + encodeURIComponent(b.id);
+  const own = mine && c.user_id && c.user_id === mine.id;
+  const saved = getSaved().includes(b.id);
+  const img = b.cover_url && /^https?:\/\//i.test(b.cover_url) ? '<img loading="lazy" src="' + esc(b.cover_url) + '" alt="">' : '<span class="ph" aria-hidden="true">' + initial(b.title) + '</span>';
+  return '<article class="fc" data-id="' + esc(b.id) + '" data-cid="' + esc(cid) + '" data-accent="' + (ACC.includes(b.accent) ? b.accent : 'gold') + '">' +
+    '<div class="fc-body"><div class="fc-top">' + (b.topic ? '<span class="fc-tag">' + esc(b.topic) + '</span>' : '<span></span>') +
+    (cid && !own ? '<button class="fc-sub' + (followed.has(cid) ? ' on' : '') + '" type="button" data-cid="' + esc(cid) + '">' + subLabel(followed.has(cid)) + '</button>' : '') + '</div>' +
+    '<h3 class="fc-t"><a href="' + href + '">' + esc(b.title || 'Untitled post') + '</a></h3>' +
+    '<div class="fc-by"><span class="av">' + avatarHTML(c) + '</span><b>' + esc(c.display_name || 'A creator') + '</b><span class="dot">·</span><span>' + esc(timeAgo(b.published_at)) + '</span><span class="dot">·</span><span>' + readMins(b.content) + ' min read</span></div>' +
+    (ex ? '<p class="fc-ex">' + esc(ex) + '</p>' : '') +
+    '<div class="fc-acts"><button class="fc-b fc-share" type="button" aria-label="Share this post" title="Share">' + GLY.share + '</button>' +
+    '<button class="fc-b fc-save' + (saved ? ' on' : '') + '" type="button" aria-pressed="' + saved + '" aria-label="' + (saved ? 'Remove from saved' : 'Save for later') + '" title="Save for later">' + GLY.save + '</button>' +
+    '<a class="fc-b" href="' + href + '#comments" aria-label="' + fmt(b.total_comments) + ' comments">' + GLY.chat + '<span>' + fmt(b.total_comments) + '</span></a>' +
+    '<a class="fc-b" href="' + href + '" aria-label="' + fmt(b.total_likes) + ' likes" tabindex="-1">' + GLY.heart + '<span>' + fmt(b.total_likes) + '</span></a></div></div>' +
+    '<a class="fc-img" href="' + href + '" tabindex="-1" aria-hidden="true">' + img +
+    (hasVid ? '<span class="vbadge" title="This post has a video"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Video</span>' : '') + '</a></article>';
+}
+const HEADS = {
+  discover: ['Discover', 'Explore posts that inspire, teach and entertain.'],
+  following: ['Following', 'The latest from writers you subscribe to.'],
+  saved: ['Saved', 'Posts you bookmarked. They are kept on this device for now.']
+};
+function renderHead() {
+  let h = HEADS[view] || HEADS.discover;
+  if (view === 'creator' && cfilter) h = ['Posts by ' + cfilter.name, 'Everything this writer has published.'];
+  else if (view === 'discover' && topic) h = [topic, 'Posts about ' + topic + '.'];
+  $('rd-title').textContent = h[0]; $('rd-sub').textContent = h[1];
+}
+function renderSide() {
+  document.querySelectorAll('#rd-nav .rd-it').forEach(b => {
+    const on = b.dataset.v ? (b.dataset.v === view && !topic) : b.dataset.t != null ? (view === 'discover' && b.dataset.t === topic) : (view === 'creator' && cfilter && b.dataset.cid === cfilter.id);
+    b.classList.toggle('on', !!on);
+    if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+  });
+  const n = getSaved().length; $('n-saved').textContent = n; $('n-saved').hidden = !n;
 }
 async function loadTopics() {
   const { data } = await window._sb.from('inkwell_blogs').select('topic').eq('status', 'published').not('topic', 'is', null).limit(200);
   const counts = {}; (data || []).forEach(r => { if (r.topic) counts[r.topic] = (counts[r.topic] || 0) + 1; });
   const list = Object.keys(counts).sort((a, b) => counts[b] - counts[a]).slice(0, 12);
-  $('chips').innerHTML = ['All'].concat(list).map(t => '<button class="chip" type="button" data-t="' + (t === 'All' ? '' : esc(t)) + '" aria-pressed="' + ((t === 'All' ? '' : t) === topic) + '">' + esc(t) + '</button>').join('');
-  $('chips').hidden = !list.length;
+  $('rd-topics').innerHTML = list.map(t => '<button class="rd-it tp" type="button" data-t="' + esc(t) + '"><span>' + esc(t) + '</span><i class="rd-n">' + counts[t] + '</i></button>').join('');
+  $('rd-topics-grp').hidden = !list.length; renderSide();
 }
+async function loadMine() {
+  try {
+    const { data } = await window._sb.auth.getUser(); mine = data && data.user || null;
+    if (!mine) return;
+    const { data: f } = await window._sb.from('inkwell_follows').select('creator_id,inkwell_creators(id,display_name,avatar_url)').eq('follower_id', mine.id).limit(60);
+    followed.clear(); (f || []).forEach(r => followed.add(r.creator_id));
+    renderSubs(f || []);
+  } catch (e) {}
+}
+function renderSubs(rows) {
+  const list = rows.filter(r => r.inkwell_creators).slice(0, 12);
+  $('rd-subs').innerHTML = list.map(r => '<button class="rd-it sub" type="button" data-cid="' + esc(r.creator_id) + '" data-name="' + esc(r.inkwell_creators.display_name || 'Writer') + '"><span class="av">' + avatarHTML(r.inkwell_creators) + '</span><span>' + esc(r.inkwell_creators.display_name || 'Writer') + '</span></button>').join('');
+  $('rd-subs-grp').hidden = !list.length; renderSide();
+}
+function emptyMsg(msg) { const st = $('list-state'); st.hidden = false; st.textContent = msg; $('more-btn').hidden = true; }
 async function loadList(reset) {
   if (reset) { page = 0; $('grid').innerHTML = ''; }
-  const sort = $('sort').value, q = $('q').value.trim().replace(/[%,()*]/g, ' ').slice(0, 80);
-  let qb = window._sb.from('inkwell_blogs').select('id,title,topic,summary,accent,content,cover_url,total_likes,total_comments,published_at,inkwell_creators(id,display_name,avatar_url)').eq('status', 'published');
-  if (topic) qb = qb.eq('topic', topic);
+  renderHead(); renderSide();
+  const st = $('list-state'); st.hidden = true;
+  const q = $('q').value.trim().replace(/[%,()*]/g, ' ').slice(0, 80);
+  let qb = window._sb.from('inkwell_blogs').select('id,creator_id,title,topic,summary,accent,content,cover_url,total_likes,total_comments,published_at,inkwell_creators(id,user_id,display_name,avatar_url)').eq('status', 'published');
+  if (view === 'following') {
+    if (!mine) return emptyMsg('Sign in to see posts from writers you subscribe to.');
+    if (!followed.size) return emptyMsg('You are not subscribed to anyone yet. Press Subscribe on a post you enjoy.');
+    qb = qb.in('creator_id', [...followed]);
+  } else if (view === 'saved') {
+    const ids = getSaved(); if (!ids.length) return emptyMsg('Nothing saved yet. Press the bookmark on a post to keep it here.');
+    qb = qb.in('id', ids);
+  } else if (view === 'creator' && cfilter) qb = qb.eq('creator_id', cfilter.id);
+  else if (topic) qb = qb.eq('topic', topic);
   if (q) qb = qb.ilike('title', '%' + q + '%');
   qb = sort === 'likes' ? qb.order('total_likes', { ascending: false }) : sort === 'reads' ? qb.order('total_reads', { ascending: false }) : qb.order('published_at', { ascending: false });
   const { data, error } = await qb.order('id').range(page * PAGE, page * PAGE + PAGE - 1);
-  const st = $('list-state');
-  if (error) { st.hidden = false; st.textContent = 'Could not load posts. Please try again.'; return; }
-  const lead = page === 0 && !q && !topic && sort === 'new';
-  $('grid').insertAdjacentHTML('beforeend', (data || []).map((b, i) => cardHTML(b, lead && i === 0 && (data || []).length > 2)).join(''));
-  const empty = page === 0 && !(data || []).length;
-  st.hidden = !empty; if (empty) st.textContent = q || topic ? 'No posts match your search.' : 'No posts yet. The first writers are on their way.';
-  $('more-btn').hidden = !data || data.length < PAGE; page++;
+  if (error) return emptyMsg('Could not load posts. Please try again.');
+  $('grid').insertAdjacentHTML('beforeend', (data || []).map(cardHTML).join(''));
+  if (page === 0 && !(data || []).length) emptyMsg(q || topic ? 'No posts match your search.' : 'No posts yet. The first writers are on their way.');
+  else $('more-btn').hidden = !data || data.length < PAGE;
+  page++;
 }
+async function toggleSub(cid, btn) {
+  if (!mine) return needSignIn('subscribe to this writer');
+  const on = followed.has(cid); btn.disabled = true;
+  try {
+    if (on) { const { error } = await window._sb.from('inkwell_follows').delete().eq('follower_id', mine.id).eq('creator_id', cid); if (error) throw error; followed.delete(cid); toast('Unsubscribed'); }
+    else { const { error } = await window._sb.from('inkwell_follows').insert({ follower_id: mine.id, creator_id: cid }); if (error && error.code !== '23505') throw error; followed.add(cid); toast('Subscribed'); }
+    document.querySelectorAll('.fc-sub[data-cid="' + cid + '"]').forEach(x => { x.classList.toggle('on', followed.has(cid)); x.textContent = subLabel(followed.has(cid)); });
+    loadMine();
+  } catch (e) { toast('Could not update your subscription. Try again.'); }
+  btn.disabled = false;
+}
+function setView(v, extra) { view = v; topic = ''; cfilter = null; if (extra) { if (extra.topic) topic = extra.topic; if (extra.creator) cfilter = extra.creator; } scrollTo({ top: 0, behavior: 'smooth' }); loadList(true); }
 function startList() {
   document.body.classList.add('list-mode'); $('list-view').hidden = false; document.title = 'Feeds — MindStark Inkwell';
   let t; $('q').addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => loadList(true), 300); });
-  $('sort').addEventListener('change', () => loadList(true));
   $('more-btn').addEventListener('click', () => loadList(false));
-  $('chips').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; topic = b.dataset.t; document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c === b))); loadList(true); });
-  loadTopics(); loadList(true);
+  $('rd-tabs').addEventListener('click', e => { const b = e.target.closest('.rd-tab'); if (!b) return; sort = b.dataset.s; document.querySelectorAll('.rd-tab').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-selected', String(x === b)); }); loadList(true); });
+  $('rd-nav').addEventListener('click', e => {
+    const b = e.target.closest('.rd-it'); if (!b) return;
+    if (b.dataset.v) setView(b.dataset.v);
+    else if (b.dataset.t != null) setView('discover', { topic: b.dataset.t });
+    else if (b.dataset.cid) setView('creator', { creator: { id: b.dataset.cid, name: b.dataset.name || 'this writer' } });
+  });
+  $('grid').addEventListener('click', async e => {
+    const card = e.target.closest('.fc'); if (!card) return;
+    const sub = e.target.closest('.fc-sub'), sv = e.target.closest('.fc-save'), sh = e.target.closest('.fc-share');
+    if (sub) return toggleSub(sub.dataset.cid, sub);
+    if (sv) {
+      const list = getSaved(), pid = card.dataset.id, has = list.includes(pid);
+      putSaved(has ? list.filter(x => x !== pid) : [pid].concat(list));
+      sv.classList.toggle('on', !has); sv.setAttribute('aria-pressed', String(!has)); sv.setAttribute('aria-label', has ? 'Save for later' : 'Remove from saved');
+      toast(has ? 'Removed from saved' : 'Saved for later'); renderSide();
+      if (has && view === 'saved') { card.remove(); if (!$('grid').children.length) emptyMsg('Nothing saved yet. Press the bookmark on a post to keep it here.'); }
+      return;
+    }
+    if (sh) {
+      const url = location.origin + location.pathname + '?id=' + card.dataset.id, ttl = card.querySelector('.fc-t').textContent;
+      try { if (navigator.share && matchMedia('(max-width:900px)').matches) { await navigator.share({ title: ttl, url }); return; } } catch (er) { if (er && er.name === 'AbortError') return; }
+      try { await navigator.clipboard.writeText(url); toast('Link copied'); } catch (er) { prompt('Copy this link', url); }
+    }
+  });
+  loadMine().finally(() => { loadTopics(); loadList(true); });
 }
 
 let started = false; const go = () => { if (started) return; started = true; if (id) { $('back').hidden = false; $('state').hidden = false; load(); } else startList(); };

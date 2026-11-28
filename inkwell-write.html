@@ -793,7 +793,7 @@ body.insp-open .bw-scroll{padding-bottom:23rem}
   body.blogs-mode .ws-style-btn{display:inline-flex;align-items:center;gap:.45rem;border:1px solid var(--border-bright);background:var(--card-bg);color:var(--text);font:600 .8rem 'DM Sans',sans-serif;padding:.5rem 1rem;border-radius:50px;cursor:pointer;transition:border-color .2s,background .2s}
   body.blogs-mode .ws-style-btn:hover,body.blogs-mode .ws-style-btn[aria-expanded="true"]{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 10%,var(--card-bg))}
   body.blogs-mode .ws-tools{display:none;position:absolute;top:calc(100% + 10px);left:0;z-index:70;width:310px;flex-direction:column;align-items:stretch;gap:1.1rem;margin:0;padding:1rem 1.1rem 1.15rem;border:1px solid var(--border-bright);border-radius:16px;background:var(--card-bg);box-shadow:0 22px 50px -18px rgba(30,18,6,.5),0 2px 6px rgba(30,18,6,.12);overflow:visible}
-  body.blogs-mode .ws-tools.open{display:flex}
+  body.blogs-mode .ws-tools.open{display:flex;max-height:calc(100vh - 150px);overflow-y:auto}
   .ws-sheet-head{display:flex;align-items:center;justify-content:space-between;font:700 1rem 'Playfair Display',serif;color:var(--brown)}
   .ws-sheet-head button{border:0;background:var(--surface);color:var(--text);width:28px;height:28px;border-radius:50%;font-size:.78rem;cursor:pointer}
   .ws-tools .ws-grp{flex-direction:column;align-items:stretch;gap:.5rem}
@@ -859,6 +859,23 @@ body.insp-open .bw-scroll{padding-bottom:23rem}
 .ii-acts{flex-wrap:wrap}
 .ii-acts button{white-space:nowrap}
 #img-insp[data-kind="video"] .ii-acts .ii-del{margin-left:0}
+
+/* feed preview inside the Post style panel */
+.fp{display:flex;flex-direction:column;border:1px solid var(--border-bright);border-left:4px solid var(--fpc,#c8963e);border-radius:5px 14px 14px 5px;overflow:hidden;background:var(--paper)}
+.fp-img{position:relative;aspect-ratio:21/9;background:linear-gradient(135deg,color-mix(in srgb,var(--fpc,#c8963e) 26%,var(--surface)),var(--surface));display:flex;align-items:center;justify-content:center;overflow:hidden}
+.fp-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.fp-img span{font:900 2.2rem 'Playfair Display',serif;color:color-mix(in srgb,var(--fpc,#c8963e) 75%,transparent)}
+.fp-b{display:flex;flex-direction:column;gap:.35rem;padding:.7rem .8rem .8rem;min-width:0}
+.fp-tag{align-self:flex-start;font:700 .6rem 'DM Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--fpc,#c8963e);background:color-mix(in srgb,var(--fpc,#c8963e) 14%,transparent);padding:.18rem .55rem;border-radius:50px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fp-t{font:800 1.02rem/1.25 'Playfair Display',serif;color:var(--brown);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.fp-by{display:flex;align-items:center;gap:.4rem;font-size:.7rem;color:var(--muted)}
+.fp-av{width:17px;height:17px;border-radius:50%;background:var(--gold);color:#1e1208;font:700 .56rem 'DM Sans',sans-serif;font-style:normal;display:inline-flex;align-items:center;justify-content:center}
+.fp-ex{font:400 .8rem/1.5 'Lora',Georgia,serif;color:var(--muted);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin:0;overflow-wrap:anywhere}
+.fp-ex:empty{display:none}
+.fp-tips{list-style:none;display:flex;flex-direction:column;gap:.3rem;margin:.1rem 0 0;padding:0;font-size:.76rem;color:var(--muted)}
+.fp-tips li{display:flex;gap:.45rem;align-items:flex-start;line-height:1.4}
+.fp-tips li::before{content:"•";color:var(--gold-deep);font-weight:700}
+.fp-tips li.ok::before{content:"✓";color:var(--green)}
 </style>
 </head>
 <body>
@@ -900,6 +917,15 @@ body.insp-open .bw-scroll{padding-bottom:23rem}
   </button>
   <div class="ws-tools" id="ws-tools" role="group" aria-label="Post style and extras">
     <div class="ws-sheet-head"><b>Post style</b><button type="button" id="ws-sheet-close" aria-label="Close">✕</button></div>
+    <div class="ws-grp"><span class="ws-l">How it looks in the feed</span>
+      <div class="fp" id="fp">
+        <div class="fp-img" id="fp-img"><span id="fp-ph">A</span></div>
+        <div class="fp-b"><span class="fp-tag" id="fp-tag" hidden></span><b class="fp-t" id="fp-t">Your post title</b>
+          <span class="fp-by"><i class="fp-av">Y</i>You · just now · <span id="fp-min">1</span> min read</span>
+          <p class="fp-ex" id="fp-ex"></p></div>
+      </div>
+      <ul class="fp-tips" id="fp-tips" aria-live="polite"></ul>
+    </div>
     <div class="ws-grp"><span class="ws-l" id="ws-l-layout">Page layout</span>
       <div class="seg" id="ws-layout" role="group" aria-labelledby="ws-l-layout">
         <button type="button" data-v="editorial" title="Left-aligned headline, summary, share buttons and a wide cover">Editorial</button>
@@ -2606,6 +2632,7 @@ document.addEventListener('supabase:ready', async () => {
     const paper = document.querySelector('.bw-paper'); paper.dataset.layout = layout; paper.dataset.accent = accent;
     $('ws-layout').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === layout)));
     $('ws-accent').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === accent)));
+    if ($('ws-tools').classList.contains('open')) updatePreview();
   }
   function growTitle() { const t = $('bw-title'); t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }
   $('bw-title').addEventListener('input', e => { const t = e.target; if (/\n/.test(t.value)) t.value = t.value.replace(/\s*\n+\s*/g, ' '); growTitle(); });
@@ -2616,7 +2643,26 @@ document.addEventListener('supabase:ready', async () => {
   $('bw-summary').addEventListener('input', () => { growSummary(); mark(); });
   $('ws-layout').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { layout = b.dataset.v; applyStyle(); mark(); } });
   $('ws-accent').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { accent = b.dataset.v; applyStyle(); mark(); } });
-  function openSheet() { $('ws-tools').classList.add('open'); $('ws-scrim').hidden = false; $('ws-scrim').classList.add('show'); $('ws-style-btn').setAttribute('aria-expanded', 'true'); }
+  const FPC = { gold: '#c8963e', forest: '#5a8f43', ember: '#d9622b', ocean: '#3a78b0', plum: '#8e4f97' };
+  function updatePreview() {
+    const fp = $('fp'); if (!fp) return;
+    fp.style.setProperty('--fpc', FPC[accent] || FPC.gold);
+    const title = $('bw-title').value.trim(), sum = $('bw-summary').value.trim(), topic = $('bw-topic').value.trim(), cimg = $('bw-cover-img'), has = $('bw-cover').classList.contains('has') && cimg.getAttribute('src');
+    $('fp-t').textContent = title || 'Your post title';
+    $('fp-ex').textContent = sum || (ed.innerText || '').trim().replace(/\s+/g, ' ').slice(0, 150);
+    $('fp-tag').textContent = topic; $('fp-tag').hidden = !topic;
+    $('fp-ph').textContent = ((title || 'A').trim()[0] || 'A').toUpperCase();
+    $('fp-min').textContent = Math.max(1, Math.round(words() / 230));
+    const box = $('fp-img'); let im = box.querySelector('img');
+    if (has) { if (!im) { im = document.createElement('img'); im.alt = ''; box.prepend(im); } if (im.getAttribute('src') !== cimg.getAttribute('src')) im.src = cimg.getAttribute('src'); } else if (im) im.remove();
+    const tips = [];
+    tips.push([!!has, has ? 'Cover image set' : 'Add a cover image so the post stands out in the feed.']);
+    tips.push([!!sum, sum ? 'Summary set' : 'Write a short summary. It becomes the card text.']);
+    tips.push([!!topic, topic ? 'Topic set' : 'Add a topic so readers can find the post.']);
+    $('fp-tips').innerHTML = tips.map(t => '<li' + (t[0] ? ' class="ok"' : '') + '>' + t[1] + '</li>').join('');
+  }
+  ['bw-title', 'bw-summary', 'bw-topic'].forEach(i => $(i).addEventListener('input', () => { if ($('ws-tools').classList.contains('open')) updatePreview(); }));
+  function openSheet() { updatePreview(); $('ws-tools').classList.add('open'); $('ws-scrim').hidden = false; $('ws-scrim').classList.add('show'); $('ws-style-btn').setAttribute('aria-expanded', 'true'); }
   function closeSheet() { $('ws-tools').classList.remove('open'); $('ws-scrim').classList.remove('show'); $('ws-scrim').hidden = true; $('ws-style-btn').setAttribute('aria-expanded', 'false'); }
   $('ws-style-btn').addEventListener('click', () => $('ws-tools').classList.contains('open') ? closeSheet() : openSheet());
   $('ws-sheet-close').addEventListener('click', closeSheet);
