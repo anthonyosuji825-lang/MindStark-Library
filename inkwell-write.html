@@ -876,6 +876,19 @@ body.insp-open .bw-scroll{padding-bottom:23rem}
 .fp-tips li{display:flex;gap:.45rem;align-items:flex-start;line-height:1.4}
 .fp-tips li::before{content:"•";color:var(--gold-deep);font-weight:700}
 .fp-tips li.ok::before{content:"✓";color:var(--green)}
+
+/* the editor now matches the friendlier reader: clean sans headline, left-aligned, soft quote bar */
+.bw-paper .bw-title,.bw-paper[data-layout="classic"] .bw-title{font-family:'DM Sans',sans-serif;font-weight:800;letter-spacing:-.028em;line-height:1.14;text-align:left;color:var(--brown)}
+.bw-paper[data-layout="classic"] .bw-summary,.bw-paper[data-layout="classic"] .bw-topic{text-align:left}
+.bw-paper .bw-summary{font-family:'DM Sans',sans-serif;font-style:normal;font-size:1.08rem;line-height:1.6}
+#blog-editor{font-family:'DM Sans',sans-serif;font-size:1.06rem;line-height:1.85}
+#blog-editor h1,#blog-editor h2,#blog-editor h3{font-family:'DM Sans',sans-serif;letter-spacing:-.02em;color:var(--brown)}
+#blog-editor h2{padding-top:0;font-size:1.55rem}
+#blog-editor h2::before{content:none}
+#blog-editor h3{font-style:normal}
+#blog-editor blockquote{padding:.2rem 0 .2rem 1.3rem;border:0;border-left:4px solid var(--ac);font:600 1.28rem/1.5 'DM Sans',sans-serif;font-style:normal;color:var(--brown);text-align:left}
+#blog-editor blockquote::before{content:none}
+#blog-editor aside{border-radius:14px;border-left-width:1px}
 </style>
 </head>
 <body>
@@ -928,8 +941,8 @@ body.insp-open .bw-scroll{padding-bottom:23rem}
     </div>
     <div class="ws-grp"><span class="ws-l" id="ws-l-layout">Page layout</span>
       <div class="seg" id="ws-layout" role="group" aria-labelledby="ws-l-layout">
-        <button type="button" data-v="editorial" title="Left-aligned headline, summary, share buttons and a wide cover">Editorial</button>
-        <button type="button" data-v="classic" title="Centred headline on a white page with recent posts on the side">Classic</button>
+        <button type="button" data-v="editorial" title="Open page: headline, byline, a wide cover and a clean reading column">Wide</button>
+        <button type="button" data-v="classic" title="A white card with related and recent posts on the side">Card + sidebar</button>
       </div></div>
     <div class="ws-grp"><span class="ws-l" id="ws-l-accent">Accent colour</span>
       <div class="ws-sw" id="ws-accent" role="group" aria-labelledby="ws-l-accent">
